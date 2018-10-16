@@ -1,0 +1,31 @@
+{
+  "name": "dashboard-charts",
+  "version": "0.1.0",
+  "description": "Interactive Enrollment Over Time Chart",
+  "main": "./enrollment/build/enrollment.js",
+  "module": "./enrollment/src/wrapper.js",
+  "author": "Rho, Inc.",
+  "license": "MIT",
+  "dependencies": {
+    "d3": "~3",
+    "webcharts": "~1"
+  },
+  "scripts": {
+    "build": "npm run bundle && npm run format",
+    "build-md": "node ./scripts/configuration-markdown.js",
+    "bundle": "rollup -c",
+    "format": "npm run format-src && npm run format-bundle",
+    "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./enrollment/src/**/*.js\"",
+    "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write ./enrollment/build/*.js",
+    "watch": "rollup -c -w"
+  },
+  "devDependencies": {
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-register": "^6.26.0",
+    "prettier": "^1.7.4",
+    "rollup": "^0.50.0",
+    "rollup-plugin-babel": "^3.0.2",
+    "rollup-watch": "^4.3.1"
+  }
+}
