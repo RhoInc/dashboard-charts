@@ -359,11 +359,181 @@ function visit(element, settings) {
     return chart;
 }
 
+var rendererSpecificSettings$3 = {
+    site_name: 'site_name',
+    form_status: 'form_status',
+
+    // Options
+    y_toggle: true
+};
+
+var webchartsSettings$3 = {
+    resizable: false,
+    width: 350,
+    height: 500,
+
+    "y": {
+        "type": "linear",
+        "behavior": "firstfilter"
+    },
+    "x": {
+        "column": null, // set in syncSettings
+        "type": "ordinal",
+        "label": ""
+        //      "domain": ["Boston", "MUSC", "UCLA", "Pittsburgh", "Houston", "Michigan", "HSS", "Georgetown"]
+    },
+    "marks": [{
+        "arrange": "stacked",
+        "split": null, // set in syncSettings
+        "type": "bar",
+        "per": [], // set in syncSettings
+        "summarizeY": "percent",
+        "tooltip": "$y"
+    }],
+    "color_by": null, // set in syncSettings
+    "colors": ['rgb(102,194,165)', "#fecc5c", "#e34a33"],
+    "legend": {
+        "label": "",
+        "order": ["Received", "Outstanding <= 90 days", "Outstanding > 90 days"]
+    }
+};
+
+var defaultSettings$3 = Object.assign({}, rendererSpecificSettings$3, webchartsSettings$3);
+
+//Replicate settings in multiple places in the settings object
+function syncSettings$3(settings) {
+    settings.x.column = settings.site_name;
+    settings.marks[0].split = settings.form_status;
+    settings.marks[0].per[0] = settings.site_name;
+    settings.color_by = settings.form_status;
+
+    return settings;
+}
+
+function syncControlInputs$3(settings) {
+    var defaultControls = [];
+
+    if (settings.y_toggle) {
+        defaultControls.push({ label: "", type: "radio", option: "marks[0].summarizeY", values: ["percent", "count"], relabels: ["%", "N"] });
+    }
+
+    return defaultControls;
+}
+
+//settings
+function forms(element, settings) {
+    //settings
+    var mergedSettings = Object.assign({}, defaultSettings$3, settings);
+    var syncedSettings = syncSettings$3(mergedSettings);
+    var syncedControlInputs = syncControlInputs$3(syncedSettings);
+    var controls = webcharts.createControls(element, { location: 'top', inputs: syncedControlInputs });
+    var chart = webcharts.createChart(element, syncedSettings, controls);
+
+    return chart;
+}
+
+var rendererSpecificSettings$4 = {
+    //required variables
+    site_name: 'site_name',
+    status: 'status',
+
+    // Options
+    site_filter: false
+};
+
+var webchartsSettings$4 = {
+    colors: ["#2b8cbe", "#a6bddb"],
+    resizable: false,
+    width: 350,
+    height: 500,
+
+    "y": {
+        "label": "",
+        "type": "ordinal",
+        "column": null // set in syncSettings
+    },
+    "x": {
+        "label": "",
+        "type": "linear",
+        "column": null, // set in syncSettings
+        "behavior": "firstfilter",
+        "domain": [0, null]
+    },
+    "marks": [{ "arrange": "nested",
+        "split": null, // set in syncSettings
+        "type": "bar",
+        "per": [], // set in syncSettings
+        "attributes": { "fill-opacity": 0.8 },
+        "summarizeX": "count",
+        "tooltip": '' // set in syncSettings status
+    }],
+    "color_by": null, // set in syncSettings
+    color_dom: ['Randomized', 'Screened'],
+    legend: {
+        label: '',
+        order: ['Randomized', 'Screened']
+    }
+    //margin: {left: 110},
+};
+
+var defaultSettings$4 = Object.assign({}, rendererSpecificSettings$4, webchartsSettings$4);
+
+//Replicate settings in multiple places in the settings object
+function syncSettings$4(settings) {
+    settings.x.column = settings.status;
+    settings.y.column = settings.site_name;
+    settings.marks[0].split = settings.status;
+    settings.marks[0].per[0] = settings.site_name;
+    settings.marks[0].tooltip = '[' + settings.status + ']: $x';
+    settings.color_by = settings.status;
+
+    return settings;
+}
+
+function syncControlInputs$4(settings) {
+    var defaultControls = [];
+
+    if (settings.site_filter) {
+        defaultControls.push({
+            type: 'subsetter',
+            value_col: settings.site_name,
+            label: 'Site',
+            require: true
+        });
+    }
+
+    return defaultControls;
+}
+
+function onResize$3() {
+    this.svg.selectAll('.y.axis .tick text').each(function (d) {
+        if (d % 1)
+            // if the tick label is not an integer then remove
+            d3.select(this).remove();
+    });
+}
+
+//settings
+function screening(element, settings) {
+    //settings
+    var mergedSettings = Object.assign({}, defaultSettings$4, settings);
+    var syncedSettings = syncSettings$4(mergedSettings);
+    var syncedControlInputs = syncControlInputs$4(syncedSettings);
+    var controls = webcharts.createControls(element, { location: 'top', inputs: syncedControlInputs });
+    var chart = webcharts.createChart(element, syncedSettings, controls);
+
+    chart.on('resize', onResize$3);
+
+    return chart;
+}
+
 //settings
 var dashboardCharts = {
     enrollment: enrollment,
     queries: queries,
-    visit: visit
+    visit: visit,
+    forms: forms,
+    screening: screening
 };
 
 return dashboardCharts;
