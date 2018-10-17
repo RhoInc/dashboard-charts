@@ -1,4 +1,4 @@
-var pkg = require('../package'),
+var renderer = 'visit',
     schema = require('../settings-schema'),
     properties = schema.properties,
     markdown = [],
@@ -40,7 +40,7 @@ if (schema.overview)
 
 markdown.push(`# Renderer-specific settings`);
 markdown.push(
-    `The sections below describe each ${pkg.name} setting as of version ${schema.version}.`
+    `The sections below describe each ${renderer} setting as of version ${schema.version}.`
 );
 markdown.push(``);
 
@@ -97,7 +97,7 @@ keys.forEach((property, i) => {
 
 var webchartsSettingsFlag = 0,
     webchartsSettings = fs
-        .readFileSync('./src/defaultSettings.js', 'utf8')
+        .readFileSync('./src/' + renderer + '/defaultSettings.js', 'utf8')
         .split('\n')
         .filter(line => {
             if (line.indexOf('const webchartsSettings') > -1) webchartsSettingsFlag = 1;
@@ -121,7 +121,7 @@ markdown.push('```');
   Configuration markdown
 \------------------------------------------------------------------------------------------------*/
 
-fs.writeFile('./scripts/configuration.md', markdown.join('\n'), err => {
+fs.writeFile('./src/' + renderer + '/scripts/configuration.md', markdown.join('\n'), err => {
     if (err) console.log(err);
     console.log('The configuration markdown file was built!');
 });

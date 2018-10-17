@@ -11,8 +11,8 @@
     "webcharts": "~1"
   },
   "scripts": {
-    "build": "npm run bundle && npm run format",
-    "build-md": "node ./scripts/configuration-markdown.js",
+    "build": "npm run bundle && npm run format && npm run build-md",
+    "build-md": "node ./src/enrollment/scripts/configuration-markdown.js && node ./src/forms/scripts/configuration-markdown.js && node ./src/queries/scripts/configuration-markdown.js && node ./src/screening/scripts/configuration-markdown.js && node ./src/visit/scripts/configuration-markdown.js",
     "bundle": "rollup -c",
     "format": "npm run format-src && npm run format-bundle",
     "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./src/**/*.js\"",

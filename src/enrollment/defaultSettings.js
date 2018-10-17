@@ -46,25 +46,25 @@ export default Object.assign({}, rendererSpecificSettings, webchartsSettings);
 
 //Replicate settings in multiple places in the settings object
 export function syncSettings(settings) {
-  settings.x.column = settings.date;
-  settings.y.column = settings.number_participants;
-  settings.marks[0].per[0] = settings.status
-  settings.color_by = settings.status;
+    settings.x.column = settings.date;
+    settings.y.column = settings.number_participants;
+    settings.marks[0].per[0] = settings.status;
+    settings.color_by = settings.status;
 
-  return settings
+    return settings;
 }
 
 export function syncControlInputs(settings) {
-  const defaultControls = [];
+    const defaultControls = [];
 
-  if (settings.site_filter) {
-      defaultControls.push({
-          type: 'subsetter',
-          value_col: settings.site_name,
-          label: 'Site',
-          require: true
-      });
-  }
+    if (settings.site_filter) {
+        defaultControls.push({
+            type: 'subsetter',
+            value_col: settings.site_name,
+            label: 'Site',
+            require: true
+        });
+    }
 
     return defaultControls;
 }

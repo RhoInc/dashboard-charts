@@ -1,9 +1,9 @@
 export const rendererSpecificSettings = {
-  site_name: 'site_name',
-  query_status: 'query_status',
+    site_name: 'site_name',
+    query_status: 'query_status',
 
-  // Options
-  y_toggle: true
+    // Options
+    y_toggle: true
 };
 
 export const webchartsSettings = {
@@ -31,7 +31,7 @@ export const webchartsSettings = {
             tooltip: '$y'
         }
     ],
-    color_by: null,// set in syncSettings
+    color_by: null, // set in syncSettings
     colors: ['rgb(102,194,165)', '#fecc5c', '#e34a33'],
     legend: {
         label: '',
@@ -43,26 +43,26 @@ export default Object.assign({}, rendererSpecificSettings, webchartsSettings);
 
 //Replicate settings in multiple places in the settings object
 export function syncSettings(settings) {
-  settings.x.column = settings.site_name;
-  settings.marks[0].split = settings.query_status;
-  settings.marks[0].per[0] = settings.site_name;
-  settings.color_by = settings.query_status;
+    settings.x.column = settings.site_name;
+    settings.marks[0].split = settings.query_status;
+    settings.marks[0].per[0] = settings.site_name;
+    settings.color_by = settings.query_status;
 
-  return settings
+    return settings;
 }
 
 export function syncControlInputs(settings) {
-  const defaultControls = [];
+    const defaultControls = [];
 
-  if (settings.y_toggle) {
-      defaultControls.push({
-          label: '',
-          type: 'radio',
-          option: 'marks[0].summarizeY',
-          values: ['percent', 'count'],
-          relabels: ['%', 'N']
-      });
-  }
+    if (settings.y_toggle) {
+        defaultControls.push({
+            label: '',
+            type: 'radio',
+            option: 'marks[0].summarizeY',
+            values: ['percent', 'count'],
+            relabels: ['%', 'N']
+        });
+    }
 
     return defaultControls;
 }
