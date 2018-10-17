@@ -110,7 +110,6 @@
             dy: '-.5em'
         });
         x_mark.select('line').attr('y1', -this.plot_height);
-        console.log(this);
 
         this.svg
             .on('mousemove', function() {
