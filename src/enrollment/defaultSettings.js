@@ -1,18 +1,18 @@
 export const rendererSpecificSettings = {
     //required variables
-    site_name: 'site_name',
-    date: 'date',
-    status: 'status',
-    number_participants: 'number_participants',
-
-    // Options
-    site_filter: true
+    // site_name: 'site_name',
+    // date: 'date',
+    // status: 'status',
+    // number_participants: 'number_participants',
+    //
+    // // Options
+    // site_filter: true
 };
 
 export const webchartsSettings = {
     resizable: false,
     width: 350,
-    heught: 500,
+    height: 500,
 
     y: {
         column: 'number_participants',
@@ -48,7 +48,6 @@ export default Object.assign({}, rendererSpecificSettings, webchartsSettings);
 export function syncSettings(settings) {}
 
 export function syncControlInputs(settings) {
-    console.log(settings);
     const defaultControls = [
         {
             type: 'subsetter',

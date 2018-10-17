@@ -12,7 +12,7 @@ import onDataTransform from './onDataTransform';
 import onDraw from './onDraw';
 import onResize from './onResize';
 
-export default function queries(element, settings) {
+export default function visit(element, settings) {
     //settings
     const mergedSettings = Object.assign({}, defaultSettings, settings);
     const syncedSettings = syncSettings(mergedSettings);
@@ -26,8 +26,6 @@ export default function queries(element, settings) {
     chart.on('datatransform', onDataTransform);
     chart.on('draw', onDraw);
     chart.on('resize', onResize);
-
-console.log(chart)
 
     return chart;
 }

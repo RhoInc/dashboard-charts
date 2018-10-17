@@ -3,7 +3,7 @@ export const rendererSpecificSettings = {};
 export const webchartsSettings = {
     resizable: false,
     width: 350,
-    heught: 500,
+    height: 500,
 
     y: {
         type: 'linear',

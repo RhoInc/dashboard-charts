@@ -1,8 +1,12 @@
 //settings
-import enrollment from '.enrollment/wrapper.js';
-import queries from '.queries/wrapper.js';
+import enrollment from './enrollment/wrapper.js';
+import queries from './queries/wrapper.js';
+import visit from './visit/wrapper.js';
 
-export const dashboardCharts = {
-    enrollment: enrollment,
-    queries: queries
+const dashboardCharts = {
+    enrollment,
+    queries,
+    visit
 };
+
+export default dashboardCharts;
