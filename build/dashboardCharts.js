@@ -255,12 +255,13 @@ function queries(element, settings) {
 var rendererSpecificSettings$2 = {
     //required variables
     site_name: 'site_name',
-    // not using these yet    date: 'date',
-    status: 'status',
-    number_participants: 'number_participants',
+    visit_name: 'visit_name',
+    visit_status: 'visit_status',
+    visit_number: 'visit_number', // should be short
 
     // Options
-    site_filter: true
+    site_filter: true,
+    y_toggle: true
 };
 
 var webchartsSettings$2 = {
@@ -271,27 +272,27 @@ var webchartsSettings$2 = {
     x: {
         label: '',
         type: 'ordinal',
-        column: 'visit_name',
+        column: null, // set in syncSettings
         domain: ['SCRN', 'RAND', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14']
     },
     y: {
         label: '',
         type: 'linear',
-        column: 'visit_status',
+        column: null, // set in syncSettings
         behavior: 'flex',
         domain: [0, null]
     },
     marks: [{
         arrange: 'stacked',
-        split: 'visit_status',
+        split: null, // set in syncSettings
         type: 'bar',
-        per: ['visit_name'],
+        per: [], // set in syncSettings
         attributes: { 'fill-opacity': 0.8 },
         summarizeY: 'count',
-        tooltip: '[visit_status]: $y'
+        tooltip: null // set in syncSettings
     }],
     color_dom: ['In Window', 'Expected', 'Out of Window', 'Overdue', 'Missed'],
-    color_by: 'visit_status',
+    color_by: null, // set in syncSettings
     colors: ['rgb(102,194,165)', 'rgb(43,131,186)', '#fecc5c', '#E87F00', 'red', '#9933ff'],
     legend: {
         label: '',
@@ -303,35 +304,39 @@ var defaultSettings$2 = Object.assign({}, rendererSpecificSettings$2, webchartsS
 
 //Replicate settings in multiple places in the settings object
 function syncSettings$2(settings) {
+    settings.x.column = settings.visit_name;
+    settings.y.column = settings.visit_status;
+    settings.marks[0].split = settings.visit_status;
+    settings.marks[0].per[0] = settings.visit_name;
+    settings.marks[0].tooltip = '[' + settings.visit_status + ']: $y';
+    settings.color_by = settings.visit_status;
+
     return settings;
 }
 
 function syncControlInputs$2(settings) {
+    var defaultControls = [];
 
-    var defaultControls = [{
-        type: 'subsetter',
-        value_col: 'site_name',
-        label: 'Site',
-        require: true
-    }, {
-        label: '',
-        type: 'radio',
-        option: 'marks[0].summarizeY',
-        values: ['percent', 'count'],
-        relabels: ['%', 'N']
-    }];
+    if (settings.site_filter) {
+        defaultControls.push({
+            type: 'subsetter',
+            value_col: 'site_name',
+            label: 'Site',
+            require: true
+        });
+    }
+
+    if (settings.y_toggle) {
+        defaultControls.push({
+            label: '',
+            type: 'radio',
+            option: 'marks[0].summarizeY',
+            values: ['percent', 'count'],
+            relabels: ['%', 'N']
+        });
+    }
     return defaultControls;
 }
-
-function onInit$2() {}
-
-function onLayout$2() {}
-
-function onPreprocess$2() {}
-
-function onDataTransform$2() {}
-
-function onDraw$2() {}
 
 function onResize$2() {
     this.svg.selectAll('.y.axis .tick text').each(function (d) {
@@ -342,6 +347,8 @@ function onResize$2() {
 }
 
 //settings
+//webcharts
+//chart callbacks
 function visit(element, settings) {
     //settings
     var mergedSettings = Object.assign({}, defaultSettings$2, settings);
@@ -350,11 +357,6 @@ function visit(element, settings) {
     var controls = webcharts.createControls(element, { location: 'top', inputs: syncedControlInputs });
     var chart = webcharts.createChart(element, syncedSettings, controls);
 
-    chart.on('init', onInit$2);
-    chart.on('layout', onLayout$2);
-    chart.on('preprocess', onPreprocess$2);
-    chart.on('datatransform', onDataTransform$2);
-    chart.on('draw', onDraw$2);
     chart.on('resize', onResize$2);
 
     return chart;

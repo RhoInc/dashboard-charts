@@ -27,7 +27,7 @@ export default function queries(element, settings) {
     chart.on('draw', onDraw);
     chart.on('resize', onResize);
 
-console.log(chart)
+    console.log(chart);
 
     return chart;
 }

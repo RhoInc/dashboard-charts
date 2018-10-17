@@ -1,9 +1,19 @@
 {
     "title": "settings",
-    "description": "JSON schema for the configuration of enrollment chart",
+    "description": "JSON schema for the configuration of visit completion chart",
     "overview": "The most straightforward way to customize query-overview is by using a configuration object whose properties describe the behavior and appearance of the chart. Since query-overview is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/query-overview/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to query-overview to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
     "version": "0.1.0",
     "type": "object",
+    site_name: 'site_name',
+    visit_name: 'visit_name',
+    visit_status: 'visit_status',
+    visit_number: 'visit_number', // should be short
+
+    // Options
+    site_filter: true,
+    y_toggle: true
+
+
     "properties": {
         "site_name": {
             "title": "Site Variable",
@@ -11,23 +21,23 @@
             "type": "string",
             "default": "site_name"
         },
-        "date": {
-            "title": "Date Variable",
-            "description": "date variable name in YYYY-MM-DD format",
+        "visit_name": {
+            "title": "Visit Variable",
+            "description": "visit variable name",
             "type": "string",
-            "default": "date"
+            "default": "visit_name"
         },
-        "status": {
-            "title": "Status Variable",
-            "description": "status variable name",
+        "visit_status": {
+            "title": "Visit Status Variable",
+            "description": "visit status variable name",
             "type": "string",
-            "default": "status"
+            "default": "visit_status"
           },
-          "status": {
-              "title": "Participant Count Variable",
-              "description": "participant count variable name",
+          "visit_number": {
+              "title": "Visit Number Variable",
+              "description": "visit number variable name (provides order for visits)",
               "type": "string",
-              "default": "number_participants"
+              "default": "visit_number"
             },
         "site_filter": {
             "title": "Include Site Filter",
@@ -35,6 +45,11 @@
             "type": "boolean",
             "default": true
         },
+        "y_toggle": {
+            "title": "Include Y-Axis Toggle",
+            "description": "allows for toggling between 'N' and '%' for the Y axis",
+            "type": "boolean",
+            "default": true
 
     }
 }

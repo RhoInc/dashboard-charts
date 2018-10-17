@@ -1,12 +1,13 @@
 export const rendererSpecificSettings = {
     //required variables
     site_name: 'site_name',
-    // not using these yet    date: 'date',
-    status: 'status',
-    number_participants: 'number_participants',
+    visit_name: 'visit_name',
+    visit_status: 'visit_status',
+    visit_number: 'visit_number', // should be short
 
     // Options
-    site_filter: true
+    site_filter: true,
+    y_toggle: true
 };
 
 export const webchartsSettings = {
@@ -17,7 +18,7 @@ export const webchartsSettings = {
     x: {
         label: '',
         type: 'ordinal',
-        column: 'visit_name',
+        column: null, // set in syncSettings
         domain: [
             'SCRN',
             'RAND',
@@ -39,23 +40,23 @@ export const webchartsSettings = {
     y: {
         label: '',
         type: 'linear',
-        column: 'visit_status',
+        column: null, // set in syncSettings
         behavior: 'flex',
         domain: [0, null]
     },
     marks: [
         {
             arrange: 'stacked',
-            split: 'visit_status',
+            split: null, // set in syncSettings
             type: 'bar',
-            per: ['visit_name'],
+            per: [], // set in syncSettings
             attributes: { 'fill-opacity': 0.8 },
             summarizeY: 'count',
-            tooltip: '[visit_status]: $y'
+            tooltip: null // set in syncSettings
         }
     ],
     color_dom: ['In Window', 'Expected', 'Out of Window', 'Overdue', 'Missed'],
-    color_by: 'visit_status',
+    color_by: null, // set in syncSettings
     colors: ['rgb(102,194,165)', 'rgb(43,131,186)', '#fecc5c', '#E87F00', 'red', '#9933ff'],
     legend: {
         label: '',
@@ -67,26 +68,36 @@ export default Object.assign({}, rendererSpecificSettings, webchartsSettings);
 
 //Replicate settings in multiple places in the settings object
 export function syncSettings(settings) {
-  return settings;
+    settings.x.column = settings.visit_name;
+    settings.y.column = settings.visit_status;
+    settings.marks[0].split = settings.visit_status;
+    settings.marks[0].per[0] = settings.visit_name;
+    settings.marks[0].tooltip = '[' + settings.visit_status + ']: $y';
+    settings.color_by = settings.visit_status;
+
+    return settings;
 }
 
 export function syncControlInputs(settings) {
+    const defaultControls = [];
 
-    const defaultControls =
-        [
-            {
-                type: 'subsetter',
-                value_col: 'site_name',
-                label: 'Site',
-                require: true
-            },
-            {
-                label: '',
-                type: 'radio',
-                option: 'marks[0].summarizeY',
-                values: ['percent', 'count'],
-                relabels: ['%', 'N']
-            }
-        ];
+    if (settings.site_filter) {
+        defaultControls.push({
+            type: 'subsetter',
+            value_col: 'site_name',
+            label: 'Site',
+            require: true
+        });
+    }
+
+    if (settings.y_toggle) {
+        defaultControls.push({
+            label: '',
+            type: 'radio',
+            option: 'marks[0].summarizeY',
+            values: ['percent', 'count'],
+            relabels: ['%', 'N']
+        });
+    }
     return defaultControls;
 }
