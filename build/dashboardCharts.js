@@ -6,13 +6,13 @@
 
 var rendererSpecificSettings = {
     //required variables
-    // site_name: 'site_name',
-    // date: 'date',
-    // status: 'status',
-    // number_participants: 'number_participants',
-    //
-    // // Options
-    // site_filter: true
+    site_name: 'site_name',
+    date: 'date',
+    status: 'status',
+    number_participants: 'number_participants',
+
+    // Options
+    site_filter: true
 };
 
 var webchartsSettings = {
@@ -21,25 +21,25 @@ var webchartsSettings = {
     height: 500,
 
     y: {
-        column: 'number_participants',
+        column: null, // set in syncSettings
         type: 'linear',
         behavior: 'firstfilter',
         label: ''
     },
     x: {
-        column: 'date',
+        column: null, // set in syncSettings
         type: 'time',
         label: '',
         format: '%b-%y'
     },
     marks: [{
         type: 'line',
-        per: ['status'],
+        per: [], // set in syncSettings
         summarizeY: 'sum',
         tooltip: '$y'
     }],
     date_format: '%Y-%m-%d',
-    color_by: 'status',
+    color_by: null, // set in syncSettings
     colors: ['#2b8cbe', '#a6bddb'],
     legend: {
         label: ''
@@ -49,27 +49,29 @@ var webchartsSettings = {
 var defaultSettings = Object.assign({}, rendererSpecificSettings, webchartsSettings);
 
 //Replicate settings in multiple places in the settings object
-function syncSettings(settings) {}
+function syncSettings(settings) {
+    settings.x.column = settings.date;
+    settings.y.column = settings.number_participants;
+    settings.marks[0].per[0] = settings.status;
+    settings.color_by = settings.status;
+
+    return settings;
+}
 
 function syncControlInputs(settings) {
-    var defaultControls = [{
-        type: 'subsetter',
-        value_col: 'site_name',
-        label: 'Site'
-    }];
+    var defaultControls = [];
+
+    if (settings.site_filter) {
+        defaultControls.push({
+            type: 'subsetter',
+            value_col: settings.site_name,
+            label: 'Site',
+            require: true
+        });
+    }
 
     return defaultControls;
 }
-
-function onInit() {}
-
-function onLayout() {}
-
-function onPreprocess() {}
-
-function onDataTransform() {}
-
-function onDraw() {}
 
 function onResize() {
     var context = this;
@@ -153,17 +155,18 @@ function enrollment(element, settings) {
     var controls = webcharts.createControls(element, { location: 'top', inputs: syncedControlInputs });
     var chart = webcharts.createChart(element, syncedSettings, controls);
 
-    chart.on('init', onInit);
-    chart.on('layout', onLayout);
-    chart.on('preprocess', onPreprocess);
-    chart.on('datatransform', onDataTransform);
-    chart.on('draw', onDraw);
     chart.on('resize', onResize);
 
     return chart;
 }
 
-var rendererSpecificSettings$1 = {};
+var rendererSpecificSettings$1 = {
+    site_name: 'site_name',
+    query_status: 'query_status',
+
+    // Options
+    y_toggle: true
+};
 
 var webchartsSettings$1 = {
     resizable: false,
@@ -175,20 +178,20 @@ var webchartsSettings$1 = {
         behavior: 'firstfilter'
     },
     x: {
-        column: 'site_name',
+        column: null, // set in syncSettings
         type: 'ordinal',
         label: ''
         //    "domain": ["Boston", "MUSC", "UCLA", "Pittsburgh", "Houston", "Michigan", "HSS", "Georgetown"]
     },
     marks: [{
         arrange: 'stacked',
-        split: 'query_status',
+        split: null, // set in syncSettings
         type: 'bar',
-        per: ['site_name'],
+        per: [], // set in syncSettings
         summarizeY: 'percent',
         tooltip: '$y'
     }],
-    color_by: 'query_status',
+    color_by: null, // set in syncSettings
     colors: ['rgb(102,194,165)', '#fecc5c', '#e34a33'],
     legend: {
         label: '',
@@ -199,29 +202,30 @@ var webchartsSettings$1 = {
 var defaultSettings$1 = Object.assign({}, rendererSpecificSettings$1, webchartsSettings$1);
 
 //Replicate settings in multiple places in the settings object
-function syncSettings$1(settings) {}
+function syncSettings$1(settings) {
+    settings.x.column = settings.site_name;
+    settings.marks[0].split = settings.query_status;
+    settings.marks[0].per[0] = settings.site_name;
+    settings.color_by = settings.query_status;
+
+    return settings;
+}
 
 function syncControlInputs$1(settings) {
-    var defaultControls = [{
-        label: '',
-        type: 'radio',
-        option: 'marks[0].summarizeY',
-        values: ['percent', 'count'],
-        relabels: ['%', 'N']
-    }];
+    var defaultControls = [];
+
+    if (settings.y_toggle) {
+        defaultControls.push({
+            label: '',
+            type: 'radio',
+            option: 'marks[0].summarizeY',
+            values: ['percent', 'count'],
+            relabels: ['%', 'N']
+        });
+    }
 
     return defaultControls;
 }
-
-function onInit$1() {}
-
-function onLayout$1() {}
-
-function onPreprocess$1() {}
-
-function onDataTransform$1() {}
-
-function onDraw$1() {}
 
 function onResize$1() {
     this.svg.selectAll('.y.axis .tick text').each(function (d) {
@@ -240,11 +244,6 @@ function queries(element, settings) {
     var controls = webcharts.createControls(element, { location: 'top', inputs: syncedControlInputs });
     var chart = webcharts.createChart(element, syncedSettings, controls);
 
-    chart.on('init', onInit$1);
-    chart.on('layout', onLayout$1);
-    chart.on('preprocess', onPreprocess$1);
-    chart.on('datatransform', onDataTransform$1);
-    chart.on('draw', onDraw$1);
     chart.on('resize', onResize$1);
 
     console.log(chart);
@@ -320,7 +319,7 @@ function syncControlInputs$2(settings) {
     if (settings.site_filter) {
         defaultControls.push({
             type: 'subsetter',
-            value_col: 'site_name',
+            value_col: settings.site_name,
             label: 'Site',
             require: true
         });
@@ -347,8 +346,6 @@ function onResize$2() {
 }
 
 //settings
-//webcharts
-//chart callbacks
 function visit(element, settings) {
     //settings
     var mergedSettings = Object.assign({}, defaultSettings$2, settings);

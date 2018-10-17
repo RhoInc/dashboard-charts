@@ -84,7 +84,7 @@ export function syncControlInputs(settings) {
     if (settings.site_filter) {
         defaultControls.push({
             type: 'subsetter',
-            value_col: 'site_name',
+            value_col: settings.site_name,
             label: 'Site',
             require: true
         });

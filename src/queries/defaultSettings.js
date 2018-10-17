@@ -1,4 +1,10 @@
-export const rendererSpecificSettings = {};
+export const rendererSpecificSettings = {
+  site_name: 'site_name',
+  query_status: 'query_status',
+
+  // Options
+  y_toggle: true
+};
 
 export const webchartsSettings = {
     resizable: false,
@@ -10,7 +16,7 @@ export const webchartsSettings = {
         behavior: 'firstfilter'
     },
     x: {
-        column: 'site_name',
+        column: null, // set in syncSettings
         type: 'ordinal',
         label: ''
         //    "domain": ["Boston", "MUSC", "UCLA", "Pittsburgh", "Houston", "Michigan", "HSS", "Georgetown"]
@@ -18,14 +24,14 @@ export const webchartsSettings = {
     marks: [
         {
             arrange: 'stacked',
-            split: 'query_status',
+            split: null, // set in syncSettings
             type: 'bar',
-            per: ['site_name'],
+            per: [], // set in syncSettings
             summarizeY: 'percent',
             tooltip: '$y'
         }
     ],
-    color_by: 'query_status',
+    color_by: null,// set in syncSettings
     colors: ['rgb(102,194,165)', '#fecc5c', '#e34a33'],
     legend: {
         label: '',
@@ -36,18 +42,27 @@ export const webchartsSettings = {
 export default Object.assign({}, rendererSpecificSettings, webchartsSettings);
 
 //Replicate settings in multiple places in the settings object
-export function syncSettings(settings) {}
+export function syncSettings(settings) {
+  settings.x.column = settings.site_name;
+  settings.marks[0].split = settings.query_status;
+  settings.marks[0].per[0] = settings.site_name;
+  settings.color_by = settings.query_status;
+
+  return settings
+}
 
 export function syncControlInputs(settings) {
-    const defaultControls = [
-        {
-            label: '',
-            type: 'radio',
-            option: 'marks[0].summarizeY',
-            values: ['percent', 'count'],
-            relabels: ['%', 'N']
-        }
-    ];
+  const defaultControls = [];
+
+  if (settings.y_toggle) {
+      defaultControls.push({
+          label: '',
+          type: 'radio',
+          option: 'marks[0].summarizeY',
+          values: ['percent', 'count'],
+          relabels: ['%', 'N']
+      });
+  }
 
     return defaultControls;
 }
