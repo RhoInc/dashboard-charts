@@ -12,7 +12,7 @@ export default function enrollment(element, settings) {
     const mergedSettings = Object.assign({}, defaultSettings, settings);
     const syncedSettings = syncSettings(mergedSettings);
     const syncedControlInputs = syncControlInputs(syncedSettings);
-    const controls = createControls(element, { location: 'top', inputs: syncedControlInputs });
+    const controls = createControls(element, { location: 'right', inputs: syncedControlInputs });
     const chart = createChart(element, syncedSettings, controls);
 
     chart.on('resize', onResize);

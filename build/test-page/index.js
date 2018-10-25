@@ -21,7 +21,7 @@ d3.csv('../../data/screening_and_randomization_example.csv', function(error, dat
 
 var dataElementTM = ".gg-dash-item.top.middle";
 
-var instanceTM =  dashboardCharts.visit(dataElementTM + ' .gg-dash-item-content');
+var instanceTM =  dashboardCharts.visit(dataElementTM + ' .gg-dash-item-content', dataElementTM + ' .gg-dash-item-content', dataElementTM + ' .gg-dash-item-title');
 
 d3.csv('../../data/visit_completion_example.csv', function(error, data) {
 

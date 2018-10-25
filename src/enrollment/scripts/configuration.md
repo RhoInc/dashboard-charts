@@ -43,5 +43,5 @@ allow filtering of sites
 The object below contains each Webcharts setting as of version 0.1.0.
 
 ```
-{    resizable: false,    width: 350,    height: 500,    y: {        column: null, // set in syncSettings        type: 'linear',        behavior: 'firstfilter',        label: ''    },    x: {        column: null, // set in syncSettings        type: 'time',        label: '',        format: '%b-%y'    },    marks: [        {            type: 'line',            per: [], // set in syncSettings            summarizeY: 'sum',            tooltip: '$y'        }    ],    date_format: '%Y-%m-%d',    color_by: null, // set in syncSettings    colors: ['#2b8cbe', '#a6bddb'],    legend: {        label: ''    }}
+{    resizable: false,    width: 500,    height: 350,    y: {        column: null, // set in syncSettings        type: 'linear',        behavior: 'firstfilter',        label: ''    },    x: {        column: null, // set in syncSettings        type: 'time',        label: '',        format: '%b-%y'    },    marks: [        {            type: 'line',            per: [], // set in syncSettings            summarizeY: 'sum',            tooltip: '$y'        }    ],    date_format: '%Y-%m-%d',    color_by: null, // set in syncSettings    colors: ['#2b8cbe', '#a6bddb'],    legend: {        label: ''    }}
 ```

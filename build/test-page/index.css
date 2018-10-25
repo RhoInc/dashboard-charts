@@ -52,7 +52,7 @@
   font-size: 11px;
   margin: 0 5px;
 }
-.gg-dashboard .gg-dash-item > .gg-dash-item-content .wc-controls{
+.gg-dashboard .gg-dash-item > .gg-dash-item-title .wc-controls{
   font-size: 12px;
   font-weight: normal;
   float: right;
