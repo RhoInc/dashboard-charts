@@ -8,8 +8,8 @@ export const rendererSpecificSettings = {
 
 export const webchartsSettings = {
     resizable: false,
-    width: 350,
-    height: 500,
+    width: 500,
+    height: 350,
 
     y: {
         type: 'linear',
