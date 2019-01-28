@@ -14,10 +14,10 @@ export default function queries(element, settings) {
     const syncedControlInputs = syncControlInputs(syncedSettings);
     const controls = createControls(element, { location: 'top', inputs: syncedControlInputs });
     const chart = createChart(element, syncedSettings, controls);
+    chart.settings = syncedSettings;
+    chart.callbacks = {onResize};
 
     chart.on('resize', onResize);
-
-    console.log(chart);
 
     return chart;
 }

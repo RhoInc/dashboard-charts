@@ -12,6 +12,8 @@ export default function forms(element, settings) {
     const syncedControlInputs = syncControlInputs(syncedSettings);
     const controls = createControls(element, { location: 'top', inputs: syncedControlInputs });
     const chart = createChart(element, syncedSettings, controls);
+    chart.settings = syncedSettings;
+    chart.callbacks = {};
 
     return chart;
 }
