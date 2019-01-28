@@ -239,6 +239,8 @@ function onResize$1() {
 }
 
 //settings
+//webcharts
+//chart callbacks
 function queries(element, settings) {
     //settings
     var mergedSettings = Object.assign({}, defaultSettings$1, settings);
@@ -349,6 +351,8 @@ function onResize$2() {
 }
 
 //settings
+//webcharts
+//chart callbacks
 function visit(element, settings) {
     //settings
     var mergedSettings = Object.assign({}, defaultSettings$2, settings);
@@ -432,6 +436,8 @@ function syncControlInputs$3(settings) {
 }
 
 //settings
+//webcharts
+//chart callbacks
 function forms(element, settings) {
     //settings
     var mergedSettings = Object.assign({}, defaultSettings$3, settings);
@@ -535,6 +541,8 @@ function onResize$3() {
 }
 
 //settings
+//webcharts
+//chart callbacks
 function screening(element, settings) {
     //settings
     var mergedSettings = Object.assign({}, defaultSettings$4, settings);
