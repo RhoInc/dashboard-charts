@@ -1,7 +1,7 @@
-d3.csv('../../../data/enrollment_overtime_example.csv', function(error, data) {
+d3.csv('../../../data/screening_and_randomization_example.csv', function(error, data) {
     if (error) console.log(error);
 
     var settings = {};
-    var instance = dashboardCharts.enrollment('#container', settings);
+    var instance = dashboardCharts.screening('#container', settings);
     instance.init(data);
 });

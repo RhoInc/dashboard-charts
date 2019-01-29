@@ -1,23 +1,30 @@
-//settings
-import defaultSettings, { syncSettings, syncControlInputs } from './defaultSettings';
-
-//webcharts
+import configuration from './configuration/index';
 import { createControls, createChart } from 'webcharts';
+import callbacks from './callbacks/index';
 
-//chart callbacks
-import onResize from './onResize';
+export default function enrollment(element = 'body', settings = {}) {
+    //Sync settings.
+    const mergedSettings = Object.assign({}, configuration.settings, settings);
+    const syncedSettings = configuration.syncSettings(mergedSettings);
+    const syncedControlInputs = configuration.syncControlInputs(configuration.controlInputs(), syncedSettings);
 
-export default function queries(element, settings) {
-    //settings
-    const mergedSettings = Object.assign({}, defaultSettings, settings);
-    const syncedSettings = syncSettings(mergedSettings);
-    const syncedControlInputs = syncControlInputs(syncedSettings);
-    const controls = createControls(element, { location: 'top', inputs: syncedControlInputs });
-    const chart = createChart(element, syncedSettings, controls);
-    chart.settings = syncedSettings;
-    chart.callbacks = {onResize};
+    //Define controls and chart.
+    const controls = createControls(
+        element,
+        {
+            location: 'top',
+            inputs: syncedControlInputs
+        }
+    );
+    const chart = createChart(
+        element,
+        syncedSettings,
+        controls
+    );
 
-    chart.on('resize', onResize);
+    //Attach callbacks to chart.
+    for (const callback in callbacks)
+        chart.on(callback.substring(2).toLowerCase(), callbacks[callback]);
 
     return chart;
 }
