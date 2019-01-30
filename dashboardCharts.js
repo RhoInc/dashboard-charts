@@ -127,7 +127,7 @@ if (!Array.prototype.findIndex) {
 }
 
 var schema = {
-    "title": "settings",
+    "title": "Enrollment",
     "chart": "enrollment",
     "description": "JSON schema for the configuration of screening and randomization chart",
     "overview": "The most straightforward way to customize the screening and randomization chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the screening and randomization chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the screening and randomization chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the screening and randomization chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
@@ -264,6 +264,7 @@ var callbacks = {
 function specification() {
     var syncedSettings = configuration.syncSettings(configuration.settings);
     var syncedControlInputs = configuration.syncControlInputs(configuration.controlInputs(), syncedSettings);
+    console.log(callbacks);
 
     return {
         schema: schema,
@@ -274,7 +275,7 @@ function specification() {
 }
 
 var schema$1 = {
-    "title": "settings",
+    "title": "Visit Completion",
     "chart": "visitCompletion",
     "description": "JSON schema for the configuration of visit completion chart",
     "overview": "The most straightforward way to customize the visit completion chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the visit completion chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the visit completion chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the visit completion chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
@@ -450,7 +451,7 @@ function specification$1() {
 }
 
 var schema$2 = {
-    "title": "settings",
+    "title": "Queries",
     "chart": "queries",
     "description": "JSON schema for the configuration of queries chart",
     "overview": "The most straightforward way to customize queries chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the query chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the query chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the query chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
@@ -593,7 +594,8 @@ function specification$2() {
 }
 
 var schema$3 = {
-    "title": "settings",
+    "title": "Enrollment over Time",
+    "chart": "enrollmentOverTime",
     "description": "JSON schema for the configuration of enrollment chart",
     "overview": "The most straightforward way to customize the enrollment chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the enrollment chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/query-overview/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to te enrollment chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
     "version": "0.1.0",
@@ -822,7 +824,7 @@ function specification$3() {
 }
 
 var schema$4 = {
-    "title": "settings",
+    "title": "Forms",
     "chart": "forms",
     "description": "JSON schema for the configuration of forms chart",
     "overview": "The most straightforward way to customize forms chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the forms chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the forms chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the forms chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
