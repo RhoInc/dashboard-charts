@@ -264,7 +264,6 @@ var callbacks = {
 function specification() {
     var syncedSettings = configuration.syncSettings(configuration.settings);
     var syncedControlInputs = configuration.syncControlInputs(configuration.controlInputs(), syncedSettings);
-    console.log(callbacks);
 
     return {
         schema: schema,
