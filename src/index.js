@@ -1,28 +1,6 @@
 import './util/polyfills';
+import _renderers_ from './renderers';
+import _specifications_ from './specifications';
 
-import specifications from './specifications';
-
-import enrollment from './enrollment/wrapper';
-import visitCompletion from './visitCompletion/wrapper';
-import queries from './queries/wrapper';
-import enrollmentOverTime from './enrollmentOverTime/wrapper';
-import forms from './forms/wrapper';
-
-const dashboardCharts = {
-    enrollment,
-    visitCompletion,
-    queries,
-    enrollmentOverTime,
-    forms,
-};
-
-Object.defineProperty(
-    dashboardCharts,
-    'specifications',
-    {
-        value: specifications,
-        enumerable: false
-    }
-);
-
-export default dashboardCharts;
+export const renderers = _renderers_;
+export const specifications = _specifications_;

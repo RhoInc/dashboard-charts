@@ -10,7 +10,7 @@ module.exports = {
             .map((d,i) => i ? d.substring(0,1).toUpperCase() + d.substring(1) : d)
             .join(''),
         file: pkg.main,
-        format: 'umd',
+        format: 'es',
         globals: {
             d3: 'd3',
             webcharts: 'webCharts'

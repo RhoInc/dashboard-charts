@@ -1,8 +1,4 @@
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('webcharts')) :
-	typeof define === 'function' && define.amd ? define(['webcharts'], factory) :
-	(global.dashboardCharts = factory(global.webCharts));
-}(this, (function (webcharts) { 'use strict';
+import { createChart, createControls } from 'webcharts';
 
 if (typeof Object.assign != 'function') {
     Object.defineProperty(Object, 'assign', {
@@ -125,53 +121,6 @@ if (!Array.prototype.findIndex) {
         }
     });
 }
-
-var schema = {
-    "title": "Enrollment",
-    "chart": "enrollment",
-    "description": "JSON schema for the configuration of screening and randomization chart",
-    "overview": "The most straightforward way to customize the screening and randomization chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the screening and randomization chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the screening and randomization chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the screening and randomization chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
-    "version": "0.1.0",
-    "type": "object",
-    "properties": {
-        "site_col": {
-            "title": "Site Variable",
-            "description": "variable: site",
-            "type": "string",
-            "default": "site",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": true
-        },
-        "population_col": {
-            "title": "Population",
-            "description": "variable: population",
-            "type": "string",
-            "default": "population",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": true
-        },
-        "population_order_col": {
-            "title": "Population Order",
-            "description": "variable: population order",
-            "type": "string",
-            "default": "population_order",
-            "data-mapping": true,
-            "data-type": "numeric",
-            "required": false
-        },
-        "population_superset_col": {
-            "title": "Subset of:",
-            "description": "variable: population superset, e.g. the superset of the randomized population is the screened population",
-            "type": "string",
-            "default": "population_superset",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": false
-        }
-    }
-};
 
 function rendererSettings() {
     return {
@@ -324,73 +273,27 @@ var callbacks = {
     onDestroy: onDestroy
 };
 
-function specification() {
-    var syncedSettings = configuration.syncSettings(configuration.settings);
+function enrollment() {
+    var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
+    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    //Sync settings.
+    var mergedSettings = Object.assign({}, configuration.settings, settings);
+    var syncedSettings = configuration.syncSettings(mergedSettings);
     var syncedControlInputs = configuration.syncControlInputs(configuration.controlInputs(), syncedSettings);
 
-    return {
-        schema: schema,
-        settings: syncedSettings,
-        controlInputs: syncedControlInputs,
-        callbacks: callbacks
-    };
-}
+    //Define controls and chart.
+    var controls = createControls(element, {
+        location: 'top',
+        inputs: syncedControlInputs
+    });
+    var chart = createChart(element, syncedSettings, controls);
 
-var schema$1 = {
-    "title": "Visit Completion",
-    "chart": "visitCompletion",
-    "description": "JSON schema for the configuration of visit completion chart",
-    "overview": "The most straightforward way to customize the visit completion chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the visit completion chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the visit completion chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the visit completion chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
-    "version": "0.1.0",
-    "type": "object",
-    "properties": {
-        "site_col": {
-            "title": "Site",
-            "description": "variable: site",
-            "type": "character",
-            "default": "site",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": true
-        },
-        "visit_col": {
-            "title": "Visit Variable",
-            "description": "variable: visit",
-            "type": "character",
-            "default": "visit",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": true
-        },
-        "visit_order_col": {
-            "title": "Visit Order",
-            "description": "variable: visit order",
-            "type": "character",
-            "default": "visit_order",
-            "data-mapping": true,
-            "data-type": "numeric",
-            "required": false
-        },
-        "status_col": {
-            "title": "Visit Status",
-            "description": "variable: visit status",
-            "type": "character",
-            "default": "status",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": true
-        },
-        "status_order_col": {
-            "title": "Visit Status Order",
-            "description": "variable: visit status order",
-            "type": "character",
-            "default": "status_order",
-            "data-mapping": true,
-            "data-type": "numeric",
-            "required": false
-        }
-    }
-};
+    //Attach callbacks to chart.
+    for (var callback in callbacks) {
+        chart.on(callback.substring(2).toLowerCase(), callbacks[callback]);
+    }return chart;
+}
 
 function rendererSettings$1() {
     return {
@@ -510,55 +413,27 @@ var callbacks$1 = {
     onDestroy: onDestroy$1
 };
 
-function specification$1() {
-    var syncedSettings = configuration$1.syncSettings(configuration$1.settings);
+function enrollment$1() {
+    var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
+    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    //Sync settings.
+    var mergedSettings = Object.assign({}, configuration$1.settings, settings);
+    var syncedSettings = configuration$1.syncSettings(mergedSettings);
     var syncedControlInputs = configuration$1.syncControlInputs(configuration$1.controlInputs(), syncedSettings);
 
-    return {
-        schema: schema$1,
-        settings: syncedSettings,
-        controlInputs: syncedControlInputs,
-        callbacks: callbacks$1
-    };
-}
+    //Define controls and chart.
+    var controls = createControls(element, {
+        location: 'top',
+        inputs: syncedControlInputs
+    });
+    var chart = createChart(element, syncedSettings, controls);
 
-var schema$2 = {
-    "title": "Queries",
-    "chart": "queries",
-    "description": "JSON schema for the configuration of queries chart",
-    "overview": "The most straightforward way to customize queries chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the query chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the query chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the query chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
-    "version": "0.1.0",
-    "type": "object",
-    "properties": {
-        "site_col": {
-            "title": "Site",
-            "description": "variable: site",
-            "type": "string",
-            "default": "site",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": true
-        },
-        "status_col": {
-            "title": "Query Status",
-            "description": "variable: query status",
-            "type": "string",
-            "default": "status",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": true
-        },
-        "status_order_col": {
-            "title": "Query Status Order",
-            "description": "variable: query status order",
-            "type": "string",
-            "default": "status_order",
-            "data-mapping": true,
-            "data-type": "numeric",
-            "required": false
-        }
-    }
-};
+    //Attach callbacks to chart.
+    for (var callback in callbacks$1) {
+        chart.on(callback.substring(2).toLowerCase(), callbacks$1[callback]);
+    }return chart;
+}
 
 function rendererSettings$2() {
     return {
@@ -663,73 +538,27 @@ var callbacks$2 = {
     onDestroy: onDestroy$2
 };
 
-function specification$2() {
-    var syncedSettings = configuration$2.syncSettings(configuration$2.settings);
+function enrollment$2() {
+    var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
+    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    //Sync settings.
+    var mergedSettings = Object.assign({}, configuration$2.settings, settings);
+    var syncedSettings = configuration$2.syncSettings(mergedSettings);
     var syncedControlInputs = configuration$2.syncControlInputs(configuration$2.controlInputs(), syncedSettings);
 
-    return {
-        schema: schema$2,
-        settings: syncedSettings,
-        controlInputs: syncedControlInputs,
-        callbacks: callbacks$2
-    };
-}
+    //Define controls and chart.
+    var controls = createControls(element, {
+        location: 'top',
+        inputs: syncedControlInputs
+    });
+    var chart = createChart(element, syncedSettings, controls);
 
-var schema$3 = {
-    "title": "Enrollment over Time",
-    "chart": "enrollmentOverTime",
-    "description": "JSON schema for the configuration of enrollment chart",
-    "overview": "The most straightforward way to customize the enrollment chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the enrollment chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/query-overview/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to te enrollment chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
-    "version": "0.1.0",
-    "type": "object",
-    "properties": {
-        "site_col": {
-            "title": "Site Variable",
-            "description": "site variable name",
-            "type": "character",
-            "default": "site",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": true
-        },
-        "date_col": {
-            "title": "Date Variable",
-            "description": "date variable name in YYYY-MM-DD format",
-            "type": "character",
-            "default": "date",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": true
-        },
-        "population_col": {
-            "title": "Population Variable",
-            "description": "variable: population",
-            "type": "character",
-            "default": "population",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": true
-        },
-        "population_order_col": {
-            "title": "Population Order",
-            "description": "variable: population order",
-            "type": "character",
-            "default": "population_order",
-            "data-mapping": true,
-            "data-type": "numeric",
-            "required": false
-        },
-        "participant_count_col": {
-            "title": "Participant Count",
-            "description": "variable: participant count",
-            "type": "character",
-            "default": "participant_count",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": true
-        }
-    }
-};
+    //Attach callbacks to chart.
+    for (var callback in callbacks$2) {
+        chart.on(callback.substring(2).toLowerCase(), callbacks$2[callback]);
+    }return chart;
+}
 
 function rendererSettings$3() {
     return {
@@ -903,55 +732,27 @@ var callbacks$3 = {
     onDestroy: onDestroy$3
 };
 
-function specification$3() {
-    var syncedSettings = configuration$3.syncSettings(configuration$3.settings);
+function enrollmentOverTime() {
+    var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
+    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    //Sync settings.
+    var mergedSettings = Object.assign({}, configuration$3.settings, settings);
+    var syncedSettings = configuration$3.syncSettings(mergedSettings);
     var syncedControlInputs = configuration$3.syncControlInputs(configuration$3.controlInputs(), syncedSettings);
 
-    return {
-        schema: schema$3,
-        settings: syncedSettings,
-        controlInputs: syncedControlInputs,
-        callbacks: callbacks$3
-    };
-}
+    //Define controls and chart.
+    var controls = createControls(element, {
+        location: 'top',
+        inputs: syncedControlInputs
+    });
+    var chart = createChart(element, syncedSettings, controls);
 
-var schema$4 = {
-    "title": "Forms",
-    "chart": "forms",
-    "description": "JSON schema for the configuration of forms chart",
-    "overview": "The most straightforward way to customize forms chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the forms chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the forms chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the forms chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
-    "version": "0.1.0",
-    "type": "object",
-    "properties": {
-        "site_col": {
-            "title": "Site",
-            "description": "variable: site",
-            "type": "string",
-            "default": "site",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": true
-        },
-        "status_col": {
-            "title": "Form Status",
-            "description": "variable: form status",
-            "type": "string",
-            "default": "status",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": true
-        },
-        "status_order_col": {
-            "title": "Form Status Order",
-            "description": "variable: form status order",
-            "type": "string",
-            "default": "status_order",
-            "data-mapping": true,
-            "data-type": "numeric",
-            "required": false
-        }
-    }
-};
+    //Attach callbacks to chart.
+    for (var callback in callbacks$3) {
+        chart.on(callback.substring(2).toLowerCase(), callbacks$3[callback]);
+    }return chart;
+}
 
 function rendererSettings$4() {
     return {
@@ -1055,6 +856,319 @@ var callbacks$4 = {
     onDestroy: onDestroy$4
 };
 
+function enrollment$3() {
+    var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
+    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    //Sync settings.
+    var mergedSettings = Object.assign({}, configuration$4.settings, settings);
+    var syncedSettings = configuration$4.syncSettings(mergedSettings);
+    var syncedControlInputs = configuration$4.syncControlInputs(configuration$4.controlInputs(), syncedSettings);
+
+    //Define controls and chart.
+    var controls = createControls(element, {
+        location: 'top',
+        inputs: syncedControlInputs
+    });
+    var chart = createChart(element, syncedSettings, controls);
+
+    //Attach callbacks to chart.
+    for (var callback in callbacks$4) {
+        chart.on(callback.substring(2).toLowerCase(), callbacks$4[callback]);
+    }return chart;
+}
+
+var _renderers_ = {
+    enrollment: enrollment,
+    visitCompletion: enrollment$1,
+    queries: enrollment$2,
+    enrollmentOverTime: enrollmentOverTime,
+    forms: enrollment$3
+};
+
+var schema = {
+    "title": "Enrollment",
+    "chart": "enrollment",
+    "description": "JSON schema for the configuration of screening and randomization chart",
+    "overview": "The most straightforward way to customize the screening and randomization chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the screening and randomization chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the screening and randomization chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the screening and randomization chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
+    "version": "0.1.0",
+    "type": "object",
+    "properties": {
+        "site_col": {
+            "title": "Site Variable",
+            "description": "variable: site",
+            "type": "string",
+            "default": "site",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
+        },
+        "population_col": {
+            "title": "Population",
+            "description": "variable: population",
+            "type": "string",
+            "default": "population",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
+        },
+        "population_order_col": {
+            "title": "Population Order",
+            "description": "variable: population order",
+            "type": "string",
+            "default": "population_order",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
+        },
+        "population_superset_col": {
+            "title": "Subset of:",
+            "description": "variable: population superset, e.g. the superset of the randomized population is the screened population",
+            "type": "string",
+            "default": "population_superset",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": false
+        }
+    }
+};
+
+function specification() {
+    var syncedSettings = configuration.syncSettings(configuration.settings);
+    var syncedControlInputs = configuration.syncControlInputs(configuration.controlInputs(), syncedSettings);
+
+    return {
+        schema: schema,
+        settings: syncedSettings,
+        controlInputs: syncedControlInputs,
+        callbacks: callbacks
+    };
+}
+
+var schema$1 = {
+    "title": "Visit Completion",
+    "chart": "visitCompletion",
+    "description": "JSON schema for the configuration of visit completion chart",
+    "overview": "The most straightforward way to customize the visit completion chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the visit completion chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the visit completion chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the visit completion chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
+    "version": "0.1.0",
+    "type": "object",
+    "properties": {
+        "site_col": {
+            "title": "Site",
+            "description": "variable: site",
+            "type": "character",
+            "default": "site",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
+        },
+        "visit_col": {
+            "title": "Visit Variable",
+            "description": "variable: visit",
+            "type": "character",
+            "default": "visit",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
+        },
+        "visit_order_col": {
+            "title": "Visit Order",
+            "description": "variable: visit order",
+            "type": "character",
+            "default": "visit_order",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
+        },
+        "status_col": {
+            "title": "Visit Status",
+            "description": "variable: visit status",
+            "type": "character",
+            "default": "status",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
+        },
+        "status_order_col": {
+            "title": "Visit Status Order",
+            "description": "variable: visit status order",
+            "type": "character",
+            "default": "status_order",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
+        }
+    }
+};
+
+function specification$1() {
+    var syncedSettings = configuration$1.syncSettings(configuration$1.settings);
+    var syncedControlInputs = configuration$1.syncControlInputs(configuration$1.controlInputs(), syncedSettings);
+
+    return {
+        schema: schema$1,
+        settings: syncedSettings,
+        controlInputs: syncedControlInputs,
+        callbacks: callbacks$1
+    };
+}
+
+var schema$2 = {
+    "title": "Queries",
+    "chart": "queries",
+    "description": "JSON schema for the configuration of queries chart",
+    "overview": "The most straightforward way to customize queries chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the query chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the query chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the query chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
+    "version": "0.1.0",
+    "type": "object",
+    "properties": {
+        "site_col": {
+            "title": "Site",
+            "description": "variable: site",
+            "type": "string",
+            "default": "site",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
+        },
+        "status_col": {
+            "title": "Query Status",
+            "description": "variable: query status",
+            "type": "string",
+            "default": "status",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
+        },
+        "status_order_col": {
+            "title": "Query Status Order",
+            "description": "variable: query status order",
+            "type": "string",
+            "default": "status_order",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
+        }
+    }
+};
+
+function specification$2() {
+    var syncedSettings = configuration$2.syncSettings(configuration$2.settings);
+    var syncedControlInputs = configuration$2.syncControlInputs(configuration$2.controlInputs(), syncedSettings);
+
+    return {
+        schema: schema$2,
+        settings: syncedSettings,
+        controlInputs: syncedControlInputs,
+        callbacks: callbacks$2
+    };
+}
+
+var schema$3 = {
+    "title": "Enrollment over Time",
+    "chart": "enrollmentOverTime",
+    "description": "JSON schema for the configuration of enrollment chart",
+    "overview": "The most straightforward way to customize the enrollment chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the enrollment chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/query-overview/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to te enrollment chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
+    "version": "0.1.0",
+    "type": "object",
+    "properties": {
+        "site_col": {
+            "title": "Site Variable",
+            "description": "site variable name",
+            "type": "character",
+            "default": "site",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
+        },
+        "date_col": {
+            "title": "Date Variable",
+            "description": "date variable name in YYYY-MM-DD format",
+            "type": "character",
+            "default": "date",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
+        },
+        "population_col": {
+            "title": "Population Variable",
+            "description": "variable: population",
+            "type": "character",
+            "default": "population",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
+        },
+        "population_order_col": {
+            "title": "Population Order",
+            "description": "variable: population order",
+            "type": "character",
+            "default": "population_order",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
+        },
+        "participant_count_col": {
+            "title": "Participant Count",
+            "description": "variable: participant count",
+            "type": "character",
+            "default": "participant_count",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
+        }
+    }
+};
+
+function specification$3() {
+    var syncedSettings = configuration$3.syncSettings(configuration$3.settings);
+    var syncedControlInputs = configuration$3.syncControlInputs(configuration$3.controlInputs(), syncedSettings);
+
+    return {
+        schema: schema$3,
+        settings: syncedSettings,
+        controlInputs: syncedControlInputs,
+        callbacks: callbacks$3
+    };
+}
+
+var schema$4 = {
+    "title": "Forms",
+    "chart": "forms",
+    "description": "JSON schema for the configuration of forms chart",
+    "overview": "The most straightforward way to customize forms chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the forms chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the forms chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the forms chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
+    "version": "0.1.0",
+    "type": "object",
+    "properties": {
+        "site_col": {
+            "title": "Site",
+            "description": "variable: site",
+            "type": "string",
+            "default": "site",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
+        },
+        "status_col": {
+            "title": "Form Status",
+            "description": "variable: form status",
+            "type": "string",
+            "default": "status",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
+        },
+        "status_order_col": {
+            "title": "Form Status Order",
+            "description": "variable: form status order",
+            "type": "string",
+            "default": "status_order",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
+        }
+    }
+};
+
 function specification$4() {
     var syncedSettings = configuration$4.syncSettings(configuration$4.settings);
     var syncedControlInputs = configuration$4.syncControlInputs(configuration$4.controlInputs(), syncedSettings);
@@ -1067,7 +1181,7 @@ function specification$4() {
     };
 }
 
-var specifications = {
+var _specifications_ = {
     enrollment: specification(),
     visitCompletion: specification$1(),
     queries: specification$2(),
@@ -1075,129 +1189,7 @@ var specifications = {
     forms: specification$4()
 };
 
-function enrollment() {
-    var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
-    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+var renderers = _renderers_;
+var specifications = _specifications_;
 
-    //Sync settings.
-    var mergedSettings = Object.assign({}, configuration.settings, settings);
-    var syncedSettings = configuration.syncSettings(mergedSettings);
-    var syncedControlInputs = configuration.syncControlInputs(configuration.controlInputs(), syncedSettings);
-
-    //Define controls and chart.
-    var controls = webcharts.createControls(element, {
-        location: 'top',
-        inputs: syncedControlInputs
-    });
-    var chart = webcharts.createChart(element, syncedSettings, controls);
-
-    //Attach callbacks to chart.
-    for (var callback in callbacks) {
-        chart.on(callback.substring(2).toLowerCase(), callbacks[callback]);
-    }return chart;
-}
-
-function enrollment$1() {
-    var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
-    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-    //Sync settings.
-    var mergedSettings = Object.assign({}, configuration$1.settings, settings);
-    var syncedSettings = configuration$1.syncSettings(mergedSettings);
-    var syncedControlInputs = configuration$1.syncControlInputs(configuration$1.controlInputs(), syncedSettings);
-
-    //Define controls and chart.
-    var controls = webcharts.createControls(element, {
-        location: 'top',
-        inputs: syncedControlInputs
-    });
-    var chart = webcharts.createChart(element, syncedSettings, controls);
-
-    //Attach callbacks to chart.
-    for (var callback in callbacks$1) {
-        chart.on(callback.substring(2).toLowerCase(), callbacks$1[callback]);
-    }return chart;
-}
-
-function enrollment$2() {
-    var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
-    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-    //Sync settings.
-    var mergedSettings = Object.assign({}, configuration$2.settings, settings);
-    var syncedSettings = configuration$2.syncSettings(mergedSettings);
-    var syncedControlInputs = configuration$2.syncControlInputs(configuration$2.controlInputs(), syncedSettings);
-
-    //Define controls and chart.
-    var controls = webcharts.createControls(element, {
-        location: 'top',
-        inputs: syncedControlInputs
-    });
-    var chart = webcharts.createChart(element, syncedSettings, controls);
-
-    //Attach callbacks to chart.
-    for (var callback in callbacks$2) {
-        chart.on(callback.substring(2).toLowerCase(), callbacks$2[callback]);
-    }return chart;
-}
-
-function enrollmentOverTime() {
-    var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
-    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-    //Sync settings.
-    var mergedSettings = Object.assign({}, configuration$3.settings, settings);
-    var syncedSettings = configuration$3.syncSettings(mergedSettings);
-    var syncedControlInputs = configuration$3.syncControlInputs(configuration$3.controlInputs(), syncedSettings);
-
-    //Define controls and chart.
-    var controls = webcharts.createControls(element, {
-        location: 'top',
-        inputs: syncedControlInputs
-    });
-    var chart = webcharts.createChart(element, syncedSettings, controls);
-
-    //Attach callbacks to chart.
-    for (var callback in callbacks$3) {
-        chart.on(callback.substring(2).toLowerCase(), callbacks$3[callback]);
-    }return chart;
-}
-
-function enrollment$3() {
-    var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
-    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-    //Sync settings.
-    var mergedSettings = Object.assign({}, configuration$4.settings, settings);
-    var syncedSettings = configuration$4.syncSettings(mergedSettings);
-    var syncedControlInputs = configuration$4.syncControlInputs(configuration$4.controlInputs(), syncedSettings);
-
-    //Define controls and chart.
-    var controls = webcharts.createControls(element, {
-        location: 'top',
-        inputs: syncedControlInputs
-    });
-    var chart = webcharts.createChart(element, syncedSettings, controls);
-
-    //Attach callbacks to chart.
-    for (var callback in callbacks$4) {
-        chart.on(callback.substring(2).toLowerCase(), callbacks$4[callback]);
-    }return chart;
-}
-
-var dashboardCharts = {
-    enrollment: enrollment,
-    visitCompletion: enrollment$1,
-    queries: enrollment$2,
-    enrollmentOverTime: enrollmentOverTime,
-    forms: enrollment$3
-};
-
-Object.defineProperty(dashboardCharts, 'specifications', {
-    value: specifications,
-    enumerable: false
-});
-
-return dashboardCharts;
-
-})));
+export { renderers, specifications };
