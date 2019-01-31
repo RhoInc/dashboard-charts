@@ -136,77 +136,95 @@ var schema = {
     "properties": {
         "site_col": {
             "title": "Site Variable",
-            "description": "site variable name",
+            "description": "variable: site",
             "type": "string",
-            "default": "site_name",
+            "default": "site",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
-        "status_col": {
-            "title": "Status Variable",
-            "description": "status variable name",
+        "population_col": {
+            "title": "Population",
+            "description": "variable: population",
             "type": "string",
-            "default": "status",
+            "default": "population",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
+        },
+        "population_order_col": {
+            "title": "Population Order",
+            "description": "variable: population order",
+            "type": "string",
+            "default": "population_order",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
+        },
+        "population_superset_col": {
+            "title": "Subset of:",
+            "description": "variable: population superset, e.g. the superset of the randomized population is the screened population",
+            "type": "string",
+            "default": "population_superset",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": false
         }
     }
 };
 
 function rendererSettings() {
     return {
-        site_col: 'site_name',
-        status_col: 'status'
+        site_col: 'site',
+        population_col: 'population',
+        population_order_col: 'population_order',
+        population_superset_col: 'population_superset'
     };
 }
 
 function webchartsSettings() {
     return {
-        colors: ['#2b8cbe', '#a6bddb'],
-        resizable: false,
-        width: 500,
-        height: 350,
-
-        y: {
-            label: '',
-            type: 'ordinal',
-            column: null // set in syncSettings
-        },
         x: {
-            label: '',
             type: 'linear',
-            column: null, // set in syncSettings
-            behavior: 'firstfilter',
+            label: '',
+            column: null, // set in ./syncSettings
             domain: [0, null],
+            behavior: 'flex',
             format: '1d'
         },
+        y: {
+            type: 'ordinal',
+            label: '',
+            column: null // set in ./syncSettings
+        },
         marks: [{
-            arrange: 'nested',
-            split: null, // set in syncSettings
             type: 'bar',
-            per: [], // set in syncSettings
-            attributes: { 'fill-opacity': 0.8 },
+            per: [], // set in ./syncSettings
             summarizeX: 'count',
-            tooltip: '' // set in syncSettings status
+            tooltip: null, // set in ./syncSettings
+            split: null, // set in ./syncSettings
+            arrange: 'grouped'
         }],
-        color_by: null, // set in syncSettings
-        color_dom: ['Randomized', 'Screened'],
+        color_by: null, // set in ./syncSettings
+        color_dom: null, // set in ../callbacks/onInit
+        colors: ['#a6bddb', '#3690c0', '#034e7b'],
         legend: {
             label: '',
-            order: ['Randomized', 'Screened']
-        }
+            order: null // set in ../callbacks/onInit
+        },
+        width: 500,
+        height: 350,
+        resizable: false
     };
 }
 
 function syncSettings(settings) {
-    settings.x.column = settings.status_col;
+    settings.x.column = settings.population_col;
     settings.y.column = settings.site_col;
-    settings.marks[0].split = settings.status_col;
+    settings.marks[0].split = settings.population_col;
     settings.marks[0].per[0] = settings.site_col;
-    settings.marks[0].tooltip = '[' + settings.status_col + ']: $x';
-    settings.color_by = settings.status_col;
+    settings.marks[0].tooltip = '[' + settings.population_col + ']: $x';
+    settings.color_by = settings.population_col;
 
     return settings;
 }
@@ -228,7 +246,38 @@ var configuration = {
     syncControlInputs: syncControlInputs
 };
 
-function onInit() {}
+function onInit() {
+    var _this = this;
+
+    //Define population order.
+    var populations = d3.set(this.raw_data.map(function (d) {
+        return d[_this.config.population_col] + ':|:' + d[_this.config.population_order_col];
+    })).values().sort(function (a, b) {
+        var aSplit = a.split(':|:');
+        var bSplit = b.split(':|:');
+        var aPopulation = aSplit[0];
+        var bPopulation = bSplit[0];
+        var aOrder = parseInt(aSplit[1]);
+        var bOrder = parseInt(bSplit[1]);
+        var comparison = !isNaN(aOrder) && !isNaN(bOrder) ? bOrder - aOrder // ensures grouped/nested bars are drawn logically
+        : aPopulation < bPopulation ? -1 : 1;
+
+        return comparison;
+    }).map(function (value) {
+        return value.split(':|:')[0];
+    });
+    this.config.color_dom = populations.slice();
+    this.config.colors = this.config.colors.slice(0, populations.length).reverse();
+    this.config.legend.order = populations.slice();
+
+    //Check for population supersets.
+    var supersets = d3.set(this.raw_data.map(function (d) {
+        return d[_this.config.population_superset_col];
+    })).values().filter(function (value) {
+        return populations.indexOf(value) > -1;
+    });
+    if (supersets.length) this.config.marks[0].arrange = 'nested';
+}
 
 function onLayout() {}
 
@@ -239,12 +288,26 @@ function onDatatransform() {}
 function onDraw() {}
 
 function onResize() {
+    var _this = this;
+
     var context = this;
+
+    //Customize tooltips.
+    this.svg.selectAll('.bar-group').each(function (d) {
+        d3.select(this).selectAll('title').text(d.values.map(function (value) {
+            return value.key + ': ' + value.values.x;
+        }).join('\n'));
+    });
+
+    //Manually sort legend.
+    this.legend.selectAll('.legend-item').sort(function (a, b) {
+        return _this.config.legend.order.indexOf(b.label) - _this.config.legend.order.indexOf(a.label);
+    });
 
     //Add population totals to legend labels.
     this.wrap.selectAll('.legend-label').each(function (d) {
         d3.select(this).text(d.label + ' (' + context.raw_data.filter(function (di) {
-            return di.status === d.label;
+            return di[context.config.population_col] === d.label;
         }).length + ')');
     });
 }
@@ -282,89 +345,99 @@ var schema$1 = {
     "type": "object",
     "properties": {
         "site_col": {
-            "title": "Site Variable",
-            "description": "site variable name",
-            "type": "string",
-            "default": "site_name",
+            "title": "Site",
+            "description": "variable: site",
+            "type": "character",
+            "default": "site",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
         "visit_col": {
             "title": "Visit Variable",
-            "description": "visit variable name",
-            "type": "string",
-            "default": "visit_name",
+            "description": "variable: visit",
+            "type": "character",
+            "default": "visit",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
-        "visit_number_col": {
-            "title": "Visit Number Variable",
-            "description": "visit number variable name (provides order for visits)",
-            "type": "string",
-            "default": "visit_number",
+        "visit_order_col": {
+            "title": "Visit Order",
+            "description": "variable: visit order",
+            "type": "character",
+            "default": "visit_order",
             "data-mapping": true,
-            "data-type": "string",
-            "required": true
+            "data-type": "numeric",
+            "required": false
         },
         "status_col": {
-            "title": "Visit Status Variable",
-            "description": "visit status variable name",
-            "type": "string",
-            "default": "visit_status",
+            "title": "Visit Status",
+            "description": "variable: visit status",
+            "type": "character",
+            "default": "status",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
+        },
+        "status_order_col": {
+            "title": "Visit Status Order",
+            "description": "variable: visit status order",
+            "type": "character",
+            "default": "status_order",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
         }
     }
 };
 
 function rendererSettings$1() {
     return {
-        site_col: 'site_name',
-        visit_col: 'visit_name',
-        visit_number_col: 'visit_number',
-        status_col: 'visit_status'
+        site_col: 'site',
+        visit_col: 'visit',
+        visit_order_col: 'visit_order',
+        status_col: 'status',
+        status_order_col: 'status_order'
     };
 }
 
 function webchartsSettings$1() {
     return {
-        resizable: false,
-        width: 500,
-        height: 350,
-
         x: {
             label: '',
             type: 'ordinal',
-            column: null // set in syncSettings
+            column: null // set in ./syncSettings
         },
         y: {
             label: '',
             type: 'linear',
-            column: null, // set in syncSettings
+            column: null, // set in ./syncSettings
             behavior: 'flex',
             domain: [0, null]
         },
         marks: [{
-            arrange: 'stacked',
-            split: null, // set in syncSettings
             type: 'bar',
             per: [], // set in syncSettings
             summarizeY: 'count',
-            tooltip: null // set in syncSettings
+            tooltip: null, // set in ./syncSettings
+            split: null, // set in ./syncSettings
+            arrange: 'stacked'
         }],
-        color_dom: ['In Window', 'Expected', 'Out of Window', 'Overdue', 'Missed'],
-        color_by: null, // set in syncSettings
-        colors: ['rgb(102,194,165)', 'rgb(43,131,186)', '#fecc5c', '#E87F00', 'red', '#9933ff'],
+        color_dom: ['Completed', 'Expected', 'Overdue', 'Missed'], // derived in ../callbacks/onInit
+        color_by: null, // set in ./syncSettings
+        colors: ['#4daf4a', '#377eb8', '#ff7f00', '#e41a1c', '#999999', '#999999'],
         legend: {
             label: '',
-            order: ['In Window', 'Expected', 'Out of Window', 'Overdue', 'Missed']
+            order: null, // set in ../callbacks/onInit
+            color_dom: ['Completed', 'Expected', 'Overdue', 'Missed']
         },
         margin: {
             left: 50
-        }
+        },
+        width: 500,
+        height: 350,
+        resizable: false
     };
 }
 
@@ -458,30 +531,40 @@ var schema$2 = {
     "type": "object",
     "properties": {
         "site_col": {
-            "title": "Site Variable",
-            "description": "site variable name",
+            "title": "Site",
+            "description": "variable: site",
             "type": "string",
-            "default": "site_name",
+            "default": "site",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
         "status_col": {
-            "title": "Query Status Variable",
-            "description": "query status variable name",
+            "title": "Query Status",
+            "description": "variable: query status",
             "type": "string",
-            "default": "query_status",
+            "default": "status",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
+        },
+        "status_order_col": {
+            "title": "Query Status Order",
+            "description": "variable: query status order",
+            "type": "string",
+            "default": "status_order",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
         }
     }
 };
 
 function rendererSettings$2() {
     return {
-        site_col: 'site_name',
-        status_col: 'query_status'
+        site_col: 'site',
+        status_col: 'status',
+        status_order_col: 'status_order'
     };
 }
 
@@ -603,37 +686,46 @@ var schema$3 = {
         "site_col": {
             "title": "Site Variable",
             "description": "site variable name",
-            "type": "string",
-            "default": "site_name",
+            "type": "character",
+            "default": "site",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
         "date_col": {
             "title": "Date Variable",
             "description": "date variable name in YYYY-MM-DD format",
-            "type": "string",
+            "type": "character",
             "default": "date",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
-        "status_col": {
-            "title": "Status Variable",
-            "description": "status variable name",
-            "type": "string",
-            "default": "status",
+        "population_col": {
+            "title": "Population Variable",
+            "description": "variable: population",
+            "type": "character",
+            "default": "population",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
-        "number_participants_col": {
-            "title": "Participant Count Variable",
-            "description": "participant count variable name",
-            "type": "string",
-            "default": "number_participants",
+        "population_order_col": {
+            "title": "Population Order",
+            "description": "variable: population order",
+            "type": "character",
+            "default": "population_order",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "numeric",
+            "required": false
+        },
+        "participant_count_col": {
+            "title": "Participant Count",
+            "description": "variable: participant count",
+            "type": "character",
+            "default": "participant_count",
+            "data-mapping": true,
+            "data-type": "character",
             "required": true
         }
     }
@@ -641,10 +733,11 @@ var schema$3 = {
 
 function rendererSettings$3() {
     return {
-        site_col: 'site_name',
+        site_col: 'site',
         date_col: 'date',
-        status_col: 'status',
-        number_participants_col: 'number_participants'
+        population_col: 'population',
+        population_order_col: 'population_order',
+        participant_count_col: 'participant_count'
     };
 }
 
@@ -683,9 +776,9 @@ function webchartsSettings$3() {
 
 function syncSettings$3(settings) {
     settings.x.column = settings.date_col;
-    settings.y.column = settings.number_participants_col;
-    settings.marks[0].per[0] = settings.status_col;
-    settings.color_by = settings.status_col;
+    settings.y.column = settings.participant_count_col;
+    settings.marks[0].per[0] = settings.population_col;
+    settings.color_by = settings.population_col;
 
     return settings;
 }
@@ -831,57 +924,63 @@ var schema$4 = {
     "type": "object",
     "properties": {
         "site_col": {
-            "title": "Site Variable",
-            "description": "site variable name",
+            "title": "Site",
+            "description": "variable: site",
             "type": "string",
-            "default": "site_name",
+            "default": "site",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
         "status_col": {
-            "title": "Form Status Variable",
-            "description": "form status variable name",
+            "title": "Form Status",
+            "description": "variable: form status",
             "type": "string",
-            "default": "form_status",
+            "default": "status",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
+        },
+        "status_order_col": {
+            "title": "Form Status Order",
+            "description": "variable: form status order",
+            "type": "string",
+            "default": "status_order",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
         }
     }
 };
 
 function rendererSettings$4() {
     return {
-        site_col: 'site_name',
-        status_col: 'form_status'
+        site_col: 'site',
+        status_col: 'status',
+        status_order: 'status_order'
     };
 }
 
 function webchartsSettings$4() {
     return {
-        resizable: false,
-        width: 500,
-        height: 350,
-
+        x: {
+            column: null, // set in ./syncSettings
+            type: 'ordinal',
+            label: ''
+        },
         y: {
             type: 'linear',
             behavior: 'firstfilter'
         },
-        x: {
-            column: null, // set in syncSettings
-            type: 'ordinal',
-            label: ''
-        },
         marks: [{
             arrange: 'stacked',
-            split: null, // set in syncSettings
+            split: null, // set in ./syncSettings
             type: 'bar',
-            per: [], // set in syncSettings
+            per: [], // set in ./syncSettings
             summarizeY: 'percent',
             tooltip: '$y'
         }],
-        color_by: null, // set in syncSettings
+        color_by: null, // set in ./syncSettings
         colors: ['rgb(102,194,165)', '#fecc5c', '#e34a33'],
         legend: {
             label: '',
@@ -889,7 +988,11 @@ function webchartsSettings$4() {
         },
         margin: {
             left: 50
-        }
+        },
+        resizable: false,
+        width: 500,
+        height: 350
+
     };
 }
 

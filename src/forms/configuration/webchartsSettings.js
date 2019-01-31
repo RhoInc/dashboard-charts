@@ -1,29 +1,25 @@
 export default function webchartsSettings() {
     return {
-        resizable: false,
-        width: 500,
-        height: 350,
-
+        x: {
+            column: null, // set in ./syncSettings
+            type: 'ordinal',
+            label: ''
+        },
         y: {
             type: 'linear',
             behavior: 'firstfilter'
         },
-        x: {
-            column: null, // set in syncSettings
-            type: 'ordinal',
-            label: ''
-        },
         marks: [
             {
                 arrange: 'stacked',
-                split: null, // set in syncSettings
+                split: null, // set in ./syncSettings
                 type: 'bar',
-                per: [], // set in syncSettings
+                per: [], // set in ./syncSettings
                 summarizeY: 'percent',
                 tooltip: '$y'
             }
         ],
-        color_by: null, // set in syncSettings
+        color_by: null, // set in ./syncSettings
         colors: ['rgb(102,194,165)', '#fecc5c', '#e34a33'],
         legend: {
             label: '',
@@ -32,5 +28,9 @@ export default function webchartsSettings() {
         margin: {
             left: 50
         },
+        resizable: false,
+        width: 500,
+        height: 350,
+
     };
 }

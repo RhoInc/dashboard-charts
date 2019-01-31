@@ -1,8 +1,9 @@
 export default function rendererSettings() {
     return {
-        site_col: 'site_name',
-        visit_col: 'visit_name',
-        visit_number_col: 'visit_number',
-        status_col: 'visit_status',
+        site_col: 'site',
+        visit_col: 'visit',
+        visit_order_col: 'visit_order',
+        status_col: 'status',
+        status_order_col: 'status_order',
     };
 }

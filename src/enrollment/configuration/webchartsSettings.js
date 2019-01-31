@@ -1,39 +1,41 @@
 export default function webchartsSettings() {
     return {
-        colors: ['#2b8cbe', '#a6bddb'],
-        resizable: false,
-        width: 500,
-        height: 350,
-
-        y: {
-            label: '',
-            type: 'ordinal',
-            column: null // set in syncSettings
-        },
         x: {
-            label: '',
             type: 'linear',
-            column: null, // set in syncSettings
-            behavior: 'firstfilter',
+            label: '',
+            column: null, // set in ./syncSettings
             domain: [0, null],
+            behavior: 'flex',
             format: '1d',
+        },
+        y: {
+            type: 'ordinal',
+            label: '',
+            column: null // set in ./syncSettings
         },
         marks: [
             {
-                arrange: 'nested',
-                split: null, // set in syncSettings
                 type: 'bar',
-                per: [], // set in syncSettings
-                attributes: { 'fill-opacity': 0.8 },
+                per: [], // set in ./syncSettings
                 summarizeX: 'count',
-                tooltip: '' // set in syncSettings status
+                tooltip: null, // set in ./syncSettings
+                split: null, // set in ./syncSettings
+                arrange: 'grouped',
             }
         ],
-        color_by: null, // set in syncSettings
-        color_dom: ['Randomized', 'Screened'],
+        color_by: null, // set in ./syncSettings
+        color_dom: null, // set in ../callbacks/onInit
+        colors: [
+            '#a6bddb',
+            '#3690c0',
+            '#034e7b',
+        ],
         legend: {
             label: '',
-            order: ['Randomized', 'Screened']
-        }
+            order: null, // set in ../callbacks/onInit
+        },
+        width: 500,
+        height: 350,
+        resizable: false,
     };
 }

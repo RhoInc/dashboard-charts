@@ -7,22 +7,31 @@ export default {
     "type": "object",
     "properties": {
         "site_col": {
-            "title": "Site Variable",
-            "description": "site variable name",
+            "title": "Site",
+            "description": "variable: site",
             "type": "string",
-            "default": "site_name",
+            "default": "site",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
         "status_col": {
-            "title": "Form Status Variable",
-            "description": "form status variable name",
+            "title": "Form Status",
+            "description": "variable: form status",
             "type": "string",
-            "default": "form_status",
+            "default": "status",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
+        },
+        "status_order_col": {
+            "title": "Form Status Order",
+            "description": "variable: form status order",
+            "type": "string",
+            "default": "status_order",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
         }
     }
 };

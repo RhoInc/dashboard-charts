@@ -7,22 +7,31 @@ export default {
     "type": "object",
     "properties": {
         "site_col": {
-            "title": "Site Variable",
-            "description": "site variable name",
+            "title": "Site",
+            "description": "variable: site",
             "type": "string",
-            "default": "site_name",
+            "default": "site",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
         "status_col": {
-            "title": "Query Status Variable",
-            "description": "query status variable name",
+            "title": "Query Status",
+            "description": "variable: query status",
             "type": "string",
-            "default": "query_status",
+            "default": "status",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
+        },
+        "status_order_col": {
+            "title": "Query Status Order",
+            "description": "variable: query status order",
+            "type": "string",
+            "default": "status_order",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
         }
     }
 };

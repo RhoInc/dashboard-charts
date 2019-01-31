@@ -8,21 +8,39 @@ export default {
     "properties": {
         "site_col": {
             "title": "Site Variable",
-            "description": "site variable name",
+            "description": "variable: site",
             "type": "string",
-            "default": "site_name",
+            "default": "site",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
-        "status_col": {
-            "title": "Status Variable",
-            "description": "status variable name",
+        "population_col": {
+            "title": "Population",
+            "description": "variable: population",
             "type": "string",
-            "default": "status",
+            "default": "population",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
+        },
+        "population_order_col": {
+            "title": "Population Order",
+            "description": "variable: population order",
+            "type": "string",
+            "default": "population_order",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
+        },
+        "population_superset_col": {
+            "title": "Subset of:",
+            "description": "variable: population superset, e.g. the superset of the randomized population is the screened population",
+            "type": "string",
+            "default": "population_superset",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": false
         }
-    }
+    },
 };

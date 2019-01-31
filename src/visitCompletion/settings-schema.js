@@ -7,40 +7,49 @@ export default {
     "type": "object",
     "properties": {
         "site_col": {
-            "title": "Site Variable",
-            "description": "site variable name",
-            "type": "string",
-            "default": "site_name",
+            "title": "Site",
+            "description": "variable: site",
+            "type": "character",
+            "default": "site",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
         "visit_col": {
             "title": "Visit Variable",
-            "description": "visit variable name",
-            "type": "string",
-            "default": "visit_name",
+            "description": "variable: visit",
+            "type": "character",
+            "default": "visit",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
-        "visit_number_col": {
-            "title": "Visit Number Variable",
-            "description": "visit number variable name (provides order for visits)",
-            "type": "string",
-            "default": "visit_number",
+        "visit_order_col": {
+            "title": "Visit Order",
+            "description": "variable: visit order",
+            "type": "character",
+            "default": "visit_order",
             "data-mapping": true,
-            "data-type": "string",
-            "required": true
+            "data-type": "numeric",
+            "required": false
         },
         "status_col": {
-            "title": "Visit Status Variable",
-            "description": "visit status variable name",
-            "type": "string",
-            "default": "visit_status",
+            "title": "Visit Status",
+            "description": "variable: visit status",
+            "type": "character",
+            "default": "status",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
+        },
+        "status_order_col": {
+            "title": "Visit Status Order",
+            "description": "variable: visit status order",
+            "type": "character",
+            "default": "status_order",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
         }
     }
 };
