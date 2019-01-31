@@ -6,21 +6,17 @@ export default function enrollmentOverTime(element = 'body', settings = {}) {
     //Sync settings.
     const mergedSettings = Object.assign({}, configuration.settings, settings);
     const syncedSettings = configuration.syncSettings(mergedSettings);
-    const syncedControlInputs = configuration.syncControlInputs(configuration.controlInputs(), syncedSettings);
+    const syncedControlInputs = configuration.syncControlInputs(
+        configuration.controlInputs(),
+        syncedSettings
+    );
 
     //Define controls and chart.
-    const controls = createControls(
-        element,
-        {
-            location: 'top',
-            inputs: syncedControlInputs
-        }
-    );
-    const chart = createChart(
-        element,
-        syncedSettings,
-        controls
-    );
+    const controls = createControls(element, {
+        location: 'top',
+        inputs: syncedControlInputs
+    });
+    const chart = createChart(element, syncedSettings, controls);
 
     //Attach callbacks to chart.
     for (const callback in callbacks)

@@ -9,5 +9,5 @@ export default {
     visitCompletion,
     queries,
     enrollmentOverTime,
-    forms,
+    forms
 };

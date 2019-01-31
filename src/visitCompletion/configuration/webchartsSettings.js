@@ -3,7 +3,7 @@ export default function webchartsSettings() {
         x: {
             label: '',
             type: 'ordinal',
-            column: null, // set in ./syncSettings
+            column: null // set in ./syncSettings
         },
         y: {
             label: '',
@@ -19,24 +19,12 @@ export default function webchartsSettings() {
                 summarizeY: 'count',
                 tooltip: null, // set in ./syncSettings
                 split: null, // set in ./syncSettings
-                arrange: 'stacked',
+                arrange: 'stacked'
             }
         ],
-        color_dom: [
-            'Completed',
-            'Expected',
-            'Overdue',
-            'Missed',
-        ], // derived in ../callbacks/onInit
+        color_dom: ['Completed', 'Expected', 'Overdue', 'Missed'], // derived in ../callbacks/onInit
         color_by: null, // set in ./syncSettings
-        colors: [
-            '#4daf4a',
-            '#377eb8',
-            '#ff7f00',
-            '#e41a1c',
-            '#999999',
-            '#999999',
-        ],
+        colors: ['#4daf4a', '#377eb8', '#ff7f00', '#e41a1c', '#999999', '#999999'],
         legend: {
             label: '',
             order: null, // set in ../callbacks/onInit
@@ -44,14 +32,14 @@ export default function webchartsSettings() {
                 'Completed',
                 'Expected',
                 'Overdue',
-                'Missed', // derived in ../callbacks/onInit
-            ],
+                'Missed' // derived in ../callbacks/onInit
+            ]
         },
         margin: {
-            left: 50,
+            left: 50
         },
         width: 500,
         height: 350,
-        resizable: false,
+        resizable: false
     };
 }

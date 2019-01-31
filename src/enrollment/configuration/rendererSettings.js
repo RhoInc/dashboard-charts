@@ -3,6 +3,6 @@ export default function rendererSettings() {
         site_col: 'site',
         population_col: 'population',
         population_order_col: 'population_order',
-        population_superset_col: 'population_superset',
+        population_superset_col: 'population_superset'
     };
 }

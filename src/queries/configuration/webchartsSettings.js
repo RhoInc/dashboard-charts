@@ -7,7 +7,7 @@ export default function webchartsSettings() {
         y: {
             type: 'linear',
             behavior: 'firstfilter',
-            format: '1d',
+            format: '1d'
         },
         x: {
             column: null, // set in syncSettings
@@ -31,7 +31,7 @@ export default function webchartsSettings() {
             order: ['Resolved', 'Outstanding <= 90 days', 'Outstanding > 90 days']
         },
         margin: {
-            left: 50,
+            left: 50
         }
     };
 }

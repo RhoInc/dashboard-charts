@@ -10,5 +10,5 @@ export default {
     settings: Object.assign({}, webchartsSettings(), rendererSettings()),
     syncSettings,
     controlInputs,
-    syncControlInputs,
+    syncControlInputs
 };

@@ -6,7 +6,7 @@ export default function webchartsSettings() {
             column: null, // set in ./syncSettings
             domain: [0, null],
             behavior: 'flex',
-            format: '1d',
+            format: '1d'
         },
         y: {
             type: 'ordinal',
@@ -20,22 +20,18 @@ export default function webchartsSettings() {
                 summarizeX: 'count',
                 tooltip: null, // set in ./syncSettings
                 split: null, // set in ./syncSettings
-                arrange: 'grouped',
+                arrange: 'grouped'
             }
         ],
         color_by: null, // set in ./syncSettings
         color_dom: null, // set in ../callbacks/onInit
-        colors: [
-            '#a6bddb',
-            '#3690c0',
-            '#034e7b',
-        ],
+        colors: ['#a6bddb', '#3690c0', '#034e7b'],
         legend: {
             label: '',
-            order: null, // set in ../callbacks/onInit
+            order: null // set in ../callbacks/onInit
         },
         width: 500,
         height: 350,
-        resizable: false,
+        resizable: false
     };
 }

@@ -9,5 +9,5 @@ export default {
     visitCompletion: visitCompletion(),
     queries: queries(),
     enrollmentOverTime: enrollmentOverTime(),
-    forms: forms(),
+    forms: forms()
 };

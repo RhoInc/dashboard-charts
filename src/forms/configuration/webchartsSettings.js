@@ -30,7 +30,6 @@ export default function webchartsSettings() {
         },
         resizable: false,
         width: 500,
-        height: 350,
-
+        height: 350
     };
 }
