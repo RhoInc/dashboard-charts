@@ -3,18 +3,18 @@ The most straightforward way to customize the enrollment chart is by using a con
 In addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to te enrollment chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.
 
 # Renderer-specific settings
-The sections below describe each enrollment setting as of version 0.1.0.
+The sections below describe each enrollmentOverTime setting as of version 0.1.0.
 
-## settings.site_name
+## settings.site_col
 `string`
 
 site variable name
 
-**default:** `"site_name"`
+**default:** `"site"`
 
 
 
-## settings.date
+## settings.date_col
 `string`
 
 date variable name in YYYY-MM-DD format
@@ -23,25 +23,91 @@ date variable name in YYYY-MM-DD format
 
 
 
-## settings.status
+## settings.population_col
 `string`
 
-participant count variable name
+variable: population
 
-**default:** `"number_participants"`
+**default:** `"population"`
 
 
 
-## settings.site_filter
-`boolean`
+## settings.population_order_col
+`string`
 
-allow filtering of sites
+variable: population order
 
-**default:** `true`
+**default:** `"population_order"`
+
+
+
+## settings.population_color_col
+`string`
+
+variable: population color
+
+**default:** `"population_color"`
+
+
+
+## settings.participant_count_col
+`string`
+
+variable: participant count
+
+**default:** `"participant_count"`
+
+
+
 
 # Webcharts settings
 The object below contains each Webcharts setting as of version 0.1.0.
 
 ```
-{    resizable: false,    width: 500,    height: 350,    y: {        column: null, // set in syncSettings        type: 'linear',        behavior: 'firstfilter',        label: ''    },    x: {        column: null, // set in syncSettings        type: 'time',        label: '',        format: '%b-%y'    },    marks: [        {            type: 'line',            per: [], // set in syncSettings            summarizeY: 'sum',            tooltip: '$y'        }    ],    date_format: '%Y-%m-%d',    color_by: null, // set in syncSettings    colors: ['#2b8cbe', '#a6bddb'],    legend: {        label: ''    }}
+{
+    "x": {
+        "type": "time",
+        "column": null,
+        "label": "",
+        "format": "%b-%y"
+    },
+    "y": {
+        "type": "linear",
+        "column": null,
+        "label": "",
+        "behavior": "firstfilter"
+    },
+    "marks": [
+        {
+            "type": "line",
+            "per": [],
+            "summarizeY": "sum",
+            "tooltip": "$y"
+        }
+    ],
+    "color_by": null,
+    "color_dom": [
+        "Screened",
+        "Randomized",
+        "Target"
+    ],
+    "colors": [
+        "#a6bddb",
+        "#3690c0",
+        "#034e7b"
+    ],
+    "legend": {
+        "label": "",
+        "order": [
+            "Screened",
+            "Randomized",
+            "Target"
+        ]
+    },
+    "resizable": false,
+    "width": 500,
+    "height": 350,
+    "margin": {},
+    "date_format": "%Y-%m-%d"
+}
 ```

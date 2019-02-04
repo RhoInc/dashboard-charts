@@ -1,6 +1,8 @@
+var fs = require('fs');
 var glob = require('glob');
+
 glob(
-    '../src/**/*.js',
+    'src/**/settings-schema.js',
     function(error,files) {
         if (error)
             console.log(error)

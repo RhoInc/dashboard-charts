@@ -1,9 +1,5 @@
 export default function webchartsSettings() {
     return {
-        resizable: false,
-        width: 500,
-        height: 350,
-
         y: {
             type: 'linear',
             behavior: 'firstfilter',
@@ -25,13 +21,29 @@ export default function webchartsSettings() {
             }
         ],
         color_by: null, // set in syncSettings
-        colors: ['rgb(102,194,165)', '#fecc5c', '#e34a33'],
+        color_dom: [
+            'Resolved',
+            'Outstanding <= 90 days',
+            'Outstanding > 90 days'
+        ], // set in ../callbacks/onInit
+        colors: [
+            '#66c2a5',
+            '#fecc5c',
+            '#e34a33'
+        ], // set in ../callbacks/onInit
         legend: {
             label: '',
-            order: ['Resolved', 'Outstanding <= 90 days', 'Outstanding > 90 days']
+            order: [
+                'Resolved',
+                'Outstanding <= 90 days',
+                'Outstanding > 90 days'
+            ] // set in ../callbacks/onInit
         },
+        resizable: false,
+        width: 500,
+        height: 350,
         margin: {
             left: 50
-        }
+        },
     };
 }

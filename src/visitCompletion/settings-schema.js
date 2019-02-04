@@ -10,7 +10,7 @@ export default {
         site_col: {
             title: 'Site',
             description: 'variable: site',
-            type: 'character',
+            type: 'string',
             default: 'site',
             'data-mapping': true,
             'data-type': 'character',
@@ -19,7 +19,7 @@ export default {
         visit_col: {
             title: 'Visit Variable',
             description: 'variable: visit',
-            type: 'character',
+            type: 'string',
             default: 'visit',
             'data-mapping': true,
             'data-type': 'character',
@@ -28,7 +28,7 @@ export default {
         visit_order_col: {
             title: 'Visit Order',
             description: 'variable: visit order',
-            type: 'character',
+            type: 'string',
             default: 'visit_order',
             'data-mapping': true,
             'data-type': 'numeric',
@@ -37,7 +37,7 @@ export default {
         status_col: {
             title: 'Visit Status',
             description: 'variable: visit status',
-            type: 'character',
+            type: 'string',
             default: 'status',
             'data-mapping': true,
             'data-type': 'character',
@@ -46,8 +46,17 @@ export default {
         status_order_col: {
             title: 'Visit Status Order',
             description: 'variable: visit status order',
-            type: 'character',
+            type: 'string',
             default: 'status_order',
+            'data-mapping': true,
+            'data-type': 'numeric',
+            required: false
+        },
+        status_order_col: {
+            title: 'Visit Status Color',
+            description: 'variable: visit status color',
+            type: 'string',
+            default: 'status_color',
             'data-mapping': true,
             'data-type': 'numeric',
             required: false

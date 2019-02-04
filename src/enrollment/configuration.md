@@ -3,36 +3,105 @@ The most straightforward way to customize the screening and randomization chart 
 In addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the screening and randomization chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.
 
 # Renderer-specific settings
-The sections below describe each screening setting as of version 0.1.0.
+The sections below describe each enrollment setting as of version 0.1.0.
 
-## settings.site_name
+## settings.site_col
 `string`
 
-site variable name
+variable: site
 
-**default:** `"site_name"`
+**default:** `"site"`
 
 
 
-## settings.status
+## settings.population_col
 `string`
 
-status variable name
+variable: population
 
-**default:** `"status"`
+**default:** `"population"`
 
 
 
-## settings.site_filter
-`boolean`
+## settings.population_order_col
+`string`
 
-allow filtering of sites
+variable: population order
 
-**default:** `false`
+**default:** `"population_order"`
+
+
+
+## settings.population_color_col
+`string`
+
+variable: population color
+
+**default:** `"population_color"`
+
+
+
+## settings.population_superset_col
+`string`
+
+variable: population superset, e.g. the superset of the randomized population is the screened population
+
+**default:** `"population_superset"`
+
+
+
 
 # Webcharts settings
 The object below contains each Webcharts setting as of version 0.1.0.
 
 ```
-{    colors: ['#2b8cbe', '#a6bddb'],    resizable: false,    width: 500,    height: 350,    y: {        label: '',        type: 'ordinal',        column: null // set in syncSettings    },    x: {        label: '',        type: 'linear',        column: null, // set in syncSettings        behavior: 'firstfilter',        domain: [0, null]    },    marks: [        {            arrange: 'nested',            split: null, // set in syncSettings            type: 'bar',            per: [], // set in syncSettings            attributes: { 'fill-opacity': 0.8 },            summarizeX: 'count',            tooltip: '' // set in syncSettings status        }    ],    color_by: null, // set in syncSettings    color_dom: ['Randomized', 'Screened'],    legend: {        label: '',        order: ['Randomized', 'Screened']    }    //margin: {left: 110},}
+{
+    "x": {
+        "type": "linear",
+        "label": "",
+        "column": null,
+        "domain": [
+            0,
+            null
+        ],
+        "behavior": "flex",
+        "format": "1d"
+    },
+    "y": {
+        "type": "ordinal",
+        "label": "",
+        "column": null
+    },
+    "marks": [
+        {
+            "type": "bar",
+            "per": [],
+            "summarizeX": "count",
+            "tooltip": null,
+            "split": null,
+            "arrange": "grouped"
+        }
+    ],
+    "color_by": null,
+    "color_dom": [
+        "Screened",
+        "Randomized"
+    ],
+    "colors": [
+        "#a6bddb",
+        "#3690c0",
+        "#034e7b"
+    ],
+    "legend": {
+        "label": "",
+        "order": [
+            "Screened",
+            "Randomized"
+        ]
+    },
+    "resizable": false,
+    "width": 500,
+    "height": 350,
+    "margin": {}
+}
 ```

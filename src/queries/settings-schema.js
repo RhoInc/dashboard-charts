@@ -33,6 +33,15 @@ export default {
             'data-mapping': true,
             'data-type': 'numeric',
             required: false
+        },
+        status_order_col: {
+            title: 'Query Status Color',
+            description: 'variable: query status color',
+            type: 'string',
+            default: 'status_color',
+            'data-mapping': true,
+            'data-type': 'numeric',
+            required: false
         }
     }
 };

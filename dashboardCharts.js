@@ -131,6 +131,7 @@ function rendererSettings() {
         site_col: 'site',
         population_col: 'population',
         population_order_col: 'population_order',
+        population_color_col: 'population_color',
         population_superset_col: 'population_superset'
     };
 }
@@ -159,11 +160,11 @@ function webchartsSettings() {
             arrange: 'grouped'
         }],
         color_by: null, // set in ./syncSettings
-        color_dom: null, // set in ../callbacks/onInit
-        colors: ['#a6bddb', '#3690c0', '#034e7b'],
+        color_dom: ['Screened', 'Randomized'], // set in ../callbacks/onInit
+        colors: ['#a6bddb', '#3690c0', '#034e7b'], // set in ../callbacks/onInit
         legend: {
             label: '',
-            order: null // set in ../callbacks/onInit
+            order: ['Screened', 'Randomized'] // set in ../callbacks/onInit
         },
         width: 500,
         height: 350,
@@ -199,35 +200,56 @@ var configuration = {
     syncControlInputs: syncControlInputs
 };
 
+function defineStatusSet() {
+    var status_col = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'status';
+    var status_order_col = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'status_order';
+    var status_color_col = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'status_color';
+
+    var variables = Object.keys(this.raw_data[0]);
+
+    //Define ordered status set.
+    this.status_set = d3.set(this.raw_data.map(function (d) {
+        return d[status_col] + ':|:' + d[status_order_col] + ':|:' + d[status_color_col];
+    })).values().sort(function (a, b) {
+        var aSplit = a.split(':|:');
+        var aValue = aSplit[0];
+        var aOrder = aSplit[1];
+        var aFloat = parseFloat(aOrder);
+
+        var bSplit = b.split(':|:');
+        var bValue = bSplit[0];
+        var bOrder = bSplit[1];
+        var bFloat = parseFloat(bOrder);
+
+        var comparison = !isNaN(aFloat) && !isNaN(bFloat) ? aFloat - bFloat : aOrder < bOrder ? -1 : bOrder < aOrder ? 1 : aValue < bValue ? -1 : 1;
+
+        return comparison;
+    });
+
+    //Update chart settings.
+    this.config.color_dom = this.status_set.map(function (status) {
+        return status.split(':|:')[0];
+    });
+    if (variables.indexOf(status_color_col) > -1) this.config.colors = this.status_set.map(function (status) {
+        return status.split(':|:')[2];
+    });
+    this.config.legend.order = this.status_set.map(function (status) {
+        return status.split(':|:')[0];
+    });
+}
+
 function onInit() {
     var _this = this;
 
-    //Define population order.
-    var populations = d3.set(this.raw_data.map(function (d) {
-        return d[_this.config.population_col] + ':|:' + d[_this.config.population_order_col];
-    })).values().sort(function (a, b) {
-        var aSplit = a.split(':|:');
-        var bSplit = b.split(':|:');
-        var aPopulation = aSplit[0];
-        var bPopulation = bSplit[0];
-        var aOrder = parseInt(aSplit[1]);
-        var bOrder = parseInt(bSplit[1]);
-        var comparison = !isNaN(aOrder) && !isNaN(bOrder) ? bOrder - aOrder // ensures grouped/nested bars are drawn logically
-        : aPopulation < bPopulation ? -1 : 1;
-
-        return comparison;
-    }).map(function (value) {
-        return value.split(':|:')[0];
-    });
-    this.config.color_dom = populations.slice();
-    this.config.colors = this.config.colors.slice(0, populations.length).reverse();
-    this.config.legend.order = populations.slice();
+    defineStatusSet.call(this, this.config.population_col, this.config.population_order_col, this.config.population_color_col);
+    this.config.colors.reverse(); // reverse colors to match reversed legend order
+    this.config.legend.order.reverse(); // reverse legend order to reverse order of bars
 
     //Check for population supersets.
     var supersets = d3.set(this.raw_data.map(function (d) {
         return d[_this.config.population_superset_col];
     })).values().filter(function (value) {
-        return populations.indexOf(value) > -1;
+        return _this.config.color_dom.indexOf(value) > -1;
     });
     if (supersets.length) this.config.marks[0].arrange = 'nested';
 }
@@ -240,17 +262,24 @@ function onDatatransform() {}
 
 function onDraw() {}
 
+function customizeTooltips() {
+    var context = this;
+
+    this.svg.selectAll('.bar-group').each(function (d) {
+        d3.select(this).selectAll('title').text(context.config.marks[0].arrange === 'stacked' ? 'Total: ' + d.total + '\n' + d.values.map(function (value) {
+            return ' - ' + value.key + ': ' + value.values.raw.length + ' (' + d3.format('.1%')(value.values.raw.length / d.total) + ')';
+        }).join('\n') : '' + d.values.map(function (value) {
+            return value.key + ': ' + value.values.raw.length;
+        }).join('\n'));
+    });
+}
+
 function onResize() {
     var _this = this;
 
     var context = this;
 
-    //Customize tooltips.
-    this.svg.selectAll('.bar-group').each(function (d) {
-        d3.select(this).selectAll('title').text(d.values.map(function (value) {
-            return value.key + ': ' + value.values.x;
-        }).join('\n'));
-    });
+    customizeTooltips.call(this);
 
     //Manually sort legend.
     this.legend.selectAll('.legend-item').sort(function (a, b) {
@@ -305,7 +334,8 @@ function rendererSettings$1() {
         visit_col: 'visit',
         visit_order_col: 'visit_order',
         status_col: 'status',
-        status_order_col: 'status_order'
+        status_order_col: 'status_order',
+        status_color_col: 'status_color'
     };
 }
 
@@ -331,14 +361,12 @@ function webchartsSettings$1() {
             split: null, // set in ./syncSettings
             arrange: 'stacked'
         }],
-        color_dom: ['Completed', 'Expected', 'Overdue', 'Missed'], // derived in ../callbacks/onInit
         color_by: null, // set in ./syncSettings
-        colors: ['#4daf4a', '#377eb8', '#ff7f00', '#e41a1c', '#999999', '#999999'],
+        color_dom: ['Completed', 'Expected', 'Overdue', 'Missed', 'Terminated'], // set in ../callbacks/onInit
+        colors: ['#4daf4a', '#377eb8', '#ff7f00', '#e41a1c', '#999999'], // set in ./syncSettings
         legend: {
             label: '',
-            order: null, // set in ../callbacks/onInit
-            color_dom: ['Completed', 'Expected', 'Overdue', 'Missed' // derived in ../callbacks/onInit
-            ]
+            order: ['Completed', 'Expected', 'Overdue', 'Missed', 'Terminated']
         },
         margin: {
             left: 50
@@ -391,7 +419,9 @@ var configuration$1 = {
     syncControlInputs: syncControlInputs$1
 };
 
-function onInit$1() {}
+function onInit$1() {
+    defineStatusSet.call(this);
+}
 
 function onLayout$1() {}
 
@@ -404,7 +434,9 @@ function onDraw$1() {
     if (summarizeY === 'count') this.config.y.format = '1d';else if (summarizeY === 'percent') this.config.y.format = '%';else this.config.y.format = null;
 }
 
-function onResize$1() {}
+function onResize$1() {
+    customizeTooltips.call(this);
+}
 
 function onDestroy$1() {}
 
@@ -444,7 +476,8 @@ function rendererSettings$2() {
     return {
         site_col: 'site',
         status_col: 'status',
-        status_order_col: 'status_order'
+        status_order_col: 'status_order',
+        status_color_col: 'status_color'
     };
 }
 
@@ -473,10 +506,11 @@ function webchartsSettings$2() {
             tooltip: '$y'
         }],
         color_by: null, // set in syncSettings
-        colors: ['rgb(102,194,165)', '#fecc5c', '#e34a33'],
+        color_dom: ['Resolved', 'Outstanding <= 90 days', 'Outstanding > 90 days'], // set in ../callbacks/onInit
+        colors: ['#66c2a5', '#fecc5c', '#e34a33'], // set in ../callbacks/onInit
         legend: {
             label: '',
-            order: ['Resolved', 'Outstanding <= 90 days', 'Outstanding > 90 days']
+            order: ['Resolved', 'Outstanding <= 90 days', 'Outstanding > 90 days'] // set in ../callbacks/onInit
         },
         margin: {
             left: 50
@@ -516,7 +550,9 @@ var configuration$2 = {
     syncControlInputs: syncControlInputs$2
 };
 
-function onInit$2() {}
+function onInit$2() {
+    defineStatusSet.call(this);
+}
 
 function onLayout$2() {}
 
@@ -529,7 +565,9 @@ function onDraw$2() {
     if (summarizeY === 'count') this.config.y.format = '1d';else if (summarizeY === 'percent') this.config.y.format = '%';else this.config.y.format = null;
 }
 
-function onResize$2() {}
+function onResize$2() {
+    customizeTooltips.call(this);
+}
 
 function onDestroy$2() {}
 
@@ -571,27 +609,24 @@ function rendererSettings$3() {
         date_col: 'date',
         population_col: 'population',
         population_order_col: 'population_order',
+        population_color_col: 'population_color',
         participant_count_col: 'participant_count'
     };
 }
 
 function webchartsSettings$3() {
     return {
-        resizable: false,
-        width: 500,
-        height: 350,
-
-        y: {
-            column: null, // set in syncSettings
-            type: 'linear',
-            behavior: 'firstfilter',
-            label: ''
-        },
         x: {
-            column: null, // set in syncSettings
             type: 'time',
+            column: null, // set in syncSettings
             label: '',
             format: '%b-%y'
+        },
+        y: {
+            type: 'linear',
+            column: null, // set in syncSettings
+            label: '',
+            behavior: 'firstfilter'
         },
         marks: [{
             type: 'line',
@@ -599,12 +634,17 @@ function webchartsSettings$3() {
             summarizeY: 'sum',
             tooltip: '$y'
         }],
-        date_format: '%Y-%m-%d',
         color_by: null, // set in syncSettings
-        colors: ['#2b8cbe', '#a6bddb'],
+        color_dom: ['Screened', 'Randomized', 'Target'], // set in ../callbacks/onInit
+        colors: ['#a6bddb', '#3690c0', '#034e7b'], // set in ../callbacks/onInit
         legend: {
-            label: ''
-        }
+            label: '',
+            order: ['Screened', 'Randomized', 'Target'] // set in ../callbacks/onInit
+        },
+        width: 500,
+        height: 350,
+        resizable: false,
+        date_format: '%Y-%m-%d'
     };
 }
 
@@ -643,7 +683,9 @@ var configuration$3 = {
     syncControlInputs: syncControlInputs$3
 };
 
-function onInit$3() {}
+function onInit$3() {
+    defineStatusSet.call(this, this.config.population_col, this.config.population_order_col, this.config.population_color_col);
+}
 
 function onLayout$3() {}
 
@@ -763,7 +805,8 @@ function rendererSettings$4() {
     return {
         site_col: 'site',
         status_col: 'status',
-        status_order: 'status_order'
+        status_order: 'status_order',
+        status_color: 'status_color'
     };
 }
 
@@ -787,10 +830,11 @@ function webchartsSettings$4() {
             tooltip: '$y'
         }],
         color_by: null, // set in ./syncSettings
-        colors: ['rgb(102,194,165)', '#fecc5c', '#e34a33'],
+        color_dom: ['Received', 'Outstanding <= 90 days', 'Outstanding > 90 days'], // set in ../callbacks/onInit
+        colors: ['#66c2a5', '#fecc5c', '#e34a33'], // set in ../callbacks/onInit
         legend: {
             label: '',
-            order: ['Received', 'Outstanding <= 90 days', 'Outstanding > 90 days']
+            order: ['Received', 'Outstanding <= 90 days', 'Outstanding > 90 days'] // set in ../callbacks/onInit
         },
         margin: {
             left: 50
@@ -833,7 +877,9 @@ var configuration$4 = {
     syncControlInputs: syncControlInputs$4
 };
 
-function onInit$4() {}
+function onInit$4() {
+    defineStatusSet.call(this);
+}
 
 function onLayout$4() {}
 
@@ -846,7 +892,9 @@ function onDraw$4() {
     if (summarizeY === 'count') this.config.y.format = '1d';else if (summarizeY === 'percent') this.config.y.format = '%';else this.config.y.format = null;
 }
 
-function onResize$4() {}
+function onResize$4() {
+    customizeTooltips.call(this);
+}
 
 function onDestroy$4() {}
 
@@ -925,6 +973,15 @@ var schema = {
             'data-type': 'numeric',
             required: false
         },
+        population_color_col: {
+            title: 'Population Color',
+            description: 'variable: population color',
+            type: 'string',
+            default: 'population_color',
+            'data-mapping': true,
+            'data-type': 'numeric',
+            required: false
+        },
         population_superset_col: {
             title: 'Subset of:',
             description: 'variable: population superset, e.g. the superset of the randomized population is the screened population',
@@ -949,6 +1006,146 @@ function specification() {
     };
 }
 
+var asyncGenerator = function () {
+  function AwaitValue(value) {
+    this.value = value;
+  }
+
+  function AsyncGenerator(gen) {
+    var front, back;
+
+    function send(key, arg) {
+      return new Promise(function (resolve, reject) {
+        var request = {
+          key: key,
+          arg: arg,
+          resolve: resolve,
+          reject: reject,
+          next: null
+        };
+
+        if (back) {
+          back = back.next = request;
+        } else {
+          front = back = request;
+          resume(key, arg);
+        }
+      });
+    }
+
+    function resume(key, arg) {
+      try {
+        var result = gen[key](arg);
+        var value = result.value;
+
+        if (value instanceof AwaitValue) {
+          Promise.resolve(value.value).then(function (arg) {
+            resume("next", arg);
+          }, function (arg) {
+            resume("throw", arg);
+          });
+        } else {
+          settle(result.done ? "return" : "normal", result.value);
+        }
+      } catch (err) {
+        settle("throw", err);
+      }
+    }
+
+    function settle(type, value) {
+      switch (type) {
+        case "return":
+          front.resolve({
+            value: value,
+            done: true
+          });
+          break;
+
+        case "throw":
+          front.reject(value);
+          break;
+
+        default:
+          front.resolve({
+            value: value,
+            done: false
+          });
+          break;
+      }
+
+      front = front.next;
+
+      if (front) {
+        resume(front.key, front.arg);
+      } else {
+        back = null;
+      }
+    }
+
+    this._invoke = send;
+
+    if (typeof gen.return !== "function") {
+      this.return = undefined;
+    }
+  }
+
+  if (typeof Symbol === "function" && Symbol.asyncIterator) {
+    AsyncGenerator.prototype[Symbol.asyncIterator] = function () {
+      return this;
+    };
+  }
+
+  AsyncGenerator.prototype.next = function (arg) {
+    return this._invoke("next", arg);
+  };
+
+  AsyncGenerator.prototype.throw = function (arg) {
+    return this._invoke("throw", arg);
+  };
+
+  AsyncGenerator.prototype.return = function (arg) {
+    return this._invoke("return", arg);
+  };
+
+  return {
+    wrap: function (fn) {
+      return function () {
+        return new AsyncGenerator(fn.apply(this, arguments));
+      };
+    },
+    await: function (value) {
+      return new AwaitValue(value);
+    }
+  };
+}();
+
+
+
+
+
+
+
+
+
+
+
+
+
+var defineProperty = function (obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+};
+
 var schema$1 = {
     title: 'Visit Completion',
     chart: 'visitCompletion',
@@ -956,7 +1153,7 @@ var schema$1 = {
     overview: 'The most straightforward way to customize the visit completion chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the visit completion chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the visit completion chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the visit completion chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.',
     version: '0.1.0',
     type: 'object',
-    properties: {
+    properties: defineProperty({
         site_col: {
             title: 'Site',
             description: 'variable: site',
@@ -1002,7 +1199,15 @@ var schema$1 = {
             'data-type': 'numeric',
             required: false
         }
-    }
+    }, 'status_order_col', {
+        title: 'Visit Status Color',
+        description: 'variable: visit status color',
+        type: 'string',
+        default: 'status_color',
+        'data-mapping': true,
+        'data-type': 'numeric',
+        required: false
+    })
 };
 
 function specification$1() {
@@ -1024,7 +1229,7 @@ var schema$2 = {
     overview: 'The most straightforward way to customize queries chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the query chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the query chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the query chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.',
     version: '0.1.0',
     type: 'object',
-    properties: {
+    properties: defineProperty({
         site_col: {
             title: 'Site',
             description: 'variable: site',
@@ -1052,7 +1257,15 @@ var schema$2 = {
             'data-type': 'numeric',
             required: false
         }
-    }
+    }, 'status_order_col', {
+        title: 'Query Status Color',
+        description: 'variable: query status color',
+        type: 'string',
+        default: 'status_color',
+        'data-mapping': true,
+        'data-type': 'numeric',
+        required: false
+    })
 };
 
 function specification$2() {
@@ -1111,6 +1324,15 @@ var schema$3 = {
             'data-type': 'numeric',
             required: false
         },
+        population_color_col: {
+            title: 'Population Color',
+            description: 'variable: population color',
+            type: 'string',
+            default: 'population_color',
+            'data-mapping': true,
+            'data-type': 'numeric',
+            required: false
+        },
         participant_count_col: {
             title: 'Participant Count',
             description: 'variable: participant count',
@@ -1142,7 +1364,7 @@ var schema$4 = {
     overview: 'The most straightforward way to customize forms chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the forms chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the forms chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the forms chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.',
     version: '0.1.0',
     type: 'object',
-    properties: {
+    properties: defineProperty({
         site_col: {
             title: 'Site',
             description: 'variable: site',
@@ -1170,7 +1392,15 @@ var schema$4 = {
             'data-type': 'numeric',
             required: false
         }
-    }
+    }, 'status_order_col', {
+        title: 'Form Status Color',
+        description: 'variable: form status color',
+        type: 'string',
+        default: 'status_color',
+        'data-mapping': true,
+        'data-type': 'numeric',
+        required: false
+    })
 };
 
 function specification$4() {

@@ -1,20 +1,16 @@
 export default function webchartsSettings() {
     return {
-        resizable: false,
-        width: 500,
-        height: 350,
-
-        y: {
-            column: null, // set in syncSettings
-            type: 'linear',
-            behavior: 'firstfilter',
-            label: ''
-        },
         x: {
-            column: null, // set in syncSettings
             type: 'time',
+            column: null, // set in syncSettings
             label: '',
             format: '%b-%y'
+        },
+        y: {
+            type: 'linear',
+            column: null, // set in syncSettings
+            label: '',
+            behavior: 'firstfilter',
         },
         marks: [
             {
@@ -24,11 +20,29 @@ export default function webchartsSettings() {
                 tooltip: '$y'
             }
         ],
-        date_format: '%Y-%m-%d',
         color_by: null, // set in syncSettings
-        colors: ['#2b8cbe', '#a6bddb'],
+        color_dom: [
+            'Screened',
+            'Randomized',
+            'Target',
+        ], // set in ../callbacks/onInit
+        colors: [
+            '#a6bddb',
+            '#3690c0',
+            '#034e7b',
+        ], // set in ../callbacks/onInit
         legend: {
-            label: ''
-        }
+            label: '',
+            order: [
+                'Screened',
+                'Randomized',
+                'Target',
+            ] // set in ../callbacks/onInit
+        },
+        resizable: false,
+        width: 500,
+        height: 350,
+        margin: {},
+        date_format: '%Y-%m-%d',
     };
 }

@@ -1,12 +1,9 @@
+import customizeTooltips from '../../util/customizeTooltips';
+
 export default function onResize() {
     const context = this;
 
-    //Customize tooltips.
-    this.svg.selectAll('.bar-group').each(function(d) {
-        d3.select(this)
-            .selectAll('title')
-            .text(d.values.map(value => `${value.key}: ${value.values.x}`).join('\n'));
-    });
+    customizeTooltips.call(this);
 
     //Manually sort legend.
     this.legend

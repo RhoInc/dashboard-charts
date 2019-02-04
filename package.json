@@ -16,6 +16,7 @@
     "format": "npm run format-src && npm run format-bundle",
     "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./src/**/*.js\"",
     "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write ./dashboardCharts.js",
+    "generate-md": "node ./scripts/build-configuration.js",
     "test": "node ./scripts/test.js",
     "watch": "rollup -c -w"
   },

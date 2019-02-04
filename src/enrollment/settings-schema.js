@@ -34,6 +34,15 @@ export default {
             'data-type': 'numeric',
             required: false
         },
+        population_color_col: {
+            title: 'Population Color',
+            description: 'variable: population color',
+            type: 'string',
+            default: 'population_color',
+            'data-mapping': true,
+            'data-type': 'numeric',
+            required: false
+        },
         population_superset_col: {
             title: 'Subset of:',
             description:

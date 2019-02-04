@@ -3,63 +3,114 @@ The most straightforward way to customize the visit completion chart is by using
 In addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the visit completion chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.
 
 # Renderer-specific settings
-The sections below describe each visit setting as of version 0.1.0.
+The sections below describe each visitCompletion setting as of version 0.1.0.
 
-## settings.site_name
+## settings.site_col
 `string`
 
-site variable name
+variable: site
 
-**default:** `"site_name"`
+**default:** `"site"`
 
 
 
-## settings.visit_name
+## settings.visit_col
 `string`
 
-visit variable name
+variable: visit
 
-**default:** `"visit_name"`
+**default:** `"visit"`
 
 
 
-## settings.visit_status
+## settings.visit_order_col
 `string`
 
-visit status variable name
+variable: visit order
 
-**default:** `"visit_status"`
+**default:** `"visit_order"`
 
 
 
-## settings.visit_number
+## settings.status_col
 `string`
 
-visit number variable name (provides order for visits)
+variable: visit status
 
-**default:** `"visit_number"`
-
-
-
-## settings.site_filter
-`boolean`
-
-allow filtering of sites
-
-**default:** `true`
+**default:** `"status"`
 
 
 
-## settings.y_toggle
-`boolean`
+## settings.status_order_col
+`string`
 
-allows for toggling between 'N' and '%' for the Y axis
+variable: visit status color
 
-**default:** `true`
+**default:** `"status_color"`
+
+
+
 
 # Webcharts settings
 The object below contains each Webcharts setting as of version 0.1.0.
 
 ```
-{    resizable: false,    width: 500,    height: 350,    x: {        label: '',        type: 'ordinal',        column: null, // set in syncSettings        domain: [            'SCRN',            'RAND',            'V2',            'V3',            'V4',            'V5',            'V6',            'V7',            'V8',            'V9',            'V10',            'V11',            'V12',            'V13',            'V14'        ]    },    y: {        label: '',        type: 'linear',        column: null, // set in syncSettings        behavior: 'flex',        domain: [0, null]    },    marks: [        {            arrange: 'stacked',            split: null, // set in syncSettings            type: 'bar',            per: [], // set in syncSettings            attributes: { 'fill-opacity': 0.8 },            summarizeY: 'count',            tooltip: null // set in syncSettings        }    ],    color_dom: ['In Window', 'Expected', 'Out of Window', 'Overdue', 'Missed'],    color_by: null, // set in syncSettings    colors: ['rgb(102,194,165)', 'rgb(43,131,186)', '#fecc5c', '#E87F00', 'red', '#9933ff'],    legend: {        label: '',        order: ['In Window', 'Expected', 'Out of Window', 'Overdue', 'Missed']    }}
+{
+    "x": {
+        "label": "",
+        "type": "ordinal",
+        "column": null
+    },
+    "y": {
+        "label": "",
+        "type": "linear",
+        "column": null,
+        "behavior": "flex",
+        "domain": [
+            0,
+            null
+        ]
+    },
+    "marks": [
+        {
+            "type": "bar",
+            "per": [],
+            "summarizeY": "count",
+            "tooltip": null,
+            "split": null,
+            "arrange": "stacked"
+        }
+    ],
+    "color_by": null,
+    "color_dom": [
+        "Completed",
+        "Expected",
+        "Overdue",
+        "Missed",
+        "Terminated"
+    ],
+    "colors": [
+        "#4daf4a",
+        "#377eb8",
+        "#ff7f00",
+        "#e41a1c",
+        "#999999"
+    ],
+    "legend": {
+        "label": "",
+        "order": [
+            "Completed",
+            "Expected",
+            "Overdue",
+            "Missed",
+            "Terminated"
+        ]
+    },
+    "resizable": false,
+    "width": 500,
+    "height": 350,
+    "margin": {
+        "left": 50
+    }
+}
 ```

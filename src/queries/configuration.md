@@ -5,34 +5,83 @@ In addition to the standard Webcharts settings several custom settings not avail
 # Renderer-specific settings
 The sections below describe each queries setting as of version 0.1.0.
 
-## settings.site_name
+## settings.site_col
 `string`
 
-site variable name
+variable: site
 
-**default:** `"site_name"`
+**default:** `"site"`
 
 
 
-## settings.query_status
+## settings.status_col
 `string`
 
-query status variable name
+variable: query status
 
-**default:** `"query_status"`
+**default:** `"status"`
 
 
 
-## settings.y_toggle
-`boolean`
+## settings.status_order_col
+`string`
 
-allows for toggling between 'N' and '%' for the Y axis
+variable: query status color
 
-**default:** `true`
+**default:** `"status_color"`
+
+
+
 
 # Webcharts settings
 The object below contains each Webcharts setting as of version 0.1.0.
 
 ```
-{    resizable: false,    width: 500,    height: 350,    y: {        type: 'linear',        behavior: 'firstfilter'    },    x: {        column: null, // set in syncSettings        type: 'ordinal',        label: ''        //    "domain": ["Boston", "MUSC", "UCLA", "Pittsburgh", "Houston", "Michigan", "HSS", "Georgetown"]    },    marks: [        {            arrange: 'stacked',            split: null, // set in syncSettings            type: 'bar',            per: [], // set in syncSettings            summarizeY: 'percent',            tooltip: '$y'        }    ],    color_by: null, // set in syncSettings    colors: ['rgb(102,194,165)', '#fecc5c', '#e34a33'],    legend: {        label: '',        order: ['Resolved', 'Outstanding <= 90 days', 'Outstanding > 90 days']    }}
+{
+    "y": {
+        "type": "linear",
+        "behavior": "firstfilter",
+        "format": "1d"
+    },
+    "x": {
+        "column": null,
+        "type": "ordinal",
+        "label": ""
+    },
+    "marks": [
+        {
+            "arrange": "stacked",
+            "split": null,
+            "type": "bar",
+            "per": [],
+            "summarizeY": "percent",
+            "tooltip": "$y"
+        }
+    ],
+    "color_by": null,
+    "color_dom": [
+        "Resolved",
+        "Outstanding <= 90 days",
+        "Outstanding > 90 days"
+    ],
+    "colors": [
+        "#66c2a5",
+        "#fecc5c",
+        "#e34a33"
+    ],
+    "legend": {
+        "label": "",
+        "order": [
+            "Resolved",
+            "Outstanding <= 90 days",
+            "Outstanding > 90 days"
+        ]
+    },
+    "resizable": false,
+    "width": 500,
+    "height": 350,
+    "margin": {
+        "left": 50
+    }
+}
 ```

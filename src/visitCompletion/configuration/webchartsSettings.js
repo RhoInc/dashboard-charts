@@ -22,24 +22,36 @@ export default function webchartsSettings() {
                 arrange: 'stacked'
             }
         ],
-        color_dom: ['Completed', 'Expected', 'Overdue', 'Missed'], // derived in ../callbacks/onInit
         color_by: null, // set in ./syncSettings
-        colors: ['#4daf4a', '#377eb8', '#ff7f00', '#e41a1c', '#999999', '#999999'],
+        color_dom: [
+            'Completed',
+            'Expected',
+            'Overdue',
+            'Missed',
+            'Terminated'
+        ], // set in ../callbacks/onInit
+        colors: [
+            '#4daf4a',
+            '#377eb8',
+            '#ff7f00',
+            '#e41a1c',
+            '#999999'
+        ], // set in ./syncSettings
         legend: {
             label: '',
-            order: null, // set in ../callbacks/onInit
-            color_dom: [
+            order: [
                 'Completed',
                 'Expected',
                 'Overdue',
-                'Missed' // derived in ../callbacks/onInit
+                'Missed',
+                'Terminated', // set in ../callbacks/onInit
             ]
         },
+        resizable: false,
+        width: 500,
+        height: 350,
         margin: {
             left: 50
         },
-        width: 500,
-        height: 350,
-        resizable: false
     };
 }
