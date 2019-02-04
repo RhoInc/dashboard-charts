@@ -1,6 +1,6 @@
+var glob = require('glob');
 require('babel-register');
 var fs = require('fs');
-var glob = require('glob');
 
 function setDefault(setting) {
     let settingDefault = '**default:** ';
@@ -31,7 +31,6 @@ glob(
             const renderer = file.split('/')[1];
             const schema = require(`../${file}`).default;
             const webchartsSettings = require(`../${file.replace('settings-schema', 'configuration/webchartsSettings')}`).default();
-            console.log(webchartsSettings);
             const properties = schema.properties;
             const markdown = [];
 
@@ -117,11 +116,11 @@ glob(
             \------------------------------------------------------------------------------------------------*/
 
                 fs.writeFile(
-                    file.replace('settings-schema.js', 'configuration.md'),
+                    file.replace('settings-schema.js', 'configuration-wiki.md'),
                     markdown.join('\n'),
                     err => {
                         if (err) console.log(err);
-                        console.log('The configuration markdown file was built!');
+                        console.log(`The ${renderer} configuration wiki markdown file was built!`);
                     }
                 );
         });

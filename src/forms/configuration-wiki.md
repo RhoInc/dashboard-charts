@@ -26,6 +26,15 @@ variable: form status
 ## settings.status_order_col
 `string`
 
+variable: form status order
+
+**default:** `"status_order"`
+
+
+
+## settings.status_color_col
+`string`
+
 variable: form status color
 
 **default:** `"status_color"`

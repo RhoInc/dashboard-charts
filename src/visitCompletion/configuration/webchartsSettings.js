@@ -23,20 +23,8 @@ export default function webchartsSettings() {
             }
         ],
         color_by: null, // set in ./syncSettings
-        color_dom: [
-            'Completed',
-            'Expected',
-            'Overdue',
-            'Missed',
-            'Terminated'
-        ], // set in ../callbacks/onInit
-        colors: [
-            '#4daf4a',
-            '#377eb8',
-            '#ff7f00',
-            '#e41a1c',
-            '#999999'
-        ], // set in ./syncSettings
+        color_dom: ['Completed', 'Expected', 'Overdue', 'Missed', 'Terminated'], // set in ../callbacks/onInit
+        colors: ['#4daf4a', '#377eb8', '#ff7f00', '#e41a1c', '#999999'], // set in ./syncSettings
         legend: {
             label: '',
             order: [
@@ -44,7 +32,7 @@ export default function webchartsSettings() {
                 'Expected',
                 'Overdue',
                 'Missed',
-                'Terminated', // set in ../callbacks/onInit
+                'Terminated' // set in ../callbacks/onInit
             ]
         },
         resizable: false,
@@ -52,6 +40,6 @@ export default function webchartsSettings() {
         height: 350,
         margin: {
             left: 50
-        },
+        }
     };
 }

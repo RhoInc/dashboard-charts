@@ -24,25 +24,15 @@ export default function webchartsSettings() {
             }
         ],
         color_by: null, // set in ./syncSettings
-        color_dom: [
-            'Screened',
-            'Randomized',
-        ], // set in ../callbacks/onInit
-        colors: [
-            '#a6bddb',
-            '#3690c0',
-            '#034e7b',
-        ], // set in ../callbacks/onInit
+        color_dom: ['Screened', 'Randomized'], // set in ../callbacks/onInit
+        colors: ['#a6bddb', '#3690c0', '#034e7b'], // set in ../callbacks/onInit
         legend: {
             label: '',
-            order: [
-                'Screened',
-                'Randomized',
-            ] // set in ../callbacks/onInit
+            order: ['Screened', 'Randomized'] // set in ../callbacks/onInit
         },
         resizable: false,
         width: 500,
         height: 350,
-        margin: {},
+        margin: {}
     };
 }

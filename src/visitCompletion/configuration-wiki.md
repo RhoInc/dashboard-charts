@@ -44,6 +44,15 @@ variable: visit status
 ## settings.status_order_col
 `string`
 
+variable: visit status order
+
+**default:** `"status_order"`
+
+
+
+## settings.status_color_col
+`string`
+
 variable: visit status color
 
 **default:** `"status_color"`

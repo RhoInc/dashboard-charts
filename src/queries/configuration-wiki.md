@@ -26,6 +26,15 @@ variable: query status
 ## settings.status_order_col
 `string`
 
+variable: query status order
+
+**default:** `"status_order"`
+
+
+
+## settings.status_color_col
+`string`
+
 variable: query status color
 
 **default:** `"status_color"`
@@ -38,15 +47,15 @@ The object below contains each Webcharts setting as of version 0.1.0.
 
 ```
 {
-    "y": {
-        "type": "linear",
-        "behavior": "firstfilter",
-        "format": "1d"
-    },
     "x": {
         "column": null,
         "type": "ordinal",
         "label": ""
+    },
+    "y": {
+        "type": "linear",
+        "behavior": "firstfilter",
+        "format": "1d"
     },
     "marks": [
         {
