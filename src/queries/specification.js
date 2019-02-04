@@ -11,6 +11,7 @@ export default function specification() {
 
     return {
         schema,
+        configuration,
         settings: syncedSettings,
         controlInputs: syncedControlInputs,
         callbacks
