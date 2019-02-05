@@ -43,7 +43,7 @@ export default {
             type: 'string',
             default: 'status_color',
             'data-mapping': true,
-            'data-type': 'numeric',
+            'data-type': 'character',
             required: false
         }
     }

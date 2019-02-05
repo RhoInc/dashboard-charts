@@ -12,7 +12,7 @@ export default {
         'one record per site per population per date between site activation and data snapshot date',
     properties: {
         site_col: {
-            title: 'Site Variable',
+            title: 'Site',
             description: 'site variable name',
             type: 'string',
             default: 'site',
@@ -21,7 +21,7 @@ export default {
             required: true
         },
         date_col: {
-            title: 'Date Variable',
+            title: 'Date',
             description: 'date variable name in YYYY-MM-DD format',
             type: 'string',
             default: 'date',
@@ -30,7 +30,7 @@ export default {
             required: true
         },
         population_col: {
-            title: 'Population Variable',
+            title: 'Population',
             description: 'variable: population',
             type: 'string',
             default: 'population',

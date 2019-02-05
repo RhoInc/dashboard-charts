@@ -20,7 +20,7 @@ export default {
             required: true
         },
         visit_col: {
-            title: 'Visit Variable',
+            title: 'Visit',
             description: 'variable: visit',
             type: 'string',
             default: 'visit',

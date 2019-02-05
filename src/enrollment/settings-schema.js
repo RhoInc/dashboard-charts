@@ -11,7 +11,7 @@ export default {
     'data-structure': 'one record per participant per population',
     properties: {
         site_col: {
-            title: 'Site Variable',
+            title: 'Site',
             description: 'variable: site',
             type: 'string',
             default: 'site',

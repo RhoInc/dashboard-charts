@@ -807,8 +807,8 @@ function rendererSettings$4() {
     return {
         site_col: 'site',
         status_col: 'status',
-        status_order: 'status_order',
-        status_color: 'status_color'
+        status_order_col: 'status_order',
+        status_color_col: 'status_color'
     };
 }
 
@@ -951,7 +951,7 @@ var schema = {
     'data-structure': 'one record per participant per population',
     properties: {
         site_col: {
-            title: 'Site Variable',
+            title: 'Site',
             description: 'variable: site',
             type: 'string',
             default: 'site',
@@ -1031,7 +1031,7 @@ var schema$1 = {
             required: true
         },
         visit_col: {
-            title: 'Visit Variable',
+            title: 'Visit',
             description: 'variable: visit',
             type: 'string',
             default: 'visit',
@@ -1134,7 +1134,7 @@ var schema$2 = {
             type: 'string',
             default: 'status_color',
             'data-mapping': true,
-            'data-type': 'numeric',
+            'data-type': 'character',
             required: false
         }
     }
@@ -1164,7 +1164,7 @@ var schema$3 = {
     'data-structure': 'one record per site per population per date between site activation and data snapshot date',
     properties: {
         site_col: {
-            title: 'Site Variable',
+            title: 'Site',
             description: 'site variable name',
             type: 'string',
             default: 'site',
@@ -1173,7 +1173,7 @@ var schema$3 = {
             required: true
         },
         date_col: {
-            title: 'Date Variable',
+            title: 'Date',
             description: 'date variable name in YYYY-MM-DD format',
             type: 'string',
             default: 'date',
@@ -1182,7 +1182,7 @@ var schema$3 = {
             required: true
         },
         population_col: {
-            title: 'Population Variable',
+            title: 'Population',
             description: 'variable: population',
             type: 'string',
             default: 'population',
@@ -1276,7 +1276,7 @@ var schema$4 = {
             type: 'string',
             default: 'status_color',
             'data-mapping': true,
-            'data-type': 'numeric',
+            'data-type': 'character',
             required: false
         }
     }
