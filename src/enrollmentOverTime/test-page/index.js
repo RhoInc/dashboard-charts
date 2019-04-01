@@ -1,4 +1,4 @@
-d3.csv('../../../data/enrollment_overtime_example.csv', function(error, data) {
+d3.csv('https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-enrollment-over-time.csv', function(error, data){
     if (error) console.log(error);
 
     var settings = {};
