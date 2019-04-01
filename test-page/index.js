@@ -14,7 +14,7 @@
 \-------------------------------------------------------------------------------------------**/
 
     var dataElementTM = ".gg-dash-item.top.middle";
-    var instanceTM =  dashboardCharts.renderers.visit-completion(dataElementTM + ' .gg-dash-item-content', dataElementTM + ' .gg-dash-item-content', dataElementTM + ' .gg-dash-item-title');
+    var instanceTM =  dashboardCharts.renderers.visitCompletion(dataElementTM + ' .gg-dash-item-content', dataElementTM + ' .gg-dash-item-content', dataElementTM + ' .gg-dash-item-title');
 
     d3.csv('https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-visit-completion.csv', function(error, data) {
         instanceTM.init(data);
@@ -36,7 +36,7 @@
 \-------------------------------------------------------------------------------------------**/
 
     var dataElementBL = ".gg-dash-item.bottom.left"
-    var instanceBL = dashboardCharts.renderers.enrollment-over-time(dataElementBL+" .gg-dash-item-content")
+    var instanceBL = dashboardCharts.renderers.enrollmentOverTime(dataElementBL+" .gg-dash-item-content")
 
     d3.csv('https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-enrollment-over-time.csv', function(error, data){
         instanceBL.init(data);

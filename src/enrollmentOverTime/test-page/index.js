@@ -2,6 +2,6 @@ d3.csv('https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinic
     if (error) console.log(error);
 
     var settings = {};
-    var instance = dashboardCharts.enrollment('#container', settings);
+    var instance = dashboardCharts.renderers.enrollmentOverTime('#container', settings);
     instance.init(data);
 });

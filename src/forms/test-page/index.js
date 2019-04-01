@@ -2,6 +2,6 @@ d3.csv('https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinic
     if (error) console.log(error);
 
     var settings = {};
-    var instance = dashboardCharts.forms('#container');
+    var instance = dashboardCharts.renderers.forms('#container');
     instance.init(data);
 });
