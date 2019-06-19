@@ -68,23 +68,11 @@ The object below contains each Webcharts setting as of version 0.1.0.
         }
     ],
     "color_by": null,
-    "color_dom": [
-        "Resolved",
-        "Outstanding <= 90 days",
-        "Outstanding > 90 days"
-    ],
-    "colors": [
-        "#66c2a5",
-        "#fecc5c",
-        "#e34a33"
-    ],
+    "color_dom": null,
+    "colors": null,
     "legend": {
         "label": "",
-        "order": [
-            "Resolved",
-            "Outstanding <= 90 days",
-            "Outstanding > 90 days"
-        ]
+        "order": null
     },
     "resizable": false,
     "width": 500,

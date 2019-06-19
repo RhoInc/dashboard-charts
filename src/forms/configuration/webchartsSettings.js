@@ -7,7 +7,8 @@ export default function webchartsSettings() {
         },
         y: {
             type: 'linear',
-            behavior: 'firstfilter'
+            behavior: 'firstfilter',
+            format: '1d'
         },
         marks: [
             {
@@ -20,11 +21,11 @@ export default function webchartsSettings() {
             }
         ],
         color_by: null, // set in ./syncSettings
-        color_dom: ['Received', 'Outstanding <= 90 days', 'Outstanding > 90 days'], // set in ../callbacks/onInit
-        colors: ['#66c2a5', '#fecc5c', '#e34a33'], // set in ../callbacks/onInit
+        color_dom: null, // set in ../callbacks/onInit
+        colors: null, // set in ../callbacks/onInit
         legend: {
             label: '',
-            order: ['Received', 'Outstanding <= 90 days', 'Outstanding > 90 days'] // set in ../callbacks/onInit
+            order: null // set in ../callbacks/onInit
         },
         resizable: false,
         width: 500,

@@ -91,29 +91,11 @@ The object below contains each Webcharts setting as of version 0.1.0.
         }
     ],
     "color_by": null,
-    "color_dom": [
-        "Completed",
-        "Expected",
-        "Overdue",
-        "Missed",
-        "Terminated"
-    ],
-    "colors": [
-        "#4daf4a",
-        "#377eb8",
-        "#ff7f00",
-        "#e41a1c",
-        "#999999"
-    ],
+    "color_dom": null,
+    "colors": null,
     "legend": {
         "label": "",
-        "order": [
-            "Completed",
-            "Expected",
-            "Overdue",
-            "Missed",
-            "Terminated"
-        ]
+        "order": null
     },
     "resizable": false,
     "width": 500,

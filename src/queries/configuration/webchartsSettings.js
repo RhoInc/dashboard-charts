@@ -1,7 +1,7 @@
 export default function webchartsSettings() {
     return {
         x: {
-            column: null, // set in syncSettings
+            column: null, // set in ./syncSettings
             type: 'ordinal',
             label: ''
         },
@@ -13,19 +13,19 @@ export default function webchartsSettings() {
         marks: [
             {
                 arrange: 'stacked',
-                split: null, // set in syncSettings
+                split: null, // set in ./syncSettings
                 type: 'bar',
-                per: [], // set in syncSettings
+                per: [], // set in ./syncSettings
                 summarizeY: 'percent',
                 tooltip: '$y'
             }
         ],
-        color_by: null, // set in syncSettings
-        color_dom: ['Resolved', 'Outstanding <= 90 days', 'Outstanding > 90 days'], // set in ../callbacks/onInit
-        colors: ['#66c2a5', '#fecc5c', '#e34a33'], // set in ../callbacks/onInit
+        color_by: null, // set in ./syncSettings
+        color_dom: null, // set in ../callbacks/onInit
+        colors: null, // set in ../callbacks/onInit
         legend: {
             label: '',
-            order: ['Resolved', 'Outstanding <= 90 days', 'Outstanding > 90 days'] // set in ../callbacks/onInit
+            order: null // set in ../callbacks/onInit
         },
         resizable: false,
         width: 500,

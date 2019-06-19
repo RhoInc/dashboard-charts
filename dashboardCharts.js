@@ -162,11 +162,11 @@
                 }
             ],
             color_by: null, // set in ./syncSettings
-            color_dom: ['Screened', 'Randomized'], // set in ../callbacks/onInit
-            colors: ['#a6bddb', '#3690c0', '#034e7b'], // set in ../callbacks/onInit
+            color_dom: null, // set in ../callbacks/onInit
+            colors: null, // set in ../callbacks/onInit
             legend: {
                 label: '',
-                order: ['Screened', 'Randomized'] // set in ../callbacks/onInit
+                order: null // set in ../callbacks/onInit
             },
             resizable: false,
             width: 500,
@@ -460,17 +460,11 @@
                 }
             ],
             color_by: null, // set in ./syncSettings
-            color_dom: ['Completed', 'Expected', 'Overdue', 'Missed', 'Terminated'], // set in ../callbacks/onInit
-            colors: ['#4daf4a', '#377eb8', '#ff7f00', '#e41a1c', '#999999'], // set in ./syncSettings
+            color_dom: null, // set in ../callbacks/onInit
+            colors: null, // set in ./syncSettings
             legend: {
                 label: '',
-                order: [
-                    'Completed',
-                    'Expected',
-                    'Overdue',
-                    'Missed',
-                    'Terminated' // set in ../callbacks/onInit
-                ]
+                order: null // set in ../callbacks/onInit
             },
             resizable: false,
             width: 500,
@@ -559,7 +553,7 @@
         onDestroy: onDestroy$1
     };
 
-    function enrollment$1() {
+    function visitCompletion() {
         var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
         var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
@@ -597,7 +591,7 @@
     function webchartsSettings$2() {
         return {
             x: {
-                column: null, // set in syncSettings
+                column: null, // set in ./syncSettings
                 type: 'ordinal',
                 label: ''
             },
@@ -609,19 +603,19 @@
             marks: [
                 {
                     arrange: 'stacked',
-                    split: null, // set in syncSettings
+                    split: null, // set in ./syncSettings
                     type: 'bar',
-                    per: [], // set in syncSettings
+                    per: [], // set in ./syncSettings
                     summarizeY: 'percent',
                     tooltip: '$y'
                 }
             ],
-            color_by: null, // set in syncSettings
-            color_dom: ['Resolved', 'Outstanding <= 90 days', 'Outstanding > 90 days'], // set in ../callbacks/onInit
-            colors: ['#66c2a5', '#fecc5c', '#e34a33'], // set in ../callbacks/onInit
+            color_by: null, // set in ./syncSettings
+            color_dom: null, // set in ../callbacks/onInit
+            colors: null, // set in ../callbacks/onInit
             legend: {
                 label: '',
-                order: ['Resolved', 'Outstanding <= 90 days', 'Outstanding > 90 days'] // set in ../callbacks/onInit
+                order: null // set in ../callbacks/onInit
             },
             resizable: false,
             width: 500,
@@ -699,7 +693,7 @@
         onDestroy: onDestroy$2
     };
 
-    function enrollment$2() {
+    function queries() {
         var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
         var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
@@ -740,30 +734,30 @@
         return {
             x: {
                 type: 'time',
-                column: null, // set in syncSettings
+                column: null, // set in ./syncSettings
                 label: '',
                 format: '%b-%y'
             },
             y: {
                 type: 'linear',
-                column: null, // set in syncSettings
+                column: null, // set in ./syncSettings
                 label: '',
                 behavior: 'firstfilter'
             },
             marks: [
                 {
                     type: 'line',
-                    per: [], // set in syncSettings
+                    per: [], // set in ./syncSettings
                     summarizeY: 'sum',
                     tooltip: '$y'
                 }
             ],
-            color_by: null, // set in syncSettings
-            color_dom: ['Screened', 'Randomized', 'Target'], // set in ../callbacks/onInit
-            colors: ['#a6bddb', '#3690c0', '#034e7b'], // set in ../callbacks/onInit
+            color_by: null, // set in ./syncSettings
+            color_dom: null, // set in ../callbacks/onInit
+            colors: null, // set in ../callbacks/onInit
             legend: {
                 label: '',
-                order: ['Screened', 'Randomized', 'Target'] // set in ../callbacks/onInit
+                order: null // set in ../callbacks/onInit
             },
             resizable: false,
             width: 500,
@@ -972,7 +966,8 @@
             },
             y: {
                 type: 'linear',
-                behavior: 'firstfilter'
+                behavior: 'firstfilter',
+                format: '1d'
             },
             marks: [
                 {
@@ -985,11 +980,11 @@
                 }
             ],
             color_by: null, // set in ./syncSettings
-            color_dom: ['Received', 'Outstanding <= 90 days', 'Outstanding > 90 days'], // set in ../callbacks/onInit
-            colors: ['#66c2a5', '#fecc5c', '#e34a33'], // set in ../callbacks/onInit
+            color_dom: null, // set in ../callbacks/onInit
+            colors: null, // set in ../callbacks/onInit
             legend: {
                 label: '',
-                order: ['Received', 'Outstanding <= 90 days', 'Outstanding > 90 days'] // set in ../callbacks/onInit
+                order: null // set in ../callbacks/onInit
             },
             resizable: false,
             width: 500,
@@ -1067,7 +1062,7 @@
         onDestroy: onDestroy$4
     };
 
-    function enrollment$3() {
+    function forms() {
         var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
         var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
@@ -1095,10 +1090,10 @@
 
     var renderers = {
         enrollment: enrollment,
-        visitCompletion: enrollment$1,
-        queries: enrollment$2,
+        visitCompletion: visitCompletion,
+        queries: queries,
         enrollmentOverTime: enrollmentOverTime,
-        forms: enrollment$3
+        forms: forms
     };
 
     var schema = {

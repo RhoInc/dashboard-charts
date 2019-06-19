@@ -1,9 +1,8 @@
 # Dashboard Charts
+A JavaScript library containing all of the default charts for use within the [Dashboard Framework](https://github.com/RhoInc/dashboard-framework).
 
-A JavaScript library containing all of the default charts for use within [Dashboard Framework](https://github.com/RhoInc/dashboard-framework).
-
-Click [here](https://rhoinc.github.io/dashboard-charts/build/test-page/) to open an interactive example.
+Click [here](https://rhoinc.github.io/dashboard-charts/test-page/) to open an interactive example.
  
 ## Links 
-- [Interactive Example](https://rhoinc.github.io/dashboard-charts/build/test-page/)
+- [Interactive Example](https://rhoinc.github.io/dashboard-charts/test-page/)
 

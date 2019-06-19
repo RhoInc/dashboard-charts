@@ -86,23 +86,11 @@ The object below contains each Webcharts setting as of version 0.1.0.
         }
     ],
     "color_by": null,
-    "color_dom": [
-        "Screened",
-        "Randomized",
-        "Target"
-    ],
-    "colors": [
-        "#a6bddb",
-        "#3690c0",
-        "#034e7b"
-    ],
+    "color_dom": null,
+    "colors": null,
     "legend": {
         "label": "",
-        "order": [
-            "Screened",
-            "Randomized",
-            "Target"
-        ]
+        "order": null
     },
     "resizable": false,
     "width": 500,

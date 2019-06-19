@@ -23,17 +23,11 @@ export default function webchartsSettings() {
             }
         ],
         color_by: null, // set in ./syncSettings
-        color_dom: ['Completed', 'Expected', 'Overdue', 'Missed', 'Terminated'], // set in ../callbacks/onInit
-        colors: ['#4daf4a', '#377eb8', '#ff7f00', '#e41a1c', '#999999'], // set in ./syncSettings
+        color_dom: null, // set in ../callbacks/onInit
+        colors: null, // set in ./syncSettings
         legend: {
             label: '',
-            order: [
-                'Completed',
-                'Expected',
-                'Overdue',
-                'Missed',
-                'Terminated' // set in ../callbacks/onInit
-            ]
+            order: null // set in ../callbacks/onInit
         },
         resizable: false,
         width: 500,
