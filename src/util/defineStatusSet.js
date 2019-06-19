@@ -42,12 +42,11 @@ export default function defineStatusSet(
     if (!(Array.isArray(this.config.color_dom) && this.config.color_dom.length))
         this.config.color_dom = this.status_set.map(status => status.split(':|:')[0]);
     else
-        this.config.color_dom = this.config.color_dom
-            .concat(
-                this.status_set
-                    .map(status => status.split(':|:')[0])
-                    .filter(status => this.config.color_dom.indexOf(status) < 0)
-            );
+        this.config.color_dom = this.config.color_dom.concat(
+            this.status_set
+                .map(status => status.split(':|:')[0])
+                .filter(status => this.config.color_dom.indexOf(status) < 0)
+        );
 
     //Update colors.
     if (variables.indexOf(status_color_col) > -1)
@@ -57,10 +56,9 @@ export default function defineStatusSet(
     if (!(Array.isArray(this.config.legend.order) && this.config.legend.order.length))
         this.config.legend.order = this.status_set.map(status => status.split(':|:')[0]);
     else
-        this.config.legend.order = this.config.legend.order
-            .concat(
-                this.status_set
-                    .map(status => status.split(':|:')[0])
-                    .filter(status => this.config.legend.order.indexOf(status) < 0)
-            );
+        this.config.legend.order = this.config.legend.order.concat(
+            this.status_set
+                .map(status => status.split(':|:')[0])
+                .filter(status => this.config.legend.order.indexOf(status) < 0)
+        );
 }
