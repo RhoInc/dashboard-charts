@@ -19,7 +19,7 @@ export default function onResize() {
         d3.select(this).text(
             d.label +
                 ' (' +
-                context.raw_data.filter(function(di) {
+                context.filtered_data.filter(function(di) {
                     return di[context.config.population_col] === d.label;
                 }).length +
                 ')'

@@ -38,9 +38,29 @@ export default function defineStatusSet(
             return comparison;
         });
 
-    //Update chart settings.
-    this.config.color_dom = this.status_set.map(status => status.split(':|:')[0]);
+    //Update color domain.
+    if (!(Array.isArray(this.config.color_dom) && this.config.color_dom.length))
+        this.config.color_dom = this.status_set.map(status => status.split(':|:')[0]);
+    else
+        this.config.color_dom = this.config.color_dom
+            .concat(
+                this.status_set
+                    .map(status => status.split(':|:')[0])
+                    .filter(status => this.config.color_dom.indexOf(status) < 0)
+            );
+
+    //Update colors.
     if (variables.indexOf(status_color_col) > -1)
         this.config.colors = this.status_set.map(status => status.split(':|:')[2]);
-    this.config.legend.order = this.status_set.map(status => status.split(':|:')[0]);
+
+    //Update legend order.
+    if (!(Array.isArray(this.config.legend.order) && this.config.legend.order.length))
+        this.config.legend.order = this.status_set.map(status => status.split(':|:')[0]);
+    else
+        this.config.legend.order = this.config.legend.order
+            .concat(
+                this.status_set
+                    .map(status => status.split(':|:')[0])
+                    .filter(status => this.config.legend.order.indexOf(status) < 0)
+            );
 }
