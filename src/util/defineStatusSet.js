@@ -1,8 +1,4 @@
-export default function defineStatusSet(
-    status_col = 'status',
-    status_order_col = 'status_order',
-    status_color_col = 'status_color'
-) {
+export default function defineStatusSet(status_col, status_order_col, status_color_col) {
     const variables = Object.keys(this.raw_data[0]);
 
     //Define ordered status set.

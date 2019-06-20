@@ -82,6 +82,59 @@
         });
     }
 
+    if (!Array.prototype.includes) {
+        Object.defineProperty(Array.prototype, 'includes', {
+            value: function value(valueToFind, fromIndex) {
+                if (this == null) {
+                    throw new TypeError('"this" is null or not defined');
+                }
+
+                // 1. Let O be ? ToObject(this value).
+                var o = Object(this);
+
+                // 2. Let len be ? ToLength(? Get(O, "length")).
+                var len = o.length >>> 0;
+
+                // 3. If len is 0, return false.
+                if (len === 0) {
+                    return false;
+                }
+
+                // 4. Let n be ? ToInteger(fromIndex).
+                //        (If fromIndex is undefined, this step produces the value 0.)
+                var n = fromIndex | 0;
+
+                // 5. If n = 0, then
+                //    a. Let k be n.
+                // 6. Else n < 0,
+                //    a. Let k be len + n.
+                //    b. If k < 0, let k be 0.
+                var k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
+
+                function sameValueZero(x, y) {
+                    return (
+                        x === y ||
+                        (typeof x === 'number' && typeof y === 'number' && isNaN(x) && isNaN(y))
+                    );
+                }
+
+                // 7. Repeat, while k < len
+                while (k < len) {
+                    // a. Let elementK be the result of ? Get(O, ! ToString(k)).
+                    // b. If SameValueZero(valueToFind, elementK) is true, return true.
+                    if (sameValueZero(o[k], valueToFind)) {
+                        return true;
+                    }
+                    // c. Increase k by 1.
+                    k++;
+                }
+
+                // 8. Return false
+                return false;
+            }
+        });
+    }
+
     if (!Array.prototype.findIndex) {
         Object.defineProperty(Array.prototype, 'findIndex', {
             value: function value(predicate) {
@@ -203,16 +256,8 @@
         syncControlInputs: syncControlInputs
     };
 
-    function defineStatusSet() {
-        var status_col =
-            arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'status';
-
+    function defineStatusSet(status_col, status_order_col, status_color_col) {
         var _this = this;
-
-        var status_order_col =
-            arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'status_order';
-        var status_color_col =
-            arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'status_color';
 
         var variables = Object.keys(this.raw_data[0]);
 
@@ -521,7 +566,12 @@
     };
 
     function onInit$1() {
-        defineStatusSet.call(this);
+        defineStatusSet.call(
+            this,
+            this.config.status_col,
+            this.config.status_order_col,
+            this.config.status_color_col
+        );
     }
 
     function onLayout$1() {}
@@ -661,7 +711,12 @@
     };
 
     function onInit$2() {
-        defineStatusSet.call(this);
+        defineStatusSet.call(
+            this,
+            this.config.status_col,
+            this.config.status_order_col,
+            this.config.status_color_col
+        );
     }
 
     function onLayout$2() {}
@@ -1030,7 +1085,12 @@
     };
 
     function onInit$4() {
-        defineStatusSet.call(this);
+        defineStatusSet.call(
+            this,
+            this.config.status_col,
+            this.config.status_order_col,
+            this.config.status_color_col
+        );
     }
 
     function onLayout$4() {}
