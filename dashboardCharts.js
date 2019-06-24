@@ -262,7 +262,7 @@
         var variables = Object.keys(this.raw_data[0]);
 
         //Define ordered status set.
-        this.status_set = d3
+        var status_set = d3
             .set(
                 this.raw_data.map(function(d) {
                     return (
@@ -298,12 +298,12 @@
 
         //Update color domain.
         if (!(Array.isArray(this.config.color_dom) && this.config.color_dom.length))
-            this.config.color_dom = this.status_set.map(function(status) {
+            this.config.color_dom = status_set.map(function(status) {
                 return status.split(':|:')[0];
             });
         else
             this.config.color_dom = this.config.color_dom.concat(
-                this.status_set
+                status_set
                     .map(function(status) {
                         return status.split(':|:')[0];
                     })
@@ -314,18 +314,18 @@
 
         //Update colors.
         if (variables.indexOf(status_color_col) > -1)
-            this.config.colors = this.status_set.map(function(status) {
+            this.config.colors = status_set.map(function(status) {
                 return status.split(':|:')[2];
             });
 
         //Update legend order.
         if (!(Array.isArray(this.config.legend.order) && this.config.legend.order.length))
-            this.config.legend.order = this.status_set.map(function(status) {
+            this.config.legend.order = status_set.map(function(status) {
                 return status.split(':|:')[0];
             });
         else
             this.config.legend.order = this.config.legend.order.concat(
-                this.status_set
+                status_set
                     .map(function(status) {
                         return status.split(':|:')[0];
                     })
@@ -333,6 +333,14 @@
                         return _this.config.legend.order.indexOf(status) < 0;
                     })
             );
+
+        //Order raw data so stacked bars are ordered correctly.
+        this.raw_data.sort(function(a, b) {
+            return (
+                _this.config.legend.order.indexOf(a[_this.config.status_col]) -
+                _this.config.legend.order.indexOf(b[_this.config.status_col])
+            );
+        });
     }
 
     function onInit() {
@@ -565,7 +573,95 @@
         syncControlInputs: syncControlInputs$1
     };
 
+    var slicedToArray = (function() {
+        function sliceIterator(arr, i) {
+            var _arr = [];
+            var _n = true;
+            var _d = false;
+            var _e = undefined;
+
+            try {
+                for (
+                    var _i = arr[Symbol.iterator](), _s;
+                    !(_n = (_s = _i.next()).done);
+                    _n = true
+                ) {
+                    _arr.push(_s.value);
+
+                    if (i && _arr.length === i) break;
+                }
+            } catch (err) {
+                _d = true;
+                _e = err;
+            } finally {
+                try {
+                    if (!_n && _i['return']) _i['return']();
+                } finally {
+                    if (_d) throw _e;
+                }
+            }
+
+            return _arr;
+        }
+
+        return function(arr, i) {
+            if (Array.isArray(arr)) {
+                return arr;
+            } else if (Symbol.iterator in Object(arr)) {
+                return sliceIterator(arr, i);
+            } else {
+                throw new TypeError('Invalid attempt to destructure non-iterable instance');
+            }
+        };
+    })();
+
+    function defineOrder(data, value_col, order_col) {
+        //Define set of values.
+        var values = d3
+            .set(
+                data.map(function(d) {
+                    return d[value_col] + ':|:' + d[order_col];
+                })
+            )
+            .values();
+
+        //Order values.
+        var orderedValues = values
+            .map(function(value_order) {
+                var _value_order$split = value_order.split(':|:'),
+                    _value_order$split2 = slicedToArray(_value_order$split, 2),
+                    value = _value_order$split2[0],
+                    order = _value_order$split2[1];
+
+                return {
+                    value: value,
+                    order: order,
+                    float: parseFloat(order)
+                };
+            })
+            .sort(function(a, b) {
+                return !isNaN(a.float) && !isNaN(b.float) // numerical comparison
+                    ? a.float - b.float
+                    : a.order < b.order // alphanumeric ordering - left-side order is smaller
+                        ? -1
+                        : b.order < a.order // alphanumeric ordering - right-side order is smaller
+                            ? 1
+                            : a.value < b.value // equal left- and right-side order - left-side value is smaller
+                                ? -1
+                                : 1; // equal left- and right-side order - right-side value is smaller
+            });
+
+        return orderedValues;
+    }
+
     function onInit$1() {
+        this.config.x.order = defineOrder(
+            this.raw_data,
+            this.config.visit_col,
+            this.config.visit_order_col
+        ).map(function(element) {
+            return element.value;
+        });
         defineStatusSet.call(
             this,
             this.config.status_col,
@@ -580,11 +676,21 @@
 
     function onDatatransform$1() {}
 
+    function setYFormat() {
+        switch (this.config.marks[0].summarizeY) {
+            case 'count':
+                this.config.y.format = '1d';
+                break;
+            case 'percent':
+                this.config.y.format = '%';
+                break;
+            default:
+                this.config.y.format = null;
+        }
+    }
+
     function onDraw$1() {
-        var summarizeY = this.config.marks[0].summarizeY;
-        if (summarizeY === 'count') this.config.y.format = '1d';
-        else if (summarizeY === 'percent') this.config.y.format = '%';
-        else this.config.y.format = null;
+        setYFormat.call(this);
     }
 
     function onResize$1() {
@@ -726,10 +832,7 @@
     function onDatatransform$2() {}
 
     function onDraw$2() {
-        var summarizeY = this.config.marks[0].summarizeY;
-        if (summarizeY === 'count') this.config.y.format = '1d';
-        else if (summarizeY === 'percent') this.config.y.format = '%';
-        else this.config.y.format = null;
+        setYFormat.call(this);
     }
 
     function onResize$2() {
@@ -1100,10 +1203,7 @@
     function onDatatransform$4() {}
 
     function onDraw$4() {
-        var summarizeY = this.config.marks[0].summarizeY;
-        if (summarizeY === 'count') this.config.y.format = '1d';
-        else if (summarizeY === 'percent') this.config.y.format = '%';
-        else this.config.y.format = null;
+        setYFormat.call(this);
     }
 
     function onResize$4() {
