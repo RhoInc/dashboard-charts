@@ -1,7 +1,15 @@
-d3.csv('[ chart data URL ]', function(error, data) {
-    if (error) console.log(error);
-
-    var settings = {};
-    var instance = dashboardCharts.renderers._template_('#container');
-    instance.init(data);
-});
+d3.csv(
+    '_csv_',
+    function(d,i) {
+        return d;
+    },
+    function(data) {
+        const instance = dashboardCharts.renderers
+            ._main_(
+                '#container', // element
+                {
+                } // settings
+            )
+        instance.init(data);
+    }
+);
