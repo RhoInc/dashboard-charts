@@ -1,4 +1,5 @@
 import defineStatusSet from '../../util/defineStatusSet';
+import defineSupersets from './onInit/defineSupersets';
 
 export default function onInit() {
     defineStatusSet.call(
@@ -11,9 +12,5 @@ export default function onInit() {
     this.config.legend.order.reverse(); // reverse legend order to reverse order of bars
 
     //Check for population supersets.
-    const supersets = d3
-        .set(this.raw_data.map(d => d[this.config.population_superset_col]))
-        .values()
-        .filter(value => this.config.color_dom.indexOf(value) > -1);
-    if (supersets.length) this.config.marks[0].arrange = 'nested';
+    defineSupersets.call(this);
 }

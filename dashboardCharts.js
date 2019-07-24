@@ -343,9 +343,39 @@
         });
     }
 
-    function onInit() {
+    function defineSupersets() {
         var _this = this;
 
+        this.supersets = d3
+            .set(
+                this.raw_data.map(function(d) {
+                    return d[_this.config.population_superset_col];
+                })
+            )
+            .values()
+            .filter(function(value) {
+                return _this.config.color_dom.indexOf(value) > -1;
+            })
+            .map(function(superset) {
+                return {
+                    population: superset,
+                    subsets: d3
+                        .set(
+                            _this.raw_data
+                                .filter(function(d) {
+                                    return d[_this.config.population_col] !== superset;
+                                })
+                                .map(function(d) {
+                                    return d[_this.config.population_col];
+                                })
+                        )
+                        .values()
+                };
+            });
+        if (this.supersets.length) this.config.marks[0].arrange = 'nested';
+    }
+
+    function onInit() {
         defineStatusSet.call(
             this,
             this.config.population_col,
@@ -356,17 +386,7 @@
         this.config.legend.order.reverse(); // reverse legend order to reverse order of bars
 
         //Check for population supersets.
-        var supersets = d3
-            .set(
-                this.raw_data.map(function(d) {
-                    return d[_this.config.population_superset_col];
-                })
-            )
-            .values()
-            .filter(function(value) {
-                return _this.config.color_dom.indexOf(value) > -1;
-            });
-        if (supersets.length) this.config.marks[0].arrange = 'nested';
+        defineSupersets.call(this);
     }
 
     function onLayout() {}
@@ -411,12 +431,47 @@
         });
     }
 
-    function onResize() {
-        var _this = this;
-
+    function customizeTooltips$1() {
         var context = this;
 
-        customizeTooltips.call(this);
+        //Add single tooltip to entire bar group.
+        if (this.supersets)
+            this.svg.selectAll('.bar-group').each(function(d) {
+                var tooltip = d.values
+                    .map(function(di) {
+                        return context.supersets
+                            .map(function(superset) {
+                                return superset.population;
+                            })
+                            .includes(di.key)
+                            ? di.key + ': ' + di.values.x
+                            : di.key +
+                                  ': ' +
+                                  di.values.x +
+                                  ' (' +
+                                  d3.format('.1%')(
+                                      di.values.x /
+                                          d.values.find(function(value) {
+                                              return context.supersets
+                                                  .map(function(superset) {
+                                                      return superset.population;
+                                                  })
+                                                  .includes(value.key);
+                                          }).values.x
+                                  ) +
+                                  ')';
+                    })
+                    .join('\n');
+
+                d3.select(this)
+                    .selectAll('title')
+                    .text(tooltip);
+            });
+        else customizeTooltips.call(this);
+    }
+
+    function sortLegend() {
+        var _this = this;
 
         //Manually sort legend.
         this.legend.selectAll('.legend-item').sort(function(a, b) {
@@ -425,18 +480,53 @@
                 _this.config.legend.order.indexOf(a.label)
             );
         });
+    }
+
+    function customizeLegendLabels() {
+        var context = this;
 
         //Add population totals to legend labels.
         this.wrap.selectAll('.legend-label').each(function(d) {
             d3.select(this).text(
-                d.label +
-                    ' (' +
-                    context.filtered_data.filter(function(di) {
-                        return di[context.config.population_col] === d.label;
-                    }).length +
-                    ')'
+                context.supersets &&
+                !context.supersets
+                    .map(function(superset) {
+                        return superset.population;
+                    })
+                    .includes(d.label)
+                    ? d.label +
+                      ': ' +
+                      context.filtered_data.filter(function(di) {
+                          return di[context.config.population_col] === d.label;
+                      }).length +
+                      ' (' +
+                      d3.format('.1%')(
+                          context.filtered_data.filter(function(di) {
+                              return di[context.config.population_col] === d.label;
+                          }).length /
+                              context.filtered_data.filter(function(di) {
+                                  return context.supersets
+                                      .map(function(superset) {
+                                          return superset.population;
+                                      })
+                                      .includes(di[context.config.population_col]);
+                              }).length
+                      ) +
+                      ')'
+                    : d.label +
+                      ': ' +
+                      context.filtered_data.filter(function(di) {
+                          return di[context.config.population_col] === d.label;
+                      }).length +
+                      ''
             );
         });
+    }
+
+    function onResize() {
+        customizeTooltips$1.call(this);
+        sortLegend.call(this);
+        customizeLegendLabels.call(this);
     }
 
     function onDestroy() {}
@@ -639,17 +729,19 @@
                     float: parseFloat(order)
                 };
             })
-            .sort(function(a, b) {
-                return !isNaN(a.float) && !isNaN(b.float) // numerical comparison
-                    ? a.float - b.float
-                    : a.order < b.order // alphanumeric ordering - left-side order is smaller
-                        ? -1
-                        : b.order < a.order // alphanumeric ordering - right-side order is smaller
-                            ? 1
-                            : a.value < b.value // equal left- and right-side order - left-side value is smaller
-                                ? -1
-                                : 1; // equal left- and right-side order - right-side value is smaller
-            });
+            .sort(
+                function(a, b) {
+                    return !isNaN(a.float) && !isNaN(b.float) // numerical comparison
+                        ? a.float - b.float
+                        : a.order < b.order // alphanumeric ordering - left-side order is smaller
+                            ? -1
+                            : b.order < a.order // alphanumeric ordering - right-side order is smaller
+                                ? 1
+                                : a.value < b.value // equal left- and right-side order - left-side value is smaller
+                                    ? -1
+                                    : 1;
+                } // equal left- and right-side order - right-side value is smaller
+            );
 
         return orderedValues;
     }

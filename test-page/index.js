@@ -22,7 +22,12 @@ const renderers = Object.keys(dashboardCharts.renderers)
         rendererObj.instance = rendererObj.renderer(
             rendererObj.content.node(), // element
             {
-                resizable: false
+                resizable: false,
+                aspect: 2,
+                width: null,
+                height: null,
+                range_band: null,
+                scale_text: true,
             } // settings
         );
         rendererObj.data = fetch(rendererObj.csv).then(function(response) { return response.text(); });

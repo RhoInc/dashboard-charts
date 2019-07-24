@@ -27,7 +27,7 @@
     flex-direction: row;
 }
 .chart {
-    width: 33%;
+    width: 32%;
     margin-bottom: 10px;
 }
 .chart__header {
@@ -52,4 +52,9 @@
 }
 .chart__header .control-group .wc-control-label {
     margin-right: 5px;
+}
+.chart__content .legend {
+    display: inline-block !important;
+    float: right;
+    width: auto;
 }
