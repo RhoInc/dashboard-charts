@@ -81,6 +81,7 @@ export default function addBarClick() {
                                             this.config.population_color_col,
                                             this.config.site_col,
                                             this.config.site_abbreviation_col,
+                                            this.config.site_tooltip_col,
                                         ].indexOf(key) < 0
                                     )
                                 )

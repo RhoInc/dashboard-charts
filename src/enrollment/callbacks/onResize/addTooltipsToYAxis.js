@@ -14,6 +14,6 @@ export default function addTooltipsToYAxis() {
                     this.config.useSiteAbbreviation
                         ? site[this.config.site_abbreviation_col] === d
                         : site[this.config.site_col] === d
-                ))[this.config.site_col]
+                ))[this.config.useSiteTooltip ? this.config.site_tooltip_col : this.config.site_col]
         ));
 }

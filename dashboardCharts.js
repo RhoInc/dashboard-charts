@@ -177,7 +177,8 @@
     function rendererSettings() {
         return {
             site_col: 'site',
-            site_abbreviation_col: 'site_short',
+            site_abbreviation_col: 'site_abbreviation',
+            site_tooltip_col: 'site_tooltip',
             id_col: 'subjid',
             population_col: 'population',
             population_order_col: 'population_order',
@@ -276,12 +277,12 @@
 
         var set = d3.set(this.raw_data.map(function (d) {
             return variables.map(function (variable) {
-                return variable + ':' + d[variable];
+                return variable + '-:-' + d[variable];
             }).join(':|:');
         })).values().map(function (value) {
             return value.split(':|:').reduce(function (acc, cur) {
-                var key = cur.split(':')[0];
-                var value = cur.split(':')[1];
+                var key = cur.split('-:-')[0];
+                var value = cur.split('-:-')[1];
                 acc[key] = value;
                 return acc;
             }, {});
@@ -292,10 +293,11 @@
 
     function useSiteAbbreviation() {
         this.config.useSiteAbbreviation = this.raw_data[0].hasOwnProperty(this.config.site_abbreviation_col);
+        this.config.useSiteTooltip = this.raw_data[0].hasOwnProperty(this.config.site_tooltip_col);
         if (this.config.useSiteAbbreviation) {
             this.config.y.column = this.config.site_abbreviation_col;
             this.config.marks[0].per[0] = this.config.site_abbreviation_col;
-            this.sites = defineSet.call(this, [this.config.site_col, this.config.site_abbreviation_col]);
+            this.sites = defineSet.call(this, [this.config.site_col, this.config.site_abbreviation_col, this.config.site_tooltip_col]);
         } else {
             this.sites = defineSet.call(this, [this.config.site_col]);
         }
@@ -402,7 +404,7 @@
         }).append('title').text(function (d) {
             return _this.sites.find(function (site) {
                 return _this.config.useSiteAbbreviation ? site[_this.config.site_abbreviation_col] === d : site[_this.config.site_col] === d;
-            })[_this.config.site_col];
+            })[_this.config.useSiteTooltip ? _this.config.site_tooltip_col : _this.config.site_col];
         });
     }
 
@@ -494,7 +496,7 @@
                 });
                 _this.table.table.init(d.values.raw.map(function (di) {
                     var datum = Object.keys(di).filter(function (key) {
-                        return [_this.config.population_col, _this.config.population_superset_col, _this.config.population_order_col, _this.config.population_color_col, _this.config.site_col, _this.config.site_abbreviation_col].indexOf(key) < 0;
+                        return [_this.config.population_col, _this.config.population_superset_col, _this.config.population_order_col, _this.config.population_color_col, _this.config.site_col, _this.config.site_abbreviation_col, _this.config.site_tooltip_col].indexOf(key) < 0;
                     }).reduce(function (acc, cur) {
                         acc[cur] = di[cur];
                         return acc;
@@ -1311,6 +1313,24 @@
                 'data-mapping': true,
                 'data-type': 'character',
                 required: true
+            },
+            site_abbreviation_col: {
+                title: 'Site Abbreviation',
+                description: 'variable: site abbreviation',
+                type: 'string',
+                default: 'site_abbreviation',
+                'data-mapping': true,
+                'data-type': 'character',
+                required: false
+            },
+            site_tooltip_col: {
+                title: 'Site Tooltip',
+                description: 'variable: site tooltip',
+                type: 'string',
+                default: 'site_tooltip',
+                'data-mapping': true,
+                'data-type': 'character',
+                required: false
             },
             id_col: {
                 title: 'Participant ID',

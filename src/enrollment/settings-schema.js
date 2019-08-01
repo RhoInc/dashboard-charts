@@ -19,6 +19,24 @@ export default {
             'data-type': 'character',
             required: true
         },
+        site_abbreviation_col: {
+            title: 'Site Abbreviation',
+            description: 'variable: site abbreviation',
+            type: 'string',
+            default: 'site_abbreviation',
+            'data-mapping': true,
+            'data-type': 'character',
+            required: false
+        },
+        site_tooltip_col: {
+            title: 'Site Tooltip',
+            description: 'variable: site tooltip',
+            type: 'string',
+            default: 'site_tooltip',
+            'data-mapping': true,
+            'data-type': 'character',
+            required: false
+        },
         id_col: {
             title: 'Participant ID',
             description: 'variable: participant ID',

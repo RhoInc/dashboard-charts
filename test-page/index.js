@@ -28,7 +28,7 @@ const renderers = Object.keys(dashboardCharts.renderers)
                 width: null,
                 height: null,
                 range_band: null,
-                scale_text: true,
+                scale_text: false,
             } // settings
         );
         rendererObj.data = fetch(rendererObj.csv).then(function(response) { return response.text(); });
