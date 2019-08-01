@@ -1,7 +1,9 @@
+import captureFilters from '../../util/captureFilters';
 import defineStatusSet from '../../util/defineStatusSet';
 import defineSupersets from './onInit/defineSupersets';
 
 export default function onInit() {
+    captureFilters.call(this);
     defineStatusSet.call(
         this,
         this.config.population_col,
