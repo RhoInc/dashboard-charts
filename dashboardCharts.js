@@ -177,6 +177,7 @@
     function rendererSettings() {
         return {
             site_col: 'site',
+            id_col: 'subjid',
             population_col: 'population',
             population_order_col: 'population_order',
             population_color_col: 'population_color',
@@ -391,6 +392,83 @@
         });else customizeTooltips.call(this);
     }
 
+    function addBarClick() {
+        var _this = this;
+
+        this.marks.forEach(function (mark) {
+            _this.svg.selectAll('.wc-data-mark.' + mark.type).style({
+                cursor: 'pointer'
+            }).on('click', function (d) {
+                // hide stuff
+                _this.svg.node().parentNode.style.display = 'none';
+                _this.legend.node().setAttribute('style', 'display: none !important');
+                _this.wrap.style({
+                    overflow: 'auto'
+                });
+
+                // add a container for table and table header
+                _this.table = {};
+                _this.table.container = _this.wrap.append('div').style({
+                    display: 'table',
+                    width: '100%'
+                });
+                _this.table.title = _this.table.container.append('div').style({
+                    display: 'inline-block',
+                    'margin-right': '5px',
+                    'font-size': '14px',
+                    'font-weight': 'bold'
+                }).text('Displaying ' + d.values.x + ' ' + d.key + ' participants at ' + d.values.y);
+                _this.table.backButton = _this.table.container.append('button').style({
+                    float: 'right'
+                }).text('Back').on('click', function () {
+                    _this.table.table.destroy();
+                    _this.table.container.remove();
+                    _this.svg.node().parentNode.style.display = null;
+                    _this.legend.style('display', null);
+                    _this.wrap.style({
+                        'overflow': null
+                    });
+                });
+
+                // define and initialize table
+                _this.table.table = new webCharts.createTable(_this.table.container.node(), {
+                    searchable: false,
+                    sortable: false,
+                    pagination: true,
+                    exportable: false
+                });
+                _this.table.table.on('layout', function () {
+                    this.wrap.style({
+                        width: '100%',
+                        'margin-top': '5px',
+                        'border-top': '1px solid #aaa'
+                    });
+                });
+                _this.table.table.init(d.values.raw.map(function (di) {
+                    var datum = Object.keys(di).filter(function (key) {
+                        return [_this.config.population_col, _this.config.population_superset_col, _this.config.population_order_col, _this.config.population_color_col, _this.config.site_col, _this.config.site_abbreviation_col].indexOf(key) < 0;
+                    }).reduce(function (acc, cur) {
+                        acc[cur] = di[cur];
+                        return acc;
+                    }, {});
+
+                    Object.keys(datum).forEach(function (key) {
+                        if (key === _this.config.id_col) {
+                            Object.defineProperty(datum, 'Participant ID', Object.getOwnPropertyDescriptor(datum, key));
+                            delete datum[key];
+                        }
+                        if (/^filter/i.test(key)) {
+                            Object.defineProperty(datum, key.replace(/^filter:/i, ''), Object.getOwnPropertyDescriptor(datum, key));
+                            delete datum[key];
+                        }
+                    });
+
+                    return datum;
+                }));
+            });
+        });
+    }
+
     function sortLegend() {
         var _this = this;
 
@@ -423,6 +501,7 @@
 
     function onResize() {
         customizeTooltips$1.call(this);
+        addBarClick.call(this);
         sortLegend.call(this);
         customizeLegendLabels.call(this);
     }
@@ -1172,6 +1251,15 @@
                 'data-mapping': true,
                 'data-type': 'character',
                 required: true
+            },
+            id_col: {
+                title: 'Participant ID',
+                description: 'variable: participant ID',
+                type: 'string',
+                default: 'subjid',
+                'data-mapping': true,
+                'data-type': 'character',
+                required: false
             },
             population_col: {
                 title: 'Population',

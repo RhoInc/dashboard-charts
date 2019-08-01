@@ -19,6 +19,15 @@ export default {
             'data-type': 'character',
             required: true
         },
+        id_col: {
+            title: 'Participant ID',
+            description: 'variable: participant ID',
+            type: 'string',
+            default: 'subjid',
+            'data-mapping': true,
+            'data-type': 'character',
+            required: false
+        },
         population_col: {
             title: 'Population',
             description: 'variable: population',

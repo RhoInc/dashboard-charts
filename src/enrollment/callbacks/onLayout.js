@@ -1,1 +1,2 @@
-export default function onLayout() {}
+export default function onLayout() {
+}
