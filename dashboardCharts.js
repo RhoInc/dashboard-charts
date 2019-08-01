@@ -177,6 +177,7 @@
     function rendererSettings() {
         return {
             site_col: 'site',
+            site_abbreviation_col: 'site_short',
             id_col: 'subjid',
             population_col: 'population',
             population_order_col: 'population_order',
@@ -270,6 +271,36 @@
         return filters;
     }
 
+    function defineSet() {
+        var variables = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+        var set = d3.set(this.raw_data.map(function (d) {
+            return variables.map(function (variable) {
+                return variable + ':' + d[variable];
+            }).join(':|:');
+        })).values().map(function (value) {
+            return value.split(':|:').reduce(function (acc, cur) {
+                var key = cur.split(':')[0];
+                var value = cur.split(':')[1];
+                acc[key] = value;
+                return acc;
+            }, {});
+        });
+
+        return set;
+    }
+
+    function useSiteAbbreviation() {
+        this.config.useSiteAbbreviation = this.raw_data[0].hasOwnProperty(this.config.site_abbreviation_col);
+        if (this.config.useSiteAbbreviation) {
+            this.config.y.column = this.config.site_abbreviation_col;
+            this.config.marks[0].per[0] = this.config.site_abbreviation_col;
+            this.sites = defineSet.call(this, [this.config.site_col, this.config.site_abbreviation_col]);
+        } else {
+            this.sites = defineSet.call(this, [this.config.site_col]);
+        }
+    }
+
     function defineStatusSet(status_col, status_order_col, status_color_col) {
         var _this = this;
 
@@ -345,6 +376,7 @@
 
     function onInit() {
         captureFilters.call(this);
+        useSiteAbbreviation.call(this);
         defineStatusSet.call(this, this.config.population_col, this.config.population_order_col, this.config.population_color_col);
         this.config.colors.reverse(); // reverse colors to match reversed legend order
         this.config.legend.order.reverse(); // reverse legend order to reverse order of bars
@@ -360,6 +392,19 @@
     function onDatatransform() {}
 
     function onDraw() {}
+
+    function addTooltipsToYAxis() {
+        var _this = this;
+
+        this.svg.selectAll('.y.axis .tick * title').remove();
+        this.svg.selectAll('.y.axis .tick *').style({
+            cursor: 'help'
+        }).append('title').text(function (d) {
+            return _this.sites.find(function (site) {
+                return _this.config.useSiteAbbreviation ? site[_this.config.site_abbreviation_col] === d : site[_this.config.site_col] === d;
+            })[_this.config.site_col];
+        });
+    }
 
     function customizeTooltips() {
         var context = this;
@@ -392,10 +437,11 @@
         });else customizeTooltips.call(this);
     }
 
+    //TODO: refactor, modularize
     function addBarClick() {
         var _this = this;
 
-        this.marks.forEach(function (mark) {
+        if (this.raw_data[0].hasOwnProperty(this.config.id_col)) this.marks.forEach(function (mark) {
             _this.svg.selectAll('.wc-data-mark.' + mark.type).style({
                 cursor: 'pointer'
             }).on('click', function (d) {
@@ -418,6 +464,8 @@
                     'font-size': '14px',
                     'font-weight': 'bold'
                 }).text('Displaying ' + d.values.x + ' ' + d.key + ' participants at ' + d.values.y);
+
+                // add back button
                 _this.table.backButton = _this.table.container.append('button').style({
                     float: 'right'
                 }).text('Back').on('click', function () {
@@ -465,6 +513,17 @@
 
                     return datum;
                 }));
+
+                //Clear table when controls change.
+                _this.controls.wrap.on('change', function () {
+                    _this.table.table.destroy();
+                    _this.table.container.remove();
+                    _this.svg.node().parentNode.style.display = null;
+                    _this.legend.style('display', null);
+                    _this.wrap.style({
+                        'overflow': null
+                    });
+                });
             });
         });
     }
@@ -500,6 +559,7 @@
     }
 
     function onResize() {
+        addTooltipsToYAxis.call(this);
         customizeTooltips$1.call(this);
         addBarClick.call(this);
         sortLegend.call(this);

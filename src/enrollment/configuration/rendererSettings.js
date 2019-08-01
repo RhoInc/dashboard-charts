@@ -1,6 +1,7 @@
 export default function rendererSettings() {
     return {
         site_col: 'site',
+        site_abbreviation_col: 'site_short',
         id_col: 'subjid',
         population_col: 'population',
         population_order_col: 'population_order',

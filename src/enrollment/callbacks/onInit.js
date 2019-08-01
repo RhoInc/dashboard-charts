@@ -1,9 +1,11 @@
 import captureFilters from '../../util/captureFilters';
+import useSiteAbbreviation from './onInit/useSiteAbbreviation';
 import defineStatusSet from '../../util/defineStatusSet';
 import defineSupersets from './onInit/defineSupersets';
 
 export default function onInit() {
     captureFilters.call(this);
+    useSiteAbbreviation.call(this);
     defineStatusSet.call(
         this,
         this.config.population_col,
