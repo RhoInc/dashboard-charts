@@ -1,6 +1,8 @@
 //TODO: refactor, modularize
 export default function addBarClick() {
-    if (this.raw_data[0].hasOwnProperty(this.config.id_col))
+    if (this.raw_data[0].hasOwnProperty(this.config.id_col)) {
+        this.height = this.wrap.node().clientHeight;
+
         this.marks.forEach(mark => {
             this.svg
                 .selectAll(`.wc-data-mark.${mark.type}`)
@@ -13,6 +15,7 @@ export default function addBarClick() {
                     this.legend.node().setAttribute('style', 'display: none !important');
                     this.wrap
                         .style({
+                            height: `${this.height}px`,
                             overflow: 'auto',
                         });
 
@@ -58,7 +61,7 @@ export default function addBarClick() {
                         {
                             searchable: false,
                             sortable: false,
-                            pagination: true,
+                            pagination: false,
                             exportable: false,
                         }
                     );
@@ -68,6 +71,9 @@ export default function addBarClick() {
                             'margin-top': '5px',
                             'border-top': '1px solid #aaa'
                         });
+                    });
+                    this.table.table.on('draw', function() {
+                        this.table.selectAll('thead tr th').style('cursor', 'default');
                     });
                     this.table.table.init(
                         d.values.raw.map(di => {
@@ -136,4 +142,5 @@ export default function addBarClick() {
                         });
                 });
         });
+    }
 }
