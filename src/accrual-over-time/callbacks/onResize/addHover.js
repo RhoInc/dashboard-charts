@@ -1,18 +1,13 @@
-export default function onResize() {
-    var context = this;
-    this.svg.selectAll('.y.axis .tick text').each(function(d) {
-        if (d % 1)
-            // if the tick label is not an integer then remove
-            d3.select(this).remove();
-    });
+export default function addHover() {
+    const context = this;
     //Capture x/y coordinates of mouse.
-    var timeFormat = d3.time.format('%d %b %Y');
-    var width = this.plot_width;
-    var x = this.x;
-    var y = this.y;
-    var decim = d3.format('.0f');
+    const timeFormat = d3.time.format('%d %b %Y');
+    const width = this.plot_width;
+    const x = this.x;
+    const y = this.y;
+    const decim = d3.format('.0f');
 
-    var x_mark = this.svg
+    const x_mark = this.svg
         .select('.x.axis')
         .append('g')
         .attr('class', 'hover-item hover-tick hover-tick-x')
@@ -34,23 +29,23 @@ export default function onResize() {
 
     this.svg
         .on('mousemove', function() {
-            var mouse = this;
+            const mouse = this;
 
             context.current_data.forEach(function(e) {
-                var line_data = e.values;
-                var bisectDate = d3.bisector(function(d) {
+                const line_data = e.values;
+                const bisectDate = d3.bisector(function(d) {
                     return new Date(d.key);
                 }).right;
-                var x0 = context.x.invert(d3.mouse(mouse)[0]);
-                var i = bisectDate(line_data, x0, 1, line_data.length - 1);
-                var d0 = line_data[i - 1];
-                var d1 = line_data[i];
+                const x0 = context.x.invert(d3.mouse(mouse)[0]);
+                const i = bisectDate(line_data, x0, 1, line_data.length - 1);
+                const d0 = line_data[i - 1];
+                const d1 = line_data[i];
 
                 if (!d0 || !d1) return;
 
-                var d = x0 - new Date(d0.key) > new Date(d1.key) - x0 ? d1 : d0;
-                var hover_tick_x = context.svg.select('.hover-tick-x');
-                var focus_enr = context.svg.selectAll('.focus').filter(function(f) {
+                const d = x0 - new Date(d0.key) > new Date(d1.key) - x0 ? d1 : d0;
+                const hover_tick_x = context.svg.select('.hover-tick-x');
+                const focus_enr = context.svg.selectAll('.focus').filter(function(f) {
                     return f.key === e.key;
                 });
 
@@ -60,7 +55,7 @@ export default function onResize() {
                     .attr('text-anchor', x(x0) > width / 2 ? 'end' : 'start')
                     .attr('dx', x(x0) > width / 2 ? '-.5em' : '.5em');
 
-                var leg_item = context.wrap
+                const leg_item = context.wrap
                     .select('.legend')
                     .selectAll('.legend-item')
                     .filter(function(f) {
@@ -75,13 +70,13 @@ export default function onResize() {
         })
         .on('mouseover', function() {
             context.svg.selectAll('.hover-item').style('display', 'block');
-            var leg_items = context.wrap.select('.legend').selectAll('.legend-item');
+            const leg_items = context.wrap.select('.legend').selectAll('.legend-item');
             leg_items.select('.legend-color-block').style('display', 'none');
             leg_items.select('.legend-mark-text').style('display', 'inline');
         })
         .on('mouseout', function() {
             context.svg.selectAll('.hover-item').style('display', 'none');
-            var leg_items = context.legend.selectAll('.legend-item');
+            const leg_items = context.legend.selectAll('.legend-item');
             leg_items.select('.legend-color-block').style('display', 'inline-block');
             leg_items.select('.legend-mark-text').style('display', 'none');
         });

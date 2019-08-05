@@ -591,7 +591,7 @@
         onDestroy: onDestroy
     };
 
-    function enrollment() {
+    function accrual() {
         var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
         var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
@@ -986,12 +986,13 @@
 
     function rendererSettings$3() {
         return {
-            site_col: 'site',
+            id_col: 'subjid',
             date_col: 'date',
             population_col: 'population',
             population_order_col: 'population_order',
             population_color_col: 'population_color',
-            participant_count_col: 'participant_count'
+            participant_count_col: 'participant_count',
+            site_col: 'site'
         };
     }
 
@@ -1032,7 +1033,7 @@
 
     function syncSettings$3(settings) {
         settings.x.column = settings.date_col;
-        settings.y.column = settings.participant_count_col;
+        settings.y.column = 'count';
         settings.marks[0].per[0] = settings.population_col;
         settings.color_by = settings.population_col;
 
@@ -1040,18 +1041,18 @@
     }
 
     function controlInputs$3() {
-        return [{
-            type: 'subsetter',
-            value_col: null, // set in syncControlInputs()
-            label: 'Site',
-            require: true
-        }];
+        return [
+            //{
+            //    type: 'subsetter',
+            //    value_col: null, // set in syncControlInputs()
+            //    label: 'Site',
+            //    require: true
+            //}
+        ];
     }
 
     function syncControlInputs$3(controlInputs, settings) {
-        controlInputs.find(function (controlInput) {
-            return controlInput.label === 'Site';
-        }).value_col = settings.site_col;
+        //controlInputs.find(controlInput => controlInput.label === 'Site').value_col = settings.site_col;
 
         return controlInputs;
     }
@@ -1065,8 +1066,77 @@
         syncControlInputs: syncControlInputs$3
     };
 
+    function addVariables() {
+        var _this = this;
+
+        this.raw_data.forEach(function (d) {
+            d._date_ = d3.time.format(_this.config.date_format).parse(d[_this.config.date_col]);
+        });
+    }
+
+    function deriveData() {
+        var _this = this;
+
+        // define a full range of dates between enrollment start and snapshot date
+        var dateRange = d3.time.day.range(d3.min(this.raw_data, function (d) {
+            return d._date_;
+        }), d3.max(this.raw_data, function (d) {
+            return d._date_;
+        }));
+
+        var n = dateRange.length * this.config.color_dom.length;
+        this.config.filters.forEach(function (filter) {
+            n = n * filter.set.length;
+        });
+        var perDate = new Array(n);
+        var index = 0;
+
+        // for each population
+        this.config.color_dom.forEach(function (population) {
+            var popSubset = _this.raw_data.filter(function (d) {
+                return d[_this.config.population_col] === population;
+            });
+            // for each date between enrollment start and shanpshot date
+            dateRange.forEach(function (date) {
+                var dateSubset = popSubset.filter(function (d) {
+                    return d._date_ <= date;
+                });
+                if (!_this.config.filters) {
+                    var datum = {
+                        population: population,
+                        date: date,
+                        count: dateSubset.length
+                    };
+                    perDate[index] = datum;
+                    index++;
+                } else {
+                    _this.config.filters.forEach(function (filter) {
+                        filter.set.forEach(function (item) {
+                            var _datum;
+
+                            var filterSubset = dateSubset.filter(function (d) {
+                                return d[filter.value_col] === item[filter.value_col];
+                            });
+                            var datum = (_datum = {
+                                population: population,
+                                date: date
+                            }, defineProperty(_datum, filter.value_col, item[filter.value_col]), defineProperty(_datum, "count", filterSubset.length), _datum);
+                            perDate[index] = datum;
+                            index++;
+                        });
+                    });
+                }
+            });
+        });
+
+        this.raw_data = perDate;
+    }
+
     function onInit$3() {
+        addVariables.call(this);
+        captureFilters.call(this);
         defineStatusSet.call(this, this.config.population_col, this.config.population_order_col, this.config.population_color_col);
+        deriveData.call(this);
     }
 
     function onLayout$3() {}
@@ -1162,7 +1232,7 @@
         onDestroy: onDestroy$3
     };
 
-    function enrollmentOverTime() {
+    function derivedAccrualOverTime() {
         var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
         var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
@@ -1186,13 +1256,12 @@
 
     function rendererSettings$4() {
         return {
-            id_col: 'subjid',
+            site_col: 'site',
             date_col: 'date',
             population_col: 'population',
             population_order_col: 'population_order',
             population_color_col: 'population_color',
-            participant_count_col: 'participant_count',
-            site_col: 'site'
+            participant_count_col: 'participant_count'
         };
     }
 
@@ -1233,7 +1302,7 @@
 
     function syncSettings$4(settings) {
         settings.x.column = settings.date_col;
-        settings.y.column = 'count';
+        settings.y.column = settings.participant_count_col;
         settings.marks[0].per[0] = settings.population_col;
         settings.color_by = settings.population_col;
 
@@ -1241,18 +1310,18 @@
     }
 
     function controlInputs$4() {
-        return [
-            //{
-            //    type: 'subsetter',
-            //    value_col: null, // set in syncControlInputs()
-            //    label: 'Site',
-            //    require: true
-            //}
-        ];
+        return [{
+            type: 'subsetter',
+            value_col: null, // set in syncControlInputs()
+            label: 'Site',
+            require: true
+        }];
     }
 
     function syncControlInputs$4(controlInputs, settings) {
-        //controlInputs.find(controlInput => controlInput.label === 'Site').value_col = settings.site_col;
+        controlInputs.find(function (controlInput) {
+            return controlInput.label === 'Site';
+        }).value_col = settings.site_col;
 
         return controlInputs;
     }
@@ -1266,77 +1335,8 @@
         syncControlInputs: syncControlInputs$4
     };
 
-    function addVariables() {
-        var _this = this;
-
-        this.raw_data.forEach(function (d) {
-            d._date_ = d3.time.format(_this.config.date_format).parse(d[_this.config.date_col]);
-        });
-    }
-
-    function deriveData() {
-        var _this = this;
-
-        // define a full range of dates between enrollment start and snapshot date
-        var dateRange = d3.time.day.range(d3.min(this.raw_data, function (d) {
-            return d._date_;
-        }), d3.max(this.raw_data, function (d) {
-            return d._date_;
-        }));
-
-        var n = dateRange.length * this.config.color_dom.length;
-        this.config.filters.forEach(function (filter) {
-            n = n * filter.set.length;
-        });
-        var perDate = new Array(n);
-        var index = 0;
-
-        // for each population
-        this.config.color_dom.forEach(function (population) {
-            var popSubset = _this.raw_data.filter(function (d) {
-                return d[_this.config.population_col] === population;
-            });
-            // for each date between enrollment start and shanpshot date
-            dateRange.forEach(function (date) {
-                var dateSubset = popSubset.filter(function (d) {
-                    return d._date_ <= date;
-                });
-                if (!_this.config.filters) {
-                    var datum = {
-                        population: population,
-                        date: date,
-                        count: dateSubset.length
-                    };
-                    perDate[index] = datum;
-                    index++;
-                } else {
-                    _this.config.filters.forEach(function (filter) {
-                        filter.set.forEach(function (item) {
-                            var _datum;
-
-                            var filterSubset = dateSubset.filter(function (d) {
-                                return d[filter.value_col] === item[filter.value_col];
-                            });
-                            var datum = (_datum = {
-                                population: population,
-                                date: date
-                            }, defineProperty(_datum, filter.value_col, item[filter.value_col]), defineProperty(_datum, "count", filterSubset.length), _datum);
-                            perDate[index] = datum;
-                            index++;
-                        });
-                    });
-                }
-            });
-        });
-
-        this.raw_data = perDate;
-    }
-
     function onInit$4() {
-        addVariables.call(this);
-        captureFilters.call(this);
         defineStatusSet.call(this, this.config.population_col, this.config.population_order_col, this.config.population_color_col);
-        deriveData.call(this);
     }
 
     function onLayout$4() {}
@@ -1347,13 +1347,15 @@
 
     function onDraw$4() {}
 
-    function onResize$4() {
-        var context = this;
+    function removeYAxisTicks() {
         this.svg.selectAll('.y.axis .tick text').each(function (d) {
-            if (d % 1)
-                // if the tick label is not an integer then remove
-                d3.select(this).remove();
+            // remove non-integer ticks
+            if (d % 1) d3.select(this).remove();
         });
+    }
+
+    function addHover() {
+        var context = this;
         //Capture x/y coordinates of mouse.
         var timeFormat = d3.time.format('%d %b %Y');
         var width = this.plot_width;
@@ -1418,6 +1420,30 @@
             leg_items.select('.legend-color-block').style('display', 'inline-block');
             leg_items.select('.legend-mark-text').style('display', 'none');
         });
+    }
+
+    function customizeTargetLines() {
+        // Update lines in chart.
+        this.marks.filter(function (mark) {
+            return mark.type === 'line';
+        }).forEach(function (mark) {
+            mark.paths.each(function (d) {
+                if (/target/i.test(d.key)) this.setAttribute('stroke-dasharray', '2 4');
+            });
+        });
+
+        // Update lines in legend.
+        this.legend.selectAll('.legend-item').each(function (d) {
+            var line = this.getElementsByTagName('line')[0];
+            line.setAttribute('stroke-width', '4px');
+            if (/target/i.test(d.label)) line.setAttribute('stroke-dasharray', '3 2');
+        });
+    }
+
+    function onResize$4() {
+        removeYAxisTicks.call(this);
+        addHover.call(this);
+        customizeTargetLines.call(this);
     }
 
     function onDestroy$4() {}
@@ -1584,23 +1610,24 @@
     }
 
     var renderers = {
-        enrollment: enrollment,
+        accrual: accrual,
         visitCompletion: visitCompletion,
         queries: queries,
-        enrollmentOverTime: enrollmentOverTime,
+        derivedAccrualOverTime: derivedAccrualOverTime,
         accrualOverTime: accrualOverTime,
         forms: forms
     };
 
     var schema = {
-        title: 'Enrollment',
-        chart: 'enrollment',
+        title: 'Accrual',
+        chart: 'accrual',
         description: 'JSON schema for the configuration of screening and randomization chart',
         overview: 'The most straightforward way to customize the screening and randomization chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the screening and randomization chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/the screening and randomization chart/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the screening and randomization chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.',
         version: '0.1.0',
         type: 'object',
-        'data-guidelines': 'The Enrollment chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots the number of participants in each study populations by site.',
+        'data-guidelines': 'The Accrual chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots the number of participants in each study populations by site.',
         'data-structure': 'one record per participant per population',
+        'data-file': 'dashboard-accrual',
         properties: {
             site_col: {
                 title: 'Site',
@@ -1699,6 +1726,7 @@
         type: 'object',
         'data-guidelines': 'The Visit Completion chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots the number of participants by vist and visit status.',
         'data-structure': 'one record per participant per visit',
+        'data-file': 'dashboard-visit-completion',
         properties: {
             site_col: {
                 title: 'Site',
@@ -1779,6 +1807,7 @@
         type: 'object',
         'data-guidelines': 'The Queries chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots the number of queries by site and query status.',
         'data-structure': 'one record per query',
+        'data-file': 'dashboard-queries',
         properties: {
             site_col: {
                 title: 'Site',
@@ -1833,14 +1862,15 @@
     }
 
     var schema$3 = {
-        title: 'Enrollment over Time',
-        chart: 'enrollmentOverTime',
-        description: 'JSON schema for the configuration of enrollment chart',
-        overview: 'The most straightforward way to customize the enrollment chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the enrollment chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/query-overview/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to te enrollment chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.',
+        title: 'Derived Accrual over Time',
+        chart: 'derivedAccrualOverTime',
+        description: 'JSON schema for the configuration of derived accrual over time chart',
+        overview: 'The most straightforward way to customize the derived accrual over time chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the derived accrual over time chart is a Webcharts `chart` object, many default Webcharts settings are set in the [rendererSettings.js file](https://github.com/RhoInc/dashboard-charts/blob/master/src/accrual-over-time-derived/configuration/rendererSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the derived accrual over time chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.',
         version: '0.1.0',
         type: 'object',
-        'data-guidelines': 'The Enrollment over Time chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots study enrollment over time by population.',
-        'data-structure': 'one record per site per population per date between site activation and data snapshot date',
+        'data-guidelines': 'The Derived Accrual over Time chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots participant accrual over time by population, .',
+        'data-structure': 'one record per participant per population with dates participants accrued in each population',
+        'data-file': 'dashboard-accrual',
         properties: {
             site_col: {
                 title: 'Site',
@@ -1913,6 +1943,87 @@
     }
 
     var schema$4 = {
+        title: 'Accrual over Time',
+        chart: 'accrualOverTime',
+        description: 'JSON schema for the configuration of accrual chart',
+        overview: 'The most straightforward way to customize the accrual chart is by using a configuration object whose properties describe the behavior and appearance of the chart. Since the accrual chart is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/query-overview/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to te accrual chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.',
+        version: '0.1.0',
+        type: 'object',
+        'data-guidelines': 'The Accrual Over Time chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots study accrual over time by population.',
+        'data-structure': 'one record per site per population per date between site activation and data snapshot date',
+        'data-file': 'dashboard-accrual-over-time',
+        properties: {
+            site_col: {
+                title: 'Site',
+                description: 'site variable name',
+                type: 'string',
+                default: 'site',
+                'data-mapping': true,
+                'data-type': 'character',
+                required: true
+            },
+            date_col: {
+                title: 'Date',
+                description: 'date variable name in YYYY-MM-DD format',
+                type: 'string',
+                default: 'date',
+                'data-mapping': true,
+                'data-type': 'character',
+                required: true
+            },
+            population_col: {
+                title: 'Population',
+                description: 'variable: population',
+                type: 'string',
+                default: 'population',
+                'data-mapping': true,
+                'data-type': 'character',
+                required: true
+            },
+            population_order_col: {
+                title: 'Population Order',
+                description: 'variable: population order',
+                type: 'string',
+                default: 'population_order',
+                'data-mapping': true,
+                'data-type': 'numeric',
+                required: false
+            },
+            population_color_col: {
+                title: 'Population Color',
+                description: 'variable: population color',
+                type: 'string',
+                default: 'population_color',
+                'data-mapping': true,
+                'data-type': 'numeric',
+                required: false
+            },
+            participant_count_col: {
+                title: 'Participant Count',
+                description: 'variable: participant count',
+                type: 'string',
+                default: 'participant_count',
+                'data-mapping': true,
+                'data-type': 'character',
+                required: true
+            }
+        }
+    };
+
+    function specification$4() {
+        var syncedSettings = configuration$4.syncSettings(configuration$4.settings);
+        var syncedControlInputs = configuration$4.syncControlInputs(configuration$4.controlInputs(), syncedSettings);
+
+        return {
+            schema: schema$4,
+            configuration: configuration$4,
+            settings: syncedSettings,
+            controlInputs: syncedControlInputs,
+            callbacks: callbacks$4
+        };
+    }
+
+    var schema$5 = {
         title: 'Forms',
         chart: 'forms',
         description: 'JSON schema for the configuration of forms chart',
@@ -1921,6 +2032,7 @@
         type: 'object',
         'data-guidelines': 'The Forms chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots the number of forms by site and form status.',
         'data-structure': 'one record per form',
+        'data-file': 'dashboard-forms',
         properties: {
             site_col: {
                 title: 'Site',
@@ -1961,12 +2073,12 @@
         }
     };
 
-    function specification$4() {
+    function specification$5() {
         var syncedSettings = configuration$5.syncSettings(configuration$5.settings);
         var syncedControlInputs = configuration$5.syncControlInputs(configuration$5.controlInputs(), syncedSettings);
 
         return {
-            schema: schema$4,
+            schema: schema$5,
             configuration: configuration$5,
             settings: syncedSettings,
             controlInputs: syncedControlInputs,
@@ -1975,12 +2087,12 @@
     }
 
     var specifications = {
-        enrollment: specification(),
+        accrual: specification(),
         visitCompletion: specification$1(),
         queries: specification$2(),
-        enrollmentOverTime: specification$3(),
-        accrualOverTime: accrualOverTime(),
-        forms: specification$4()
+        derivedAccrualOverTime: specification$3(),
+        accrualOverTime: specification$4(),
+        forms: specification$5()
     };
 
     var index = {

@@ -9,6 +9,7 @@ export default {
     'data-guidelines':
         'The Forms chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots the number of forms by site and form status.',
     'data-structure': 'one record per form',
+    'data-file': 'dashboard-forms',
     properties: {
         site_col: {
             title: 'Site',

@@ -9,6 +9,7 @@ export default {
     'data-guidelines':
         'The Visit Completion chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots the number of participants by vist and visit status.',
     'data-structure': 'one record per participant per visit',
+    'data-file': 'dashboard-visit-completion',
     properties: {
         site_col: {
             title: 'Site',

@@ -9,6 +9,7 @@ export default {
     'data-guidelines':
         'The Queries chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots the number of queries by site and query status.',
     'data-structure': 'one record per query',
+    'data-file': 'dashboard-queries',
     properties: {
         site_col: {
             title: 'Site',

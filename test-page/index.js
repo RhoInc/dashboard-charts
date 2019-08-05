@@ -1,12 +1,17 @@
 const dashboardContainer = d3.select('#container');
+const dataRoot = '../../data-library/data/clinical-trials/data-cleaning';//'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning';
 const renderers = Object.keys(dashboardCharts.renderers)
     .map(function(renderer) {
+        console.log(renderer);
         const rendererObj = {
             main: renderer,
             renderer: dashboardCharts.renderers[renderer],
-            title: renderer.substring(0,1).toUpperCase() + renderer.substring(1).replace(/([A-Z])/g, ' $1')
+            title: renderer.substring(0,1).toUpperCase() + renderer.substring(1).replace(/([A-Z])/g, ' $1'),
+            specification: dashboardCharts.specifications[renderer],
         };
-        rendererObj.csv = './data/dashboard-'
+        console.log(rendererObj.specification.schema);
+        rendererObj.csv = `${dataRoot}/${rendererObj.specification.schema['data-file']}.csv`;
+        console.log(rendererObj.csv);
         //rendererObj.csv = 'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-'
             + rendererObj.title.toLowerCase().replace(/ /g, '-')
             + '.csv';

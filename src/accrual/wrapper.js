@@ -2,7 +2,7 @@ import configuration from './configuration/index';
 import { createControls, createChart } from 'webcharts';
 import callbacks from './callbacks/index';
 
-export default function enrollmentOverTime(element = 'body', settings = {}) {
+export default function accrual(element = 'body', settings = {}) {
     //Sync settings.
     const mergedSettings = Object.assign({}, configuration.settings, settings);
     const syncedSettings = configuration.syncSettings(mergedSettings);
