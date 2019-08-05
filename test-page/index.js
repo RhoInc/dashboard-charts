@@ -6,7 +6,7 @@ const renderers = Object.keys(dashboardCharts.renderers)
             renderer: dashboardCharts.renderers[renderer],
             title: renderer.substring(0,1).toUpperCase() + renderer.substring(1).replace(/([A-Z])/g, ' $1')
         };
-        rendererObj.csv = '../../data-library/data/clinical-trials/data-cleaning/dashboard-'
+        rendererObj.csv = './data/dashboard-'
         //rendererObj.csv = 'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-'
             + rendererObj.title.toLowerCase().replace(/ /g, '-')
             + '.csv';

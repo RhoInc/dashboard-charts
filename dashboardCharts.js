@@ -252,26 +252,6 @@
         syncControlInputs: syncControlInputs
     };
 
-    function captureFilters() {
-        var _this = this;
-
-        var filters = Object.keys(this.raw_data[0]).filter(function (key) {
-            return (/^filter:/i.test(key)
-            );
-        }).map(function (key) {
-            return {
-                type: 'subsetter',
-                label: key.substring(key.indexOf(':') + 1),
-                value_col: key
-            };
-        });
-        filters.forEach(function (filter) {
-            _this.controls.config.inputs.push(filter);
-        });
-
-        return filters;
-    }
-
     function defineSet() {
         var variables = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
@@ -289,6 +269,27 @@
         });
 
         return set;
+    }
+
+    function captureFilters() {
+        var _this = this;
+
+        this.config.filters = Object.keys(this.raw_data[0]).filter(function (key) {
+            return (/^filter:/i.test(key)
+            );
+        }).map(function (key) {
+            return {
+                type: 'subsetter',
+                label: key.substring(key.indexOf(':') + 1),
+                value_col: key,
+                set: defineSet.call(_this, [key])
+            };
+        });
+        this.config.filters.forEach(function (filter) {
+            _this.controls.config.inputs.push(filter);
+        });
+
+        return this.config.filters;
     }
 
     function useSiteAbbreviation() {
@@ -701,6 +702,21 @@
         syncSettings: syncSettings$1,
         controlInputs: controlInputs$1,
         syncControlInputs: syncControlInputs$1
+    };
+
+    var defineProperty = function (obj, key, value) {
+      if (key in obj) {
+        Object.defineProperty(obj, key, {
+          value: value,
+          enumerable: true,
+          configurable: true,
+          writable: true
+        });
+      } else {
+        obj[key] = value;
+      }
+
+      return obj;
     };
 
     var slicedToArray = function () {
@@ -1170,6 +1186,276 @@
 
     function rendererSettings$4() {
         return {
+            id_col: 'subjid',
+            date_col: 'date',
+            population_col: 'population',
+            population_order_col: 'population_order',
+            population_color_col: 'population_color',
+            participant_count_col: 'participant_count',
+            site_col: 'site'
+        };
+    }
+
+    function webchartsSettings$4() {
+        return {
+            x: {
+                type: 'time',
+                column: null, // set in ./syncSettings
+                label: '',
+                format: '%b-%y'
+            },
+            y: {
+                type: 'linear',
+                column: null, // set in ./syncSettings
+                label: '',
+                behavior: 'firstfilter'
+            },
+            marks: [{
+                type: 'line',
+                per: [], // set in ./syncSettings
+                summarizeY: 'sum',
+                tooltip: '$y'
+            }],
+            color_by: null, // set in ./syncSettings
+            color_dom: null, // set in ../callbacks/onInit
+            colors: null, // set in ../callbacks/onInit
+            legend: {
+                label: '',
+                order: null // set in ../callbacks/onInit
+            },
+            resizable: false,
+            width: 500,
+            height: 350,
+            margin: {},
+            date_format: '%Y-%m-%d'
+        };
+    }
+
+    function syncSettings$4(settings) {
+        settings.x.column = settings.date_col;
+        settings.y.column = 'count';
+        settings.marks[0].per[0] = settings.population_col;
+        settings.color_by = settings.population_col;
+
+        return settings;
+    }
+
+    function controlInputs$4() {
+        return [
+            //{
+            //    type: 'subsetter',
+            //    value_col: null, // set in syncControlInputs()
+            //    label: 'Site',
+            //    require: true
+            //}
+        ];
+    }
+
+    function syncControlInputs$4(controlInputs, settings) {
+        //controlInputs.find(controlInput => controlInput.label === 'Site').value_col = settings.site_col;
+
+        return controlInputs;
+    }
+
+    var configuration$4 = {
+        rendererSettings: rendererSettings$4,
+        webchartsSettings: webchartsSettings$4,
+        settings: Object.assign({}, webchartsSettings$4(), rendererSettings$4()),
+        syncSettings: syncSettings$4,
+        controlInputs: controlInputs$4,
+        syncControlInputs: syncControlInputs$4
+    };
+
+    function addVariables() {
+        var _this = this;
+
+        this.raw_data.forEach(function (d) {
+            d._date_ = d3.time.format(_this.config.date_format).parse(d[_this.config.date_col]);
+        });
+    }
+
+    function deriveData() {
+        var _this = this;
+
+        // define a full range of dates between enrollment start and snapshot date
+        var dateRange = d3.time.day.range(d3.min(this.raw_data, function (d) {
+            return d._date_;
+        }), d3.max(this.raw_data, function (d) {
+            return d._date_;
+        }));
+
+        var n = dateRange.length * this.config.color_dom.length;
+        this.config.filters.forEach(function (filter) {
+            n = n * filter.set.length;
+        });
+        var perDate = new Array(n);
+        var index = 0;
+
+        // for each population
+        this.config.color_dom.forEach(function (population) {
+            var popSubset = _this.raw_data.filter(function (d) {
+                return d[_this.config.population_col] === population;
+            });
+            // for each date between enrollment start and shanpshot date
+            dateRange.forEach(function (date) {
+                var dateSubset = popSubset.filter(function (d) {
+                    return d._date_ <= date;
+                });
+                if (!_this.config.filters) {
+                    var datum = {
+                        population: population,
+                        date: date,
+                        count: dateSubset.length
+                    };
+                    perDate[index] = datum;
+                    index++;
+                } else {
+                    _this.config.filters.forEach(function (filter) {
+                        filter.set.forEach(function (item) {
+                            var _datum;
+
+                            var filterSubset = dateSubset.filter(function (d) {
+                                return d[filter.value_col] === item[filter.value_col];
+                            });
+                            var datum = (_datum = {
+                                population: population,
+                                date: date
+                            }, defineProperty(_datum, filter.value_col, item[filter.value_col]), defineProperty(_datum, "count", filterSubset.length), _datum);
+                            perDate[index] = datum;
+                            index++;
+                        });
+                    });
+                }
+            });
+        });
+
+        this.raw_data = perDate;
+    }
+
+    function onInit$4() {
+        addVariables.call(this);
+        captureFilters.call(this);
+        defineStatusSet.call(this, this.config.population_col, this.config.population_order_col, this.config.population_color_col);
+        deriveData.call(this);
+    }
+
+    function onLayout$4() {}
+
+    function onPreprocess$4() {}
+
+    function onDatatransform$4() {}
+
+    function onDraw$4() {}
+
+    function onResize$4() {
+        var context = this;
+        this.svg.selectAll('.y.axis .tick text').each(function (d) {
+            if (d % 1)
+                // if the tick label is not an integer then remove
+                d3.select(this).remove();
+        });
+        //Capture x/y coordinates of mouse.
+        var timeFormat = d3.time.format('%d %b %Y');
+        var width = this.plot_width;
+        var x = this.x;
+        var y = this.y;
+        var decim = d3.format('.0f');
+
+        var x_mark = this.svg.select('.x.axis').append('g').attr('class', 'hover-item hover-tick hover-tick-x').style('display', 'none');
+        x_mark.append('line').attr({
+            x1: 0,
+            x2: 0,
+            y1: 0,
+            y2: 0,
+            stroke: '#ddd'
+        });
+        x_mark.append('text').attr({
+            x: 0,
+            y: 0,
+            dx: '.5em',
+            dy: '-.5em'
+        });
+        x_mark.select('line').attr('y1', -this.plot_height);
+
+        this.svg.on('mousemove', function () {
+            var mouse = this;
+
+            context.current_data.forEach(function (e) {
+                var line_data = e.values;
+                var bisectDate = d3.bisector(function (d) {
+                    return new Date(d.key);
+                }).right;
+                var x0 = context.x.invert(d3.mouse(mouse)[0]);
+                var i = bisectDate(line_data, x0, 1, line_data.length - 1);
+                var d0 = line_data[i - 1];
+                var d1 = line_data[i];
+
+                if (!d0 || !d1) return;
+
+                var d = x0 - new Date(d0.key) > new Date(d1.key) - x0 ? d1 : d0;
+                var hover_tick_x = context.svg.select('.hover-tick-x');
+                var focus_enr = context.svg.selectAll('.focus').filter(function (f) {
+                    return f.key === e.key;
+                });
+
+                hover_tick_x.select('text').text(timeFormat(x0)).attr('text-anchor', x(x0) > width / 2 ? 'end' : 'start').attr('dx', x(x0) > width / 2 ? '-.5em' : '.5em');
+
+                var leg_item = context.wrap.select('.legend').selectAll('.legend-item').filter(function (f) {
+                    return f.label === e.key;
+                });
+
+                leg_item.select('.legend-mark-text').text(d.values.y || d.values.y === 0 ? decim(d.values.y) : null);
+                hover_tick_x.attr('transform', 'translate(' + x(x0) + ',0)');
+            });
+        }).on('mouseover', function () {
+            context.svg.selectAll('.hover-item').style('display', 'block');
+            var leg_items = context.wrap.select('.legend').selectAll('.legend-item');
+            leg_items.select('.legend-color-block').style('display', 'none');
+            leg_items.select('.legend-mark-text').style('display', 'inline');
+        }).on('mouseout', function () {
+            context.svg.selectAll('.hover-item').style('display', 'none');
+            var leg_items = context.legend.selectAll('.legend-item');
+            leg_items.select('.legend-color-block').style('display', 'inline-block');
+            leg_items.select('.legend-mark-text').style('display', 'none');
+        });
+    }
+
+    function onDestroy$4() {}
+
+    var callbacks$4 = {
+        onInit: onInit$4,
+        onLayout: onLayout$4,
+        onPreprocess: onPreprocess$4,
+        onDatatransform: onDatatransform$4,
+        onDraw: onDraw$4,
+        onResize: onResize$4,
+        onDestroy: onDestroy$4
+    };
+
+    function accrualOverTime() {
+        var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
+        var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+        //Sync settings.
+        var mergedSettings = Object.assign({}, configuration$4.settings, settings);
+        var syncedSettings = configuration$4.syncSettings(mergedSettings);
+        var syncedControlInputs = configuration$4.syncControlInputs(configuration$4.controlInputs(), syncedSettings);
+
+        //Define controls and chart.
+        var controls = webcharts.createControls(element, {
+            location: 'top',
+            inputs: syncedControlInputs
+        });
+        var chart = webcharts.createChart(element, syncedSettings, controls);
+
+        //Attach callbacks to chart.
+        for (var callback in callbacks$4) {
+            chart.on(callback.substring(2).toLowerCase(), callbacks$4[callback]);
+        }return chart;
+    }
+
+    function rendererSettings$5() {
+        return {
             site_col: 'site',
             status_col: 'status',
             status_order_col: 'status_order',
@@ -1177,7 +1463,7 @@
         };
     }
 
-    function webchartsSettings$4() {
+    function webchartsSettings$5() {
         return {
             x: {
                 column: null, // set in ./syncSettings
@@ -1213,7 +1499,7 @@
         };
     }
 
-    function syncSettings$4(settings) {
+    function syncSettings$5(settings) {
         settings.x.column = settings.site_col;
         settings.marks[0].split = settings.status_col;
         settings.marks[0].per[0] = settings.site_col;
@@ -1222,7 +1508,7 @@
         return settings;
     }
 
-    function controlInputs$4() {
+    function controlInputs$5() {
         return [{
             label: '',
             type: 'radio',
@@ -1232,47 +1518,47 @@
         }];
     }
 
-    function syncControlInputs$4(controlInputs, settings) {
+    function syncControlInputs$5(controlInputs, settings) {
         return controlInputs;
     }
 
-    var configuration$4 = {
-        rendererSettings: rendererSettings$4,
-        webchartsSettings: webchartsSettings$4,
-        settings: Object.assign({}, webchartsSettings$4(), rendererSettings$4()),
-        syncSettings: syncSettings$4,
-        controlInputs: controlInputs$4,
-        syncControlInputs: syncControlInputs$4
+    var configuration$5 = {
+        rendererSettings: rendererSettings$5,
+        webchartsSettings: webchartsSettings$5,
+        settings: Object.assign({}, webchartsSettings$5(), rendererSettings$5()),
+        syncSettings: syncSettings$5,
+        controlInputs: controlInputs$5,
+        syncControlInputs: syncControlInputs$5
     };
 
-    function onInit$4() {
+    function onInit$5() {
         defineStatusSet.call(this, this.config.status_col, this.config.status_order_col, this.config.status_color_col);
     }
 
-    function onLayout$4() {}
+    function onLayout$5() {}
 
-    function onPreprocess$4() {}
+    function onPreprocess$5() {}
 
-    function onDatatransform$4() {}
+    function onDatatransform$5() {}
 
-    function onDraw$4() {
+    function onDraw$5() {
         setYFormat.call(this);
     }
 
-    function onResize$4() {
+    function onResize$5() {
         customizeTooltips.call(this);
     }
 
-    function onDestroy$4() {}
+    function onDestroy$5() {}
 
-    var callbacks$4 = {
-        onInit: onInit$4,
-        onLayout: onLayout$4,
-        onPreprocess: onPreprocess$4,
-        onDatatransform: onDatatransform$4,
-        onDraw: onDraw$4,
-        onResize: onResize$4,
-        onDestroy: onDestroy$4
+    var callbacks$5 = {
+        onInit: onInit$5,
+        onLayout: onLayout$5,
+        onPreprocess: onPreprocess$5,
+        onDatatransform: onDatatransform$5,
+        onDraw: onDraw$5,
+        onResize: onResize$5,
+        onDestroy: onDestroy$5
     };
 
     function forms() {
@@ -1280,9 +1566,9 @@
         var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
         //Sync settings.
-        var mergedSettings = Object.assign({}, configuration$4.settings, settings);
-        var syncedSettings = configuration$4.syncSettings(mergedSettings);
-        var syncedControlInputs = configuration$4.syncControlInputs(configuration$4.controlInputs(), syncedSettings);
+        var mergedSettings = Object.assign({}, configuration$5.settings, settings);
+        var syncedSettings = configuration$5.syncSettings(mergedSettings);
+        var syncedControlInputs = configuration$5.syncControlInputs(configuration$5.controlInputs(), syncedSettings);
 
         //Define controls and chart.
         var controls = webcharts.createControls(element, {
@@ -1292,8 +1578,8 @@
         var chart = webcharts.createChart(element, syncedSettings, controls);
 
         //Attach callbacks to chart.
-        for (var callback in callbacks$4) {
-            chart.on(callback.substring(2).toLowerCase(), callbacks$4[callback]);
+        for (var callback in callbacks$5) {
+            chart.on(callback.substring(2).toLowerCase(), callbacks$5[callback]);
         }return chart;
     }
 
@@ -1302,6 +1588,7 @@
         visitCompletion: visitCompletion,
         queries: queries,
         enrollmentOverTime: enrollmentOverTime,
+        accrualOverTime: accrualOverTime,
         forms: forms
     };
 
@@ -1675,15 +1962,15 @@
     };
 
     function specification$4() {
-        var syncedSettings = configuration$4.syncSettings(configuration$4.settings);
-        var syncedControlInputs = configuration$4.syncControlInputs(configuration$4.controlInputs(), syncedSettings);
+        var syncedSettings = configuration$5.syncSettings(configuration$5.settings);
+        var syncedControlInputs = configuration$5.syncControlInputs(configuration$5.controlInputs(), syncedSettings);
 
         return {
             schema: schema$4,
-            configuration: configuration$4,
+            configuration: configuration$5,
             settings: syncedSettings,
             controlInputs: syncedControlInputs,
-            callbacks: callbacks$4
+            callbacks: callbacks$5
         };
     }
 
@@ -1692,6 +1979,7 @@
         visitCompletion: specification$1(),
         queries: specification$2(),
         enrollmentOverTime: specification$3(),
+        accrualOverTime: accrualOverTime(),
         forms: specification$4()
     };
 

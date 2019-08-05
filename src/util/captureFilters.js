@@ -1,16 +1,19 @@
+import defineSet from './defineSet';
+
 export default function captureFilters() {
-    const filters = Object.keys(this.raw_data[0])
+    this.config.filters = Object.keys(this.raw_data[0])
         .filter(key => /^filter:/i.test(key))
         .map(key => {
             return {
                 type: 'subsetter',
                 label: key.substring(key.indexOf(':') + 1),
                 value_col: key,
+                set: defineSet.call(this, [key]),
             };
         });
-    filters.forEach(filter => {
+    this.config.filters.forEach(filter => {
         this.controls.config.inputs.push(filter);
     });
 
-    return filters;
+    return this.config.filters;
 }
