@@ -178,7 +178,7 @@
         return {
             site_col: 'site',
             site_abbreviation_col: 'site_abbreviation',
-            site_tooltip_col: 'site_tooltip',
+            site_tooltip_col: 'site_info',
             id_col: 'subjid',
             population_col: 'population',
             population_order_col: 'population_order',
@@ -271,6 +271,54 @@
         return set;
     }
 
+    var slicedToArray = function () {
+      function sliceIterator(arr, i) {
+        var _arr = [];
+        var _n = true;
+        var _d = false;
+        var _e = undefined;
+
+        try {
+          for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+            _arr.push(_s.value);
+
+            if (i && _arr.length === i) break;
+          }
+        } catch (err) {
+          _d = true;
+          _e = err;
+        } finally {
+          try {
+            if (!_n && _i["return"]) _i["return"]();
+          } finally {
+            if (_d) throw _e;
+          }
+        }
+
+        return _arr;
+      }
+
+      return function (arr, i) {
+        if (Array.isArray(arr)) {
+          return arr;
+        } else if (Symbol.iterator in Object(arr)) {
+          return sliceIterator(arr, i);
+        } else {
+          throw new TypeError("Invalid attempt to destructure non-iterable instance");
+        }
+      };
+    }();
+
+    var toConsumableArray = function (arr) {
+      if (Array.isArray(arr)) {
+        for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+        return arr2;
+      } else {
+        return Array.from(arr);
+      }
+    };
+
     function captureFilters() {
         var _this = this;
 
@@ -289,7 +337,38 @@
             _this.controls.config.inputs.push(filter);
         });
 
-        return this.config.filters;
+        // Cartesian join with vanilla javascript (https://stackoverflow.com/a/43053803/4142034)
+        var f = function f(a, b) {
+            var _ref;
+
+            return (_ref = []).concat.apply(_ref, toConsumableArray(a.map(function (d) {
+                return b.map(function (e) {
+                    return [].concat(d, e);
+                });
+            })));
+        };
+        var cartesian = function cartesian(a, b) {
+            for (var _len = arguments.length, c = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+                c[_key - 2] = arguments[_key];
+            }
+
+            return b ? cartesian.apply(undefined, [f(a, b)].concat(c)) : a;
+        };
+        this.config.filterCombinations = cartesian.apply(undefined, toConsumableArray(this.config.filters.map(function (filter) {
+            return filter.set;
+        })));
+    }
+
+    function captureListingVariables() {
+        this.config.listingVariables = Object.keys(this.raw_data[0]).filter(function (key) {
+            return (/^listing:/i.test(key)
+            );
+        }).map(function (key) {
+            return {
+                col: key,
+                header: key.substring(key.indexOf(':') + 1)
+            };
+        });
     }
 
     function useSiteAbbreviation() {
@@ -379,6 +458,7 @@
 
     function onInit() {
         captureFilters.call(this);
+        captureListingVariables.call(this);
         useSiteAbbreviation.call(this);
         defineStatusSet.call(this, this.config.population_col, this.config.population_order_col, this.config.population_color_col);
         this.config.colors.reverse(); // reverse colors to match reversed legend order
@@ -489,10 +569,20 @@
 
                     // define and initialize table
                     _this.table.table = new webCharts.createTable(_this.table.container.node(), {
+                        cols: [_this.config.id_col].concat(toConsumableArray(_this.config.filters.map(function (filter) {
+                            return filter.value_col;
+                        })), toConsumableArray(_this.config.listingVariables.map(function (listingVariable) {
+                            return listingVariable.col;
+                        }))),
+                        headers: ['Participant ID'].concat(toConsumableArray(_this.config.filters.map(function (filter) {
+                            return filter.label;
+                        })), toConsumableArray(_this.config.listingVariables.map(function (listingVariable) {
+                            return listingVariable.header;
+                        }))),
                         searchable: false,
-                        sortable: false,
+                        sortable: true,
                         pagination: false,
-                        exportable: false
+                        exportable: true
                     });
                     _this.table.table.on('layout', function () {
                         this.wrap.style({
@@ -502,29 +592,61 @@
                         });
                     });
                     _this.table.table.on('draw', function () {
-                        this.table.selectAll('thead tr th').style('cursor', 'default');
+                        //this.table.selectAll('thead tr th').style('cursor', 'default');
                     });
-                    _this.table.table.init(d.values.raw.map(function (di) {
-                        var datum = Object.keys(di).filter(function (key) {
-                            return [_this.config.population_col, _this.config.population_superset_col, _this.config.population_order_col, _this.config.population_color_col, _this.config.site_col, _this.config.site_abbreviation_col, _this.config.site_tooltip_col].indexOf(key) < 0;
-                        }).reduce(function (acc, cur) {
-                            acc[cur] = di[cur];
-                            return acc;
-                        }, {});
+                    _this.table.table.init(d.values.raw
+                    //.map(di => {
 
-                        Object.keys(datum).forEach(function (key) {
-                            if (key === _this.config.id_col) {
-                                Object.defineProperty(datum, 'Participant ID', Object.getOwnPropertyDescriptor(datum, key));
-                                delete datum[key];
-                            }
-                            if (/^filter/i.test(key)) {
-                                Object.defineProperty(datum, key.replace(/^filter:/i, ''), Object.getOwnPropertyDescriptor(datum, key));
-                                delete datum[key];
-                            }
-                        });
+                    //    const datum = Object.keys(di)
+                    //        .filter(
+                    //            key => (
+                    //                [
+                    //                    this.config.population_col,
+                    //                    this.config.population_superset_col,
+                    //                    this.config.population_order_col,
+                    //                    this.config.population_color_col,
+                    //                    this.config.site_col,
+                    //                    this.config.site_abbreviation_col,
+                    //                    this.config.site_tooltip_col,
+                    //                ].indexOf(key) < 0
+                    //            )
+                    //        )
+                    //        .reduce(
+                    //            (acc,cur) => {
+                    //                acc[cur] = di[cur];
+                    //                return acc;
+                    //            },
+                    //            {}
+                    //        );
 
-                        return datum;
-                    }));
+                    //    Object.keys(datum).forEach(key => {
+                    //        if (key === this.config.id_col) {
+                    //            Object.defineProperty(
+                    //                datum,
+                    //                'Participant ID',
+                    //                Object.getOwnPropertyDescriptor(
+                    //                    datum,
+                    //                    key
+                    //                )
+                    //            );
+                    //            delete datum[key];
+                    //        }
+                    //        if (/^filter/i.test(key)) {
+                    //            Object.defineProperty(
+                    //                datum,
+                    //                key.replace(/^filter:/i, ''),
+                    //                Object.getOwnPropertyDescriptor(
+                    //                    datum,
+                    //                    key
+                    //                )
+                    //            );
+                    //            delete datum[key];
+                    //        }
+                    //    });
+
+                    //    return datum;
+                    //})
+                    );
 
                     //Clear table when controls change.
                     _this.controls.wrap.on('change', function () {
@@ -703,59 +825,6 @@
         controlInputs: controlInputs$1,
         syncControlInputs: syncControlInputs$1
     };
-
-    var defineProperty = function (obj, key, value) {
-      if (key in obj) {
-        Object.defineProperty(obj, key, {
-          value: value,
-          enumerable: true,
-          configurable: true,
-          writable: true
-        });
-      } else {
-        obj[key] = value;
-      }
-
-      return obj;
-    };
-
-    var slicedToArray = function () {
-      function sliceIterator(arr, i) {
-        var _arr = [];
-        var _n = true;
-        var _d = false;
-        var _e = undefined;
-
-        try {
-          for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-            _arr.push(_s.value);
-
-            if (i && _arr.length === i) break;
-          }
-        } catch (err) {
-          _d = true;
-          _e = err;
-        } finally {
-          try {
-            if (!_n && _i["return"]) _i["return"]();
-          } finally {
-            if (_d) throw _e;
-          }
-        }
-
-        return _arr;
-      }
-
-      return function (arr, i) {
-        if (Array.isArray(arr)) {
-          return arr;
-        } else if (Symbol.iterator in Object(arr)) {
-          return sliceIterator(arr, i);
-        } else {
-          throw new TypeError("Invalid attempt to destructure non-iterable instance");
-        }
-      };
-    }();
 
     function defineOrder(data, value_col, order_col) {
         //Define set of values.
@@ -987,11 +1056,11 @@
     function rendererSettings$3() {
         return {
             id_col: 'subjid',
-            date_col: 'date',
             population_col: 'population',
             population_order_col: 'population_order',
             population_color_col: 'population_color',
             participant_count_col: 'participant_count',
+            date_col: 'date',
             site_col: 'site'
         };
     }
@@ -1071,23 +1140,26 @@
 
         this.raw_data.forEach(function (d) {
             d._date_ = d3.time.format(_this.config.date_format).parse(d[_this.config.date_col]);
+            if (d.hasOwnProperty(_this.config.site_col)) d['filter:Site'] = d[_this.config.site_col];
         });
     }
 
     function deriveData() {
         var _this = this;
 
-        // define a full range of dates between enrollment start and snapshot date
-        var dateRange = d3.time.day.range(d3.min(this.raw_data, function (d) {
+        // define a full range of dates between the first accrual and the last accrual
+        var extent = d3.extent(this.raw_data, function (d) {
             return d._date_;
-        }), d3.max(this.raw_data, function (d) {
-            return d._date_;
-        }));
+        });
+        var dateRange = d3.time.day.range(extent[0], extent[1]).concat(extent[1]);
 
+        // calculate the number of records needed to capture all combinations of population, date, and filter values
         var n = dateRange.length * this.config.color_dom.length;
         this.config.filters.forEach(function (filter) {
             n = n * filter.set.length;
         });
+
+        // instantiate a new array with as many elements as needed
         var perDate = new Array(n);
         var index = 0;
 
@@ -1096,11 +1168,15 @@
             var popSubset = _this.raw_data.filter(function (d) {
                 return d[_this.config.population_col] === population;
             });
-            // for each date between enrollment start and shanpshot date
+
+            // for each date between first accrual and last accrual
             dateRange.forEach(function (date) {
                 var dateSubset = popSubset.filter(function (d) {
                     return d._date_ <= date;
                 });
+
+                // without filters, we only need to count the number of participants accrued in that
+                // population on or before the current date
                 if (!_this.config.filters) {
                     var datum = {
                         population: population,
@@ -1109,23 +1185,28 @@
                     };
                     perDate[index] = datum;
                     index++;
-                } else {
-                    _this.config.filters.forEach(function (filter) {
-                        filter.set.forEach(function (item) {
-                            var _datum;
-
-                            var filterSubset = dateSubset.filter(function (d) {
-                                return d[filter.value_col] === item[filter.value_col];
-                            });
-                            var datum = (_datum = {
+                }
+                // otherwise we need to apply each combination of filters to the data
+                else {
+                        _this.config.filterCombinations.forEach(function (filterCombination) {
+                            var datum = {
                                 population: population,
                                 date: date
-                            }, defineProperty(_datum, filter.value_col, item[filter.value_col]), defineProperty(_datum, "count", filterSubset.length), _datum);
+                            };
+                            var filterSubset = dateSubset;
+                            filterCombination.forEach(function (keyValue) {
+                                var key = Object.keys(keyValue)[0]; // variable name
+                                var value = keyValue[key]; // variable value
+                                datum[key] = value;
+                                filterSubset = filterSubset.filter(function (d) {
+                                    return d[key] === value;
+                                });
+                            });
+                            datum.count = filterSubset.length;
                             perDate[index] = datum;
                             index++;
                         });
-                    });
-                }
+                    }
             });
         });
 
@@ -1232,7 +1313,7 @@
         onDestroy: onDestroy$3
     };
 
-    function derivedAccrualOverTime() {
+    function accrualOverTimeDerived() {
         var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
         var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
@@ -1613,7 +1694,7 @@
         accrual: accrual,
         visitCompletion: visitCompletion,
         queries: queries,
-        derivedAccrualOverTime: derivedAccrualOverTime,
+        accrualOverTimeDerived: accrualOverTimeDerived,
         accrualOverTime: accrualOverTime,
         forms: forms
     };
@@ -1950,7 +2031,7 @@
         version: '0.1.0',
         type: 'object',
         'data-guidelines': 'The Accrual Over Time chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots study accrual over time by population.',
-        'data-structure': 'one record per site per population per date between site activation and data snapshot date',
+        'data-structure': 'one record per population per date between accrual start date and data snapshot date',
         'data-file': 'dashboard-accrual-over-time',
         properties: {
             site_col: {
@@ -2090,7 +2171,7 @@
         accrual: specification(),
         visitCompletion: specification$1(),
         queries: specification$2(),
-        derivedAccrualOverTime: specification$3(),
+        accrualOverTimeDerived: specification$3(),
         accrualOverTime: specification$4(),
         forms: specification$5()
     };

@@ -2,7 +2,7 @@ import configuration from './configuration/index';
 import { createControls, createChart } from 'webcharts';
 import callbacks from './callbacks/index';
 
-export default function derivedAccrualOverTime(element = 'body', settings = {}) {
+export default function accrualOverTimeDerived(element = 'body', settings = {}) {
     //Sync settings.
     const mergedSettings = Object.assign({}, configuration.settings, settings);
     const syncedSettings = configuration.syncSettings(mergedSettings);

@@ -9,7 +9,7 @@ export default {
     'data-guidelines':
         'The Accrual Over Time chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots study accrual over time by population.',
     'data-structure':
-        'one record per site per population per date between site activation and data snapshot date',
+        'one record per population per date between accrual start date and data snapshot date',
     'data-file': 'dashboard-accrual-over-time',
     properties: {
         site_col: {

@@ -59,10 +59,20 @@ export default function addBarClick() {
                     this.table.table = new webCharts.createTable(
                         this.table.container.node(),
                         {
+                            cols: [
+                                this.config.id_col,
+                                ...this.config.filters.map(filter => filter.value_col),
+                                ...this.config.listingVariables.map(listingVariable => listingVariable.col),
+                            ],
+                            headers: [
+                                'Participant ID',
+                                ...this.config.filters.map(filter => filter.label),
+                                ...this.config.listingVariables.map(listingVariable => listingVariable.header),
+                            ],
                             searchable: false,
-                            sortable: false,
+                            sortable: true,
                             pagination: false,
-                            exportable: false,
+                            exportable: true,
                         }
                     );
                     this.table.table.on('layout', function() {
@@ -73,59 +83,61 @@ export default function addBarClick() {
                         });
                     });
                     this.table.table.on('draw', function() {
-                        this.table.selectAll('thead tr th').style('cursor', 'default');
+                        //this.table.selectAll('thead tr th').style('cursor', 'default');
                     });
                     this.table.table.init(
-                        d.values.raw.map(di => {
-                            const datum = Object.keys(di)
-                                .filter(
-                                    key => (
-                                        [
-                                            this.config.population_col,
-                                            this.config.population_superset_col,
-                                            this.config.population_order_col,
-                                            this.config.population_color_col,
-                                            this.config.site_col,
-                                            this.config.site_abbreviation_col,
-                                            this.config.site_tooltip_col,
-                                        ].indexOf(key) < 0
-                                    )
-                                )
-                                .reduce(
-                                    (acc,cur) => {
-                                        acc[cur] = di[cur];
-                                        return acc;
-                                    },
-                                    {}
-                                );
+                        d.values.raw
+                            //.map(di => {
 
-                            Object.keys(datum).forEach(key => {
-                                if (key === this.config.id_col) {
-                                    Object.defineProperty(
-                                        datum,
-                                        'Participant ID',
-                                        Object.getOwnPropertyDescriptor(
-                                            datum,
-                                            key
-                                        )
-                                    );
-                                    delete datum[key];
-                                }
-                                if (/^filter/i.test(key)) {
-                                    Object.defineProperty(
-                                        datum,
-                                        key.replace(/^filter:/i, ''),
-                                        Object.getOwnPropertyDescriptor(
-                                            datum,
-                                            key
-                                        )
-                                    );
-                                    delete datum[key];
-                                }
-                            });
+                            //    const datum = Object.keys(di)
+                            //        .filter(
+                            //            key => (
+                            //                [
+                            //                    this.config.population_col,
+                            //                    this.config.population_superset_col,
+                            //                    this.config.population_order_col,
+                            //                    this.config.population_color_col,
+                            //                    this.config.site_col,
+                            //                    this.config.site_abbreviation_col,
+                            //                    this.config.site_tooltip_col,
+                            //                ].indexOf(key) < 0
+                            //            )
+                            //        )
+                            //        .reduce(
+                            //            (acc,cur) => {
+                            //                acc[cur] = di[cur];
+                            //                return acc;
+                            //            },
+                            //            {}
+                            //        );
 
-                            return datum;
-                        })
+                            //    Object.keys(datum).forEach(key => {
+                            //        if (key === this.config.id_col) {
+                            //            Object.defineProperty(
+                            //                datum,
+                            //                'Participant ID',
+                            //                Object.getOwnPropertyDescriptor(
+                            //                    datum,
+                            //                    key
+                            //                )
+                            //            );
+                            //            delete datum[key];
+                            //        }
+                            //        if (/^filter/i.test(key)) {
+                            //            Object.defineProperty(
+                            //                datum,
+                            //                key.replace(/^filter:/i, ''),
+                            //                Object.getOwnPropertyDescriptor(
+                            //                    datum,
+                            //                    key
+                            //                )
+                            //            );
+                            //            delete datum[key];
+                            //        }
+                            //    });
+
+                            //    return datum;
+                            //})
                     );
 
                     //Clear table when controls change.

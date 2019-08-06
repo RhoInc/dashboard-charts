@@ -15,5 +15,8 @@ export default function captureFilters() {
         this.controls.config.inputs.push(filter);
     });
 
-    return this.config.filters;
+    // Cartesian join with vanilla javascript (https://stackoverflow.com/a/43053803/4142034)
+    const f = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
+    const cartesian = (a, b, ...c) => (b ? cartesian(f(a, b), ...c) : a);
+    this.config.filterCombinations = cartesian(...this.config.filters.map(filter => filter.set));
 }
