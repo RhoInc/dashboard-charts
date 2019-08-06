@@ -1,5 +1,5 @@
 const dashboardContainer = d3.select('#container');
-const dataRoot = '../../data-library/data/clinical-trials/data-cleaning';//'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning';
+const dataRoot = 'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning';
 const renderers = Object.keys(dashboardCharts.renderers)
     .map(function(renderer) {
         const rendererObj = {
