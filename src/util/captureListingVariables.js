@@ -4,7 +4,7 @@ export default function captureListingVariables() {
         .map(key => {
             return {
                 col: key,
-                header: key.substring(key.indexOf(':') + 1),
+                header: key.substring(key.indexOf(':') + 1)
             };
         });
 }

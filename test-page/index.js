@@ -9,16 +9,21 @@ const renderers = Object.keys(dashboardCharts.renderers)
             specification: dashboardCharts.specifications[renderer],
         };
         rendererObj.csv = `${dataRoot}/${rendererObj.specification.schema['data-file']}.csv`;
-        //rendererObj.csv = 'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-'
-            + rendererObj.title.toLowerCase().replace(/ /g, '-')
-            + '.csv';
         rendererObj.container = dashboardContainer
             .append('div')
             .classed('chart chart--' + renderer, true);
         rendererObj.header = rendererObj.container
             .append('div')
             .classed('chart__header', true)
-            .html(rendererObj.title.replace('Derived', '<span style = "cursor:help" title = "The accrual chart below displays participant accrual by population.\nThe dates represent the date the participants accrued in the given population.">&#9432;</span>'));
+            .html(
+                rendererObj.title.replace(
+                    'Derived',
+                    '<span style = "cursor:help" title = "' +
+                        'The accrual chart below displays participant accrual by population over time.\n' +
+                        'It visualizes the same dataset as is used in the accrual bar chart.' +
+                    '">&#9432;</span>'
+                )
+            );
         rendererObj.content = rendererObj.container
             .append('div')
             .classed('chart__content', true);

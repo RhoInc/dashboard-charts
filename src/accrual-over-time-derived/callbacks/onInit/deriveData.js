@@ -27,7 +27,7 @@ export default function deriveData() {
                 const datum = {
                     population,
                     date,
-                    count: dateSubset.length,
+                    count: dateSubset.length
                 };
                 perDate[index] = datum;
                 index++;
@@ -37,7 +37,7 @@ export default function deriveData() {
                 this.config.filterCombinations.forEach(filterCombination => {
                     const datum = {
                         population,
-                        date,
+                        date
                     };
                     let filterSubset = dateSubset;
                     filterCombination.forEach(keyValue => {
