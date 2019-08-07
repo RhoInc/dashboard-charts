@@ -1,7 +1,7 @@
 The Accrual chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots the number of participants in each study populations by site.
 
 ## Data structure
-one record per participant per population
+one record per participant per population with a discrete variable that will plot on the y-axis
 
 ## Data specification
 required and optional variables:

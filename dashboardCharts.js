@@ -188,7 +188,8 @@
             population_col: 'population',
             population_order_col: 'population_order',
             population_color_col: 'population_color',
-            population_superset_col: 'population_superset'
+            population_superset_col: 'population_superset',
+            date_col: 'date'
         };
     }
 
@@ -735,37 +736,39 @@
                             });
 
                         // define and initialize table
+                        var cols = [_this.config.id_col].concat(
+                            toConsumableArray(
+                                _this.config.filters.map(function(filter) {
+                                    return filter.value_col;
+                                })
+                            ),
+                            toConsumableArray(
+                                _this.config.listingVariables.map(function(listingVariable) {
+                                    return listingVariable.col;
+                                })
+                            )
+                        );
+                        if (_this.raw_data[0].hasOwnProperty(_this.config.date_col))
+                            cols.splice(1, 0, _this.config.date_col);
+                        var headers = ['Participant ID'].concat(
+                            toConsumableArray(
+                                _this.config.filters.map(function(filter) {
+                                    return filter.label;
+                                })
+                            ),
+                            toConsumableArray(
+                                _this.config.listingVariables.map(function(listingVariable) {
+                                    return listingVariable.header;
+                                })
+                            )
+                        );
+                        if (_this.raw_data[0].hasOwnProperty(_this.config.date_col))
+                            headers.splice(1, 0, 'Accrual Date');
                         _this.table.table = new webCharts.createTable(
                             _this.table.container.node(),
                             {
-                                cols: [_this.config.id_col].concat(
-                                    toConsumableArray(
-                                        _this.config.filters.map(function(filter) {
-                                            return filter.value_col;
-                                        })
-                                    ),
-                                    toConsumableArray(
-                                        _this.config.listingVariables.map(function(
-                                            listingVariable
-                                        ) {
-                                            return listingVariable.col;
-                                        })
-                                    )
-                                ),
-                                headers: ['Participant ID'].concat(
-                                    toConsumableArray(
-                                        _this.config.filters.map(function(filter) {
-                                            return filter.label;
-                                        })
-                                    ),
-                                    toConsumableArray(
-                                        _this.config.listingVariables.map(function(
-                                            listingVariable
-                                        ) {
-                                            return listingVariable.header;
-                                        })
-                                    )
-                                ),
+                                cols: cols,
+                                headers: headers,
                                 searchable: false,
                                 sortable: true,
                                 pagination: false,
@@ -2029,7 +2032,8 @@
         type: 'object',
         'data-guidelines':
             'The Accrual chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots the number of participants in each study populations by site.',
-        'data-structure': 'one record per participant per population',
+        'data-structure':
+            'one record per participant per population with a discrete variable that will plot on the y-axis',
         'data-file': 'dashboard-accrual',
         properties: {
             site_col: {
@@ -2105,6 +2109,15 @@
                 'data-type': 'character',
                 required: false
             }
+        },
+        date_col: {
+            title: 'Date',
+            description: 'date variable name in YYYY-MM-DD format',
+            type: 'string',
+            default: 'date',
+            'data-mapping': true,
+            'data-type': 'character',
+            required: false
         }
     };
 

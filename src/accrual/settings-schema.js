@@ -8,7 +8,8 @@ export default {
     type: 'object',
     'data-guidelines':
         'The Accrual chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots the number of participants in each study populations by site.',
-    'data-structure': 'one record per participant per population',
+    'data-structure':
+        'one record per participant per population with a discrete variable that will plot on the y-axis',
     'data-file': 'dashboard-accrual',
     properties: {
         site_col: {
@@ -84,5 +85,14 @@ export default {
             'data-type': 'character',
             required: false
         }
+    },
+    date_col: {
+        title: 'Date',
+        description: 'date variable name in YYYY-MM-DD format',
+        type: 'string',
+        default: 'date',
+        'data-mapping': true,
+        'data-type': 'character',
+        required: false
     }
 };

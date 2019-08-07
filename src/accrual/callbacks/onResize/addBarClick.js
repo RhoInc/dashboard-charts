@@ -52,21 +52,25 @@ export default function addBarClick() {
                         });
 
                     // define and initialize table
+                    const cols = [
+                        this.config.id_col,
+                        ...this.config.filters.map(filter => filter.value_col),
+                        ...this.config.listingVariables.map(listingVariable => listingVariable.col)
+                    ];
+                    if (this.raw_data[0].hasOwnProperty(this.config.date_col))
+                        cols.splice(1, 0, this.config.date_col);
+                    const headers = [
+                        'Participant ID',
+                        ...this.config.filters.map(filter => filter.label),
+                        ...this.config.listingVariables.map(
+                            listingVariable => listingVariable.header
+                        )
+                    ];
+                    if (this.raw_data[0].hasOwnProperty(this.config.date_col))
+                        headers.splice(1, 0, 'Accrual Date');
                     this.table.table = new webCharts.createTable(this.table.container.node(), {
-                        cols: [
-                            this.config.id_col,
-                            ...this.config.filters.map(filter => filter.value_col),
-                            ...this.config.listingVariables.map(
-                                listingVariable => listingVariable.col
-                            )
-                        ],
-                        headers: [
-                            'Participant ID',
-                            ...this.config.filters.map(filter => filter.label),
-                            ...this.config.listingVariables.map(
-                                listingVariable => listingVariable.header
-                            )
-                        ],
+                        cols,
+                        headers,
                         searchable: false,
                         sortable: true,
                         pagination: false,

@@ -7,6 +7,7 @@ export default function rendererSettings() {
         population_col: 'population',
         population_order_col: 'population_order',
         population_color_col: 'population_color',
-        population_superset_col: 'population_superset'
+        population_superset_col: 'population_superset',
+        date_col: 'date'
     };
 }
