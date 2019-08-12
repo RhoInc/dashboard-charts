@@ -83,63 +83,8 @@ export default function addBarClick() {
                             'border-top': '1px solid #aaa'
                         });
                     });
-                    this.table.table.on('draw', function() {
-                        //this.table.selectAll('thead tr th').style('cursor', 'default');
-                    });
-                    this.table.table.init(
-                        d.values.raw
-                        //.map(di => {
-
-                        //    const datum = Object.keys(di)
-                        //        .filter(
-                        //            key => (
-                        //                [
-                        //                    this.config.population_col,
-                        //                    this.config.population_superset_col,
-                        //                    this.config.population_order_col,
-                        //                    this.config.population_color_col,
-                        //                    this.config.site_col,
-                        //                    this.config.site_abbreviation_col,
-                        //                    this.config.site_tooltip_col,
-                        //                ].indexOf(key) < 0
-                        //            )
-                        //        )
-                        //        .reduce(
-                        //            (acc,cur) => {
-                        //                acc[cur] = di[cur];
-                        //                return acc;
-                        //            },
-                        //            {}
-                        //        );
-
-                        //    Object.keys(datum).forEach(key => {
-                        //        if (key === this.config.id_col) {
-                        //            Object.defineProperty(
-                        //                datum,
-                        //                'Participant ID',
-                        //                Object.getOwnPropertyDescriptor(
-                        //                    datum,
-                        //                    key
-                        //                )
-                        //            );
-                        //            delete datum[key];
-                        //        }
-                        //        if (/^filter/i.test(key)) {
-                        //            Object.defineProperty(
-                        //                datum,
-                        //                key.replace(/^filter:/i, ''),
-                        //                Object.getOwnPropertyDescriptor(
-                        //                    datum,
-                        //                    key
-                        //                )
-                        //            );
-                        //            delete datum[key];
-                        //        }
-                        //    });
-
-                        //    return datum;
-                        //})
-                    );
+                    this.table.table.on('draw', function() {});
+                    this.table.table.init(d.values.raw);
 
                     //Clear table when controls change.
                     this.controls.wrap.on('change', () => {

@@ -40,9 +40,8 @@ export default function deriveData() {
                         date
                     };
                     let filterSubset = dateSubset;
-                    filterCombination.forEach(keyValue => {
-                        const key = Object.keys(keyValue)[0]; // variable name
-                        const value = keyValue[key]; // variable value
+                    filterCombination.forEach((value, i) => {
+                        const key = this.config.filters[i].value_col;
                         datum[key] = value;
                         filterSubset = filterSubset.filter(d => d[key] === value);
                     });

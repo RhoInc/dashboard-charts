@@ -1,22 +1,15 @@
 import captureFilters from '../../util/captureFilters';
 import captureListingVariables from '../../util/captureListingVariables';
-import useSiteAbbreviation from './onInit/useSiteAbbreviation';
-import defineStatusSet from '../../util/defineStatusSet';
+import useCategoryAbbreviation from './onInit/useCategoryAbbreviation';
+import definePopulationSet from './onInit/definePopulationSet';
+import checkFilters from './onInit/checkFilters';
 import defineSupersets from './onInit/defineSupersets';
 
 export default function onInit() {
-    captureFilters.call(this);
-    captureListingVariables.call(this);
-    useSiteAbbreviation.call(this);
-    defineStatusSet.call(
-        this,
-        this.config.population_col,
-        this.config.population_order_col,
-        this.config.population_color_col
-    );
-    this.config.colors.reverse(); // reverse colors to match reversed legend order
-    this.config.legend.order.reverse(); // reverse legend order to reverse order of bars
-
-    //Check for population supersets.
-    defineSupersets.call(this);
+    captureFilters.call(this); // check for data properties prefixed "filter:"
+    captureListingVariables.call(this); // check for data properties prefixed "listing:"
+    useCategoryAbbreviation.call(this); // use abbreviated category variable if present in data
+    definePopulationSet.call(this); // define population set with population name, order, and color
+    checkFilters.call(this); // remove any filter variables with the same discrete values the y-axis variable contains
+    defineSupersets.call(this); // check for population superset, e.g. Screened is a superset of Randomized, and set the bar arrangement to nested accordingly
 }

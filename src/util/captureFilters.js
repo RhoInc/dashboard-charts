@@ -8,7 +8,7 @@ export default function captureFilters() {
                 type: 'subsetter',
                 label: key.substring(key.indexOf(':') + 1),
                 value_col: key,
-                set: defineSet.call(this, [key])
+                set: defineSet.call(this, key)
             };
         });
     this.config.filters.forEach(filter => {

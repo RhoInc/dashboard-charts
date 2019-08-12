@@ -8,19 +8,14 @@ export default {
     type: 'object',
     'data-guidelines':
         'The Derived Accrual over Time chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots participant accrual over time by population, .',
-    'data-structure':
-        'one record per participant per population with a date variable of participant accrual in each population',
+    'data-structure': [
+        'one record per participant per population with a date variable that captures the date of participant accrual in each population',
+        '',
+        'Notes:',
+        '- variables prefixed _filter:_ will appear as filters'
+    ].join('\n'),
     'data-file': 'dashboard-accrual',
     properties: {
-        site_col: {
-            title: 'Site',
-            description: 'site variable name',
-            type: 'string',
-            default: 'site',
-            'data-mapping': true,
-            'data-type': 'character',
-            required: false
-        },
         population_col: {
             title: 'Population',
             description: 'variable: population',

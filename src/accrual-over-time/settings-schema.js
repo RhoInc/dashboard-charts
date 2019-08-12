@@ -8,19 +8,18 @@ export default {
     type: 'object',
     'data-guidelines':
         'The Accrual Over Time chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots study accrual over time by population.',
-    'data-structure':
-        'one record per site per population per date between accrual start date and data snapshot date',
+    'data-structure': [
+        'one record per population per date between accrual start date and data snapshot date with a variable that captures the number of participants accrued in the given population on the given date',
+        '',
+        'Notes:',
+        '- variables prefixed _filter:_ will appear as data filter controls',
+        '- accrual must be calculated within each level of the filter variable(s)',
+        '- target lines:',
+        '  - if a **filter-level target accrual** line is desired, e.g. within site, the data must include rows for each filter value with `population_col` set to _Target_',
+        '  - if a **study-level target accrual** line is desired, e.g. irrespective of site, the data must include rows without filter values and with set `population_col` to _Target_ '
+    ].join('\n'),
     'data-file': 'dashboard-accrual-over-time',
     properties: {
-        site_col: {
-            title: 'Site',
-            description: 'site variable name',
-            type: 'string',
-            default: 'site',
-            'data-mapping': true,
-            'data-type': 'character',
-            required: false
-        },
         population_col: {
             title: 'Population',
             description: 'variable: population',

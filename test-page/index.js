@@ -1,13 +1,14 @@
 const dashboardContainer = d3.select('#container');
-const dataRoot = 'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning';
+//const dataRoot = 'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning';
+const dataRoot = '../../data-library/data/clinical-trials/data-cleaning';
 const renderers = Object.keys(dashboardCharts.renderers)
     .map(function(renderer) {
         const rendererObj = {
             main: renderer,
             renderer: dashboardCharts.renderers[renderer],
-            title: renderer.substring(0,1).toUpperCase() + renderer.substring(1).replace(/([A-Z])/g, ' $1'),
             specification: dashboardCharts.specifications[renderer],
         };
+        rendererObj.title = rendererObj.specification.schema.title;
         rendererObj.csv = `${dataRoot}/${rendererObj.specification.schema['data-file']}.csv`;
         rendererObj.container = dashboardContainer
             .append('div')
@@ -17,7 +18,7 @@ const renderers = Object.keys(dashboardCharts.renderers)
             .classed('chart__header', true)
             .html(
                 rendererObj.title.replace(
-                    'Derived',
+                    '(derived)',
                     '<span style = "cursor:help" title = "' +
                         'The accrual chart below displays participant accrual by population over time.\n' +
                         'It visualizes the same dataset as is used in the accrual bar chart.' +

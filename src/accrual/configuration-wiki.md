@@ -5,30 +5,30 @@ In addition to the standard Webcharts settings several custom settings not avail
 # Renderer-specific settings
 The sections below describe each accrual setting as of version 0.1.0.
 
-## settings.site_col
+## settings.category_col
 `string`
 
-variable: site
+variable: category
 
-**default:** `"site"`
+**default:** `"category"`
 
 
 
-## settings.site_abbreviation_col
+## settings.category_abbreviation_col
 `string`
 
-variable: site abbreviation
+variable: category abbreviation
 
-**default:** `"site_abbreviation"`
+**default:** `"category_abbreviation"`
 
 
 
-## settings.site_info_col
+## settings.category_info_col
 `string`
 
-variable: site info
+variable: category info
 
-**default:** `"site_info"`
+**default:** `"category_info"`
 
 
 
@@ -74,6 +74,15 @@ variable: population color
 variable: population superset, e.g. the superset of the randomized population is the screened population
 
 **default:** `"population_superset"`
+
+
+
+## settings.date_col
+`string`
+
+date variable name in YYYY-MM-DD format
+
+**default:** `"date"`
 
 
 

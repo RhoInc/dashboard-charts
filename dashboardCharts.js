@@ -181,9 +181,9 @@
 
     function rendererSettings() {
         return {
-            site_col: 'site',
-            site_abbreviation_col: 'site_abbreviation',
-            site_info_col: 'site_info',
+            category_col: 'category',
+            category_abbreviation_col: 'category_abbreviation',
+            category_info_col: 'category_info',
             id_col: 'subjid',
             population_col: 'population',
             population_order_col: 'population_order',
@@ -234,9 +234,9 @@
 
     function syncSettings(settings) {
         settings.x.column = settings.population_col;
-        settings.y.column = settings.site_col;
+        settings.y.column = settings.category_col;
         settings.marks[0].split = settings.population_col;
-        settings.marks[0].per[0] = settings.site_col;
+        settings.marks[0].per[0] = settings.category_col;
         settings.marks[0].tooltip = '[' + settings.population_col + ']: $x';
         settings.color_by = settings.population_col;
 
@@ -260,28 +260,15 @@
         syncControlInputs: syncControlInputs
     };
 
-    function defineSet() {
-        var variables = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-
+    function defineSimpleSet(variable) {
         var set = d3
             .set(
                 this.raw_data.map(function(d) {
-                    return variables
-                        .map(function(variable) {
-                            return variable + '-:-' + d[variable];
-                        })
-                        .join(':|:');
+                    return d[variable];
                 })
             )
             .values()
-            .map(function(value) {
-                return value.split(':|:').reduce(function(acc, cur) {
-                    var key = cur.split('-:-')[0];
-                    var value = cur.split('-:-')[1];
-                    acc[key] = value;
-                    return acc;
-                }, {});
-            });
+            .sort();
 
         return set;
     }
@@ -350,7 +337,7 @@
                     type: 'subsetter',
                     label: key.substring(key.indexOf(':') + 1),
                     value_col: key,
-                    set: defineSet.call(_this, [key])
+                    set: defineSimpleSet.call(_this, key)
                 };
             });
         this.config.filters.forEach(function(filter) {
@@ -414,20 +401,50 @@
             });
     }
 
-    function useSiteAbbreviation() {
+    function defineMultivariateSet() {
+        var variables = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+        var set = d3
+            .set(
+                this.raw_data.map(function(d) {
+                    return variables
+                        .map(function(variable) {
+                            return variable + '-:-' + d[variable];
+                        })
+                        .join(':|:');
+                })
+            )
+            .values()
+            .map(function(value) {
+                return value.split(':|:').reduce(function(acc, cur) {
+                    var key = cur.split('-:-')[0];
+                    var value = cur.split('-:-')[1];
+                    acc[key] = value;
+                    return acc;
+                }, {});
+            });
+
+        return set;
+    }
+
+    function useCategoryAbbreviation() {
         var datum = this.raw_data[0];
-        this.config.useSite = datum.hasOwnProperty(this.config.site_col);
-        this.config.useSiteAbbreviation = datum.hasOwnProperty(this.config.site_abbreviation_col);
-        this.config.useSiteInfo = datum.hasOwnProperty(this.config.site_info_col);
-        this.sites = defineSet.call(this, [
-            this.config.site_col,
-            this.config.site_abbreviation_col,
-            this.config.site_info_col
+
+        this.config.useCategory = datum.hasOwnProperty(this.config.category_col);
+        this.config.useCategoryAbbreviation = datum.hasOwnProperty(
+            this.config.category_abbreviation_col
+        );
+        this.config.useCategoryInfo = datum.hasOwnProperty(this.config.category_info_col);
+
+        this.categories = defineMultivariateSet.call(this, [
+            this.config.category_col,
+            this.config.category_abbreviation_col,
+            this.config.category_info_col
         ]);
 
-        if (this.config.useSiteAbbreviation) {
-            this.config.y.column = this.config.site_abbreviation_col;
-            this.config.marks[0].per[0] = this.config.site_abbreviation_col;
+        if (this.config.useCategoryAbbreviation) {
+            this.config.y.column = this.config.category_abbreviation_col;
+            this.config.marks[0].per[0] = this.config.category_abbreviation_col;
         }
     }
 
@@ -518,6 +535,31 @@
         });
     }
 
+    function definePopulationSet() {
+        //Define population set and update color domain, colors, and legend order.
+        defineStatusSet.call(
+            this,
+            this.config.population_col,
+            this.config.population_order_col,
+            this.config.population_color_col
+        );
+        this.config.colors.reverse(); // reverse colors to match reversed legend order
+        this.config.legend.order.reverse(); // reverse legend order to reverse order of bars
+    }
+
+    function checkFilters() {
+        //Remove y from filters array if present
+        var ySet = this.config.userCategoryAbbreviation
+            ? defineSimpleSet.call(this, this.config.category_abbreviation_col)
+            : defineSimpleSet.call(this, this.config.category_col);
+        this.config.filters = this.config.filters.filter(function(filter) {
+            return ySet.join(',') !== filter.set.join(',');
+        });
+        this.controls.config.inputs = this.controls.config.inputs.filter(function(input) {
+            return ySet.join(',') !== input.set.join(',');
+        });
+    }
+
     function defineSupersets() {
         var _this = this;
 
@@ -547,24 +589,17 @@
                         .values()
                 };
             });
+
         if (this.supersets.length) this.config.marks[0].arrange = 'nested';
     }
 
     function onInit() {
-        captureFilters.call(this);
-        captureListingVariables.call(this);
-        useSiteAbbreviation.call(this);
-        defineStatusSet.call(
-            this,
-            this.config.population_col,
-            this.config.population_order_col,
-            this.config.population_color_col
-        );
-        this.config.colors.reverse(); // reverse colors to match reversed legend order
-        this.config.legend.order.reverse(); // reverse legend order to reverse order of bars
-
-        //Check for population supersets.
-        defineSupersets.call(this);
+        captureFilters.call(this); // check for data properties prefixed "filter:"
+        captureListingVariables.call(this); // check for data properties prefixed "listing:"
+        useCategoryAbbreviation.call(this); // use abbreviated category variable if present in data
+        definePopulationSet.call(this); // define population set with population name, order, and color
+        checkFilters.call(this); // remove any filter variables with the same discrete values the y-axis variable contains
+        defineSupersets.call(this); // check for population superset, e.g. Screened is a superset of Randomized, and set the bar arrangement to nested accordingly
     }
 
     function onLayout() {}
@@ -578,7 +613,7 @@
     function addTooltipsToYAxis() {
         var _this = this;
 
-        if (this.config.useSite) {
+        if (this.config.useCategory) {
             this.svg.selectAll('.y.axis .tick * title').remove();
             this.svg
                 .selectAll('.y.axis .tick *')
@@ -587,14 +622,14 @@
                 })
                 .append('title')
                 .text(function(d) {
-                    return _this.sites.find(function(site) {
-                        return _this.config.useSiteAbbreviation
-                            ? site[_this.config.site_abbreviation_col] === d
-                            : site[_this.config.site_col] === d;
+                    return _this.categories.find(function(category) {
+                        return _this.config.useCategoryAbbreviation
+                            ? category[_this.config.category_abbreviation_col] === d
+                            : category[_this.config.category_col] === d;
                     })[
-                        _this.config.useSiteInfo
-                            ? _this.config.site_info_col
-                            : _this.config.site_col
+                        _this.config.useCategoryInfo
+                            ? _this.config.category_info_col
+                            : _this.config.category_col
                     ];
                 });
         }
@@ -782,63 +817,8 @@
                                 'border-top': '1px solid #aaa'
                             });
                         });
-                        _this.table.table.on('draw', function() {
-                            //this.table.selectAll('thead tr th').style('cursor', 'default');
-                        });
-                        _this.table.table.init(
-                            d.values.raw
-                            //.map(di => {
-
-                            //    const datum = Object.keys(di)
-                            //        .filter(
-                            //            key => (
-                            //                [
-                            //                    this.config.population_col,
-                            //                    this.config.population_superset_col,
-                            //                    this.config.population_order_col,
-                            //                    this.config.population_color_col,
-                            //                    this.config.site_col,
-                            //                    this.config.site_abbreviation_col,
-                            //                    this.config.site_tooltip_col,
-                            //                ].indexOf(key) < 0
-                            //            )
-                            //        )
-                            //        .reduce(
-                            //            (acc,cur) => {
-                            //                acc[cur] = di[cur];
-                            //                return acc;
-                            //            },
-                            //            {}
-                            //        );
-
-                            //    Object.keys(datum).forEach(key => {
-                            //        if (key === this.config.id_col) {
-                            //            Object.defineProperty(
-                            //                datum,
-                            //                'Participant ID',
-                            //                Object.getOwnPropertyDescriptor(
-                            //                    datum,
-                            //                    key
-                            //                )
-                            //            );
-                            //            delete datum[key];
-                            //        }
-                            //        if (/^filter/i.test(key)) {
-                            //            Object.defineProperty(
-                            //                datum,
-                            //                key.replace(/^filter:/i, ''),
-                            //                Object.getOwnPropertyDescriptor(
-                            //                    datum,
-                            //                    key
-                            //                )
-                            //            );
-                            //            delete datum[key];
-                            //        }
-                            //    });
-
-                            //    return datum;
-                            //})
-                        );
+                        _this.table.table.on('draw', function() {});
+                        _this.table.table.init(d.values.raw);
 
                         //Clear table when controls change.
                         _this.controls.wrap.on('change', function() {
@@ -909,11 +889,11 @@
     }
 
     function onResize() {
-        addTooltipsToYAxis.call(this);
-        customizeTooltips$1.call(this);
-        addBarClick.call(this);
-        sortLegend.call(this);
-        customizeLegendLabels.call(this);
+        addTooltipsToYAxis.call(this); // add tooltips to the y-axis tick labels with the category_info variable, if present in data
+        customizeTooltips$1.call(this); // customize the bar tooltips
+        addBarClick.call(this); // add a click event listener to bars
+        sortLegend.call(this); // sort legend according to population order
+        customizeLegendLabels.call(this); // add population totals to legend item labels
     }
 
     function onDestroy() {}
@@ -1316,7 +1296,6 @@
 
     function rendererSettings$3() {
         return {
-            site_col: 'site',
             population_col: 'population',
             population_order_col: 'population_order',
             population_color_col: 'population_color',
@@ -1392,8 +1371,6 @@
 
         this.raw_data.forEach(function(d) {
             d._date_ = d3.time.format(_this.config.date_format).parse(d[_this.config.date_col]);
-            if (d.hasOwnProperty(_this.config.site_col))
-                d['filter:Site'] = d[_this.config.site_col];
         });
     }
 
@@ -1447,9 +1424,8 @@
                             date: date
                         };
                         var filterSubset = dateSubset;
-                        filterCombination.forEach(function(keyValue) {
-                            var key = Object.keys(keyValue)[0]; // variable name
-                            var value = keyValue[key]; // variable value
+                        filterCombination.forEach(function(value, i) {
+                            var key = _this.config.filters[i].value_col;
                             datum[key] = value;
                             filterSubset = filterSubset.filter(function(d) {
                                 return d[key] === value;
@@ -1485,243 +1461,6 @@
     function onDatatransform$3() {}
 
     function onDraw$3() {}
-
-    function onResize$3() {
-        var context = this;
-        this.svg.selectAll('.y.axis .tick text').each(function(d) {
-            if (d % 1)
-                // if the tick label is not an integer then remove
-                d3.select(this).remove();
-        });
-        //Capture x/y coordinates of mouse.
-        var timeFormat = d3.time.format('%d %b %Y');
-        var width = this.plot_width;
-        var x = this.x;
-        var y = this.y;
-        var decim = d3.format('.0f');
-
-        var x_mark = this.svg
-            .select('.x.axis')
-            .append('g')
-            .attr('class', 'hover-item hover-tick hover-tick-x')
-            .style('display', 'none');
-        x_mark.append('line').attr({
-            x1: 0,
-            x2: 0,
-            y1: 0,
-            y2: 0,
-            stroke: '#ddd'
-        });
-        x_mark.append('text').attr({
-            x: 0,
-            y: 0,
-            dx: '.5em',
-            dy: '-.5em'
-        });
-        x_mark.select('line').attr('y1', -this.plot_height);
-
-        this.svg
-            .on('mousemove', function() {
-                var mouse = this;
-
-                context.current_data.forEach(function(e) {
-                    var line_data = e.values;
-                    var bisectDate = d3.bisector(function(d) {
-                        return new Date(d.key);
-                    }).right;
-                    var x0 = context.x.invert(d3.mouse(mouse)[0]);
-                    var i = bisectDate(line_data, x0, 1, line_data.length - 1);
-                    var d0 = line_data[i - 1];
-                    var d1 = line_data[i];
-
-                    if (!d0 || !d1) return;
-
-                    var d = x0 - new Date(d0.key) > new Date(d1.key) - x0 ? d1 : d0;
-                    var hover_tick_x = context.svg.select('.hover-tick-x');
-                    var focus_enr = context.svg.selectAll('.focus').filter(function(f) {
-                        return f.key === e.key;
-                    });
-
-                    hover_tick_x
-                        .select('text')
-                        .text(timeFormat(x0))
-                        .attr('text-anchor', x(x0) > width / 2 ? 'end' : 'start')
-                        .attr('dx', x(x0) > width / 2 ? '-.5em' : '.5em');
-
-                    var leg_item = context.wrap
-                        .select('.legend')
-                        .selectAll('.legend-item')
-                        .filter(function(f) {
-                            return f.label === e.key;
-                        });
-
-                    leg_item
-                        .select('.legend-mark-text')
-                        .text(d.values.y || d.values.y === 0 ? decim(d.values.y) : null);
-                    hover_tick_x.attr('transform', 'translate(' + x(x0) + ',0)');
-                });
-            })
-            .on('mouseover', function() {
-                context.svg.selectAll('.hover-item').style('display', 'block');
-                var leg_items = context.wrap.select('.legend').selectAll('.legend-item');
-                leg_items.select('.legend-color-block').style('display', 'none');
-                leg_items.select('.legend-mark-text').style('display', 'inline');
-            })
-            .on('mouseout', function() {
-                context.svg.selectAll('.hover-item').style('display', 'none');
-                var leg_items = context.legend.selectAll('.legend-item');
-                leg_items.select('.legend-color-block').style('display', 'inline-block');
-                leg_items.select('.legend-mark-text').style('display', 'none');
-            });
-    }
-
-    function onDestroy$3() {}
-
-    var callbacks$3 = {
-        onInit: onInit$3,
-        onLayout: onLayout$3,
-        onPreprocess: onPreprocess$3,
-        onDatatransform: onDatatransform$3,
-        onDraw: onDraw$3,
-        onResize: onResize$3,
-        onDestroy: onDestroy$3
-    };
-
-    function accrualOverTimeDerived() {
-        var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
-        var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-        //Sync settings.
-        var mergedSettings = Object.assign({}, configuration$3.settings, settings);
-        var syncedSettings = configuration$3.syncSettings(mergedSettings);
-        var syncedControlInputs = configuration$3.syncControlInputs(
-            configuration$3.controlInputs(),
-            syncedSettings
-        );
-
-        //Define controls and chart.
-        var controls = webcharts.createControls(element, {
-            location: 'top',
-            inputs: syncedControlInputs
-        });
-        var chart = webcharts.createChart(element, syncedSettings, controls);
-
-        //Attach callbacks to chart.
-        for (var callback in callbacks$3) {
-            chart.on(callback.substring(2).toLowerCase(), callbacks$3[callback]);
-        }
-        return chart;
-    }
-
-    function rendererSettings$4() {
-        return {
-            site_col: 'site',
-            population_col: 'population',
-            population_order_col: 'population_order',
-            population_color_col: 'population_color',
-            date_col: 'date',
-            participant_count_col: 'participant_count'
-        };
-    }
-
-    function webchartsSettings$4() {
-        return {
-            x: {
-                type: 'time',
-                column: null, // set in ./syncSettings
-                label: '',
-                format: '%b-%y'
-            },
-            y: {
-                type: 'linear',
-                column: null, // set in ./syncSettings
-                label: '',
-                behavior: 'firstfilter'
-            },
-            marks: [
-                {
-                    type: 'line',
-                    per: [], // set in ./syncSettings
-                    summarizeY: 'sum',
-                    tooltip: '$y'
-                }
-            ],
-            color_by: null, // set in ./syncSettings
-            color_dom: null, // set in ../callbacks/onInit
-            colors: null, // set in ../callbacks/onInit
-            legend: {
-                label: '',
-                order: null // set in ../callbacks/onInit
-            },
-            resizable: false,
-            width: 500,
-            height: 350,
-            margin: {},
-            date_format: '%Y-%m-%d'
-        };
-    }
-
-    function syncSettings$4(settings) {
-        settings.x.column = settings.date_col;
-        settings.y.column = settings.participant_count_col;
-        settings.marks[0].per[0] = settings.population_col;
-        settings.color_by = settings.population_col;
-
-        return settings;
-    }
-
-    function controlInputs$4() {
-        return [];
-    }
-
-    function syncControlInputs$4(controlInputs, settings) {
-        return controlInputs;
-    }
-
-    var configuration$4 = {
-        rendererSettings: rendererSettings$4,
-        webchartsSettings: webchartsSettings$4,
-        settings: Object.assign({}, webchartsSettings$4(), rendererSettings$4()),
-        syncSettings: syncSettings$4,
-        controlInputs: controlInputs$4,
-        syncControlInputs: syncControlInputs$4
-    };
-
-    function addVariables$1() {
-        var _this = this;
-
-        this.raw_data.forEach(function(d) {
-            d._date_ = d3.time.format(_this.config.date_format).parse(d[_this.config.date_col]);
-            if (d.hasOwnProperty(_this.config.site_col))
-                d['filter:Site'] = d[_this.config.site_col];
-        });
-    }
-
-    function onInit$4() {
-        addVariables$1.call(this);
-        captureFilters.call(this);
-        defineStatusSet.call(
-            this,
-            this.config.population_col,
-            this.config.population_order_col,
-            this.config.population_color_col
-        );
-    }
-
-    function onLayout$4() {}
-
-    function onPreprocess$4() {}
-
-    function onDatatransform$4() {}
-
-    function onDraw$4() {}
-
-    function removeYAxisTicks() {
-        this.svg.selectAll('.y.axis .tick text').each(function(d) {
-            // remove non-integer ticks
-            if (d % 1) d3.select(this).remove();
-        });
-    }
 
     function addHover() {
         var context = this;
@@ -1805,6 +1544,155 @@
                 leg_items.select('.legend-color-block').style('display', 'inline-block');
                 leg_items.select('.legend-mark-text').style('display', 'none');
             });
+    }
+
+    function onResize$3() {
+        addHover.call(this);
+    }
+
+    function onDestroy$3() {}
+
+    var callbacks$3 = {
+        onInit: onInit$3,
+        onLayout: onLayout$3,
+        onPreprocess: onPreprocess$3,
+        onDatatransform: onDatatransform$3,
+        onDraw: onDraw$3,
+        onResize: onResize$3,
+        onDestroy: onDestroy$3
+    };
+
+    function accrualOverTimeDerived() {
+        var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
+        var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+        //Sync settings.
+        var mergedSettings = Object.assign({}, configuration$3.settings, settings);
+        var syncedSettings = configuration$3.syncSettings(mergedSettings);
+        var syncedControlInputs = configuration$3.syncControlInputs(
+            configuration$3.controlInputs(),
+            syncedSettings
+        );
+
+        //Define controls and chart.
+        var controls = webcharts.createControls(element, {
+            location: 'top',
+            inputs: syncedControlInputs
+        });
+        var chart = webcharts.createChart(element, syncedSettings, controls);
+
+        //Attach callbacks to chart.
+        for (var callback in callbacks$3) {
+            chart.on(callback.substring(2).toLowerCase(), callbacks$3[callback]);
+        }
+        return chart;
+    }
+
+    function rendererSettings$4() {
+        return {
+            population_col: 'population',
+            population_order_col: 'population_order',
+            population_color_col: 'population_color',
+            date_col: 'date',
+            participant_count_col: 'participant_count'
+        };
+    }
+
+    function webchartsSettings$4() {
+        return {
+            x: {
+                type: 'time',
+                column: null, // set in ./syncSettings
+                label: '',
+                format: '%b-%y'
+            },
+            y: {
+                type: 'linear',
+                column: null, // set in ./syncSettings
+                label: '',
+                behavior: 'firstfilter'
+            },
+            marks: [
+                {
+                    type: 'line',
+                    per: [], // set in ./syncSettings
+                    summarizeY: 'sum',
+                    tooltip: '$y'
+                }
+            ],
+            color_by: null, // set in ./syncSettings
+            color_dom: null, // set in ../callbacks/onInit
+            colors: null, // set in ../callbacks/onInit
+            legend: {
+                label: '',
+                order: null // set in ../callbacks/onInit
+            },
+            resizable: false,
+            width: 500,
+            height: 350,
+            margin: {},
+            date_format: '%Y-%m-%d'
+        };
+    }
+
+    function syncSettings$4(settings) {
+        settings.x.column = settings.date_col;
+        settings.y.column = settings.participant_count_col;
+        settings.marks[0].per[0] = settings.population_col;
+        settings.color_by = settings.population_col;
+
+        return settings;
+    }
+
+    function controlInputs$4() {
+        return [];
+    }
+
+    function syncControlInputs$4(controlInputs, settings) {
+        return controlInputs;
+    }
+
+    var configuration$4 = {
+        rendererSettings: rendererSettings$4,
+        webchartsSettings: webchartsSettings$4,
+        settings: Object.assign({}, webchartsSettings$4(), rendererSettings$4()),
+        syncSettings: syncSettings$4,
+        controlInputs: controlInputs$4,
+        syncControlInputs: syncControlInputs$4
+    };
+
+    function addVariables$1() {
+        var _this = this;
+
+        this.raw_data.forEach(function(d) {
+            d._date_ = d3.time.format(_this.config.date_format).parse(d[_this.config.date_col]);
+        });
+    }
+
+    function onInit$4() {
+        addVariables$1.call(this);
+        captureFilters.call(this);
+        defineStatusSet.call(
+            this,
+            this.config.population_col,
+            this.config.population_order_col,
+            this.config.population_color_col
+        );
+    }
+
+    function onLayout$4() {}
+
+    function onPreprocess$4() {}
+
+    function onDatatransform$4() {}
+
+    function onDraw$4() {}
+
+    function removeYAxisTicks() {
+        this.svg.selectAll('.y.axis .tick text').each(function(d) {
+            // remove non-integer ticks
+            if (d % 1) d3.select(this).remove();
+        });
     }
 
     function customizeTargetLines() {
@@ -2031,34 +1919,39 @@
         version: '0.1.0',
         type: 'object',
         'data-guidelines':
-            'The Accrual chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots the number of participants in each study populations by site.',
-        'data-structure':
-            'one record per participant per population with a discrete variable that will plot on the y-axis',
+            'The Accrual chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots the number of participants in each study populations by category.',
+        'data-structure': [
+            'one record per participant per population with a discrete variable that plots on the y-axis',
+            '',
+            'Notes:',
+            '- variables prefixed _filter:_ will appear as data filter controls as well as columns in the data listing',
+            '- variables prefixed _listing:_ will appear as columns in the data listing'
+        ].join('\n'),
         'data-file': 'dashboard-accrual',
         properties: {
-            site_col: {
-                title: 'Site',
-                description: 'variable: site',
+            category_col: {
+                title: 'Category',
+                description: 'variable: category',
                 type: 'string',
-                default: 'site',
+                default: 'category',
                 'data-mapping': true,
                 'data-type': 'character',
                 required: true
             },
-            site_abbreviation_col: {
-                title: 'Site Abbreviation',
-                description: 'variable: site abbreviation',
+            category_abbreviation_col: {
+                title: 'Category Abbreviation',
+                description: 'variable: category abbreviation',
                 type: 'string',
-                default: 'site_abbreviation',
+                default: 'category_abbreviation',
                 'data-mapping': true,
                 'data-type': 'character',
                 required: false
             },
-            site_info_col: {
-                title: 'Site Info',
-                description: 'variable: site info',
+            category_info_col: {
+                title: 'Category Info',
+                description: 'variable: category info',
                 type: 'string',
-                default: 'site_info',
+                default: 'category_info',
                 'data-mapping': true,
                 'data-type': 'character',
                 required: false
@@ -2108,16 +2001,16 @@
                 'data-mapping': true,
                 'data-type': 'character',
                 required: false
+            },
+            date_col: {
+                title: 'Date',
+                description: 'date variable name in YYYY-MM-DD format',
+                type: 'string',
+                default: 'date',
+                'data-mapping': true,
+                'data-type': 'character',
+                required: false
             }
-        },
-        date_col: {
-            title: 'Date',
-            description: 'date variable name in YYYY-MM-DD format',
-            type: 'string',
-            default: 'date',
-            'data-mapping': true,
-            'data-type': 'character',
-            required: false
         }
     };
 
@@ -2301,19 +2194,14 @@
         type: 'object',
         'data-guidelines':
             'The Derived Accrual over Time chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots participant accrual over time by population, .',
-        'data-structure':
-            'one record per participant per population with a date variable of participant accrual in each population',
+        'data-structure': [
+            'one record per participant per population with a date variable that captures the date of participant accrual in each population',
+            '',
+            'Notes:',
+            '- variables prefixed _filter:_ will appear as filters'
+        ].join('\n'),
         'data-file': 'dashboard-accrual',
         properties: {
-            site_col: {
-                title: 'Site',
-                description: 'site variable name',
-                type: 'string',
-                default: 'site',
-                'data-mapping': true,
-                'data-type': 'character',
-                required: false
-            },
             population_col: {
                 title: 'Population',
                 description: 'variable: population',
@@ -2379,19 +2267,18 @@
         type: 'object',
         'data-guidelines':
             'The Accrual Over Time chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots study accrual over time by population.',
-        'data-structure':
-            'one record per site per population per date between accrual start date and data snapshot date',
+        'data-structure': [
+            'one record per population per date between accrual start date and data snapshot date with a variable that captures the number of participants accrued in the given population on the given date',
+            '',
+            'Notes:',
+            '- variables prefixed _filter:_ will appear as data filter controls',
+            '- accrual must be calculated within each level of the filter variable(s)',
+            '- target lines:',
+            '  - if a **filter-level target accrual** line is desired, e.g. within site, the data must include rows for each filter value with `population_col` set to _Target_',
+            '  - if a **study-level target accrual** line is desired, e.g. irrespective of site, the data must include rows without filter values and with set `population_col` to _Target_ '
+        ].join('\n'),
         'data-file': 'dashboard-accrual-over-time',
         properties: {
-            site_col: {
-                title: 'Site',
-                description: 'site variable name',
-                type: 'string',
-                default: 'site',
-                'data-mapping': true,
-                'data-type': 'character',
-                required: false
-            },
             population_col: {
                 title: 'Population',
                 description: 'variable: population',

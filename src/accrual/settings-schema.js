@@ -7,34 +7,39 @@ export default {
     version: '0.1.0',
     type: 'object',
     'data-guidelines':
-        'The Accrual chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots the number of participants in each study populations by site.',
-    'data-structure':
-        'one record per participant per population with a discrete variable that will plot on the y-axis',
+        'The Accrual chart accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). It plots the number of participants in each study populations by category.',
+    'data-structure': [
+        'one record per participant per population with a discrete variable that plots on the y-axis',
+        '',
+        'Notes:',
+        '- variables prefixed _filter:_ will appear as data filter controls as well as columns in the data listing',
+        '- variables prefixed _listing:_ will appear as columns in the data listing'
+    ].join('\n'),
     'data-file': 'dashboard-accrual',
     properties: {
-        site_col: {
-            title: 'Site',
-            description: 'variable: site',
+        category_col: {
+            title: 'Category',
+            description: 'variable: category',
             type: 'string',
-            default: 'site',
+            default: 'category',
             'data-mapping': true,
             'data-type': 'character',
             required: true
         },
-        site_abbreviation_col: {
-            title: 'Site Abbreviation',
-            description: 'variable: site abbreviation',
+        category_abbreviation_col: {
+            title: 'Category Abbreviation',
+            description: 'variable: category abbreviation',
             type: 'string',
-            default: 'site_abbreviation',
+            default: 'category_abbreviation',
             'data-mapping': true,
             'data-type': 'character',
             required: false
         },
-        site_info_col: {
-            title: 'Site Info',
-            description: 'variable: site info',
+        category_info_col: {
+            title: 'Category Info',
+            description: 'variable: category info',
             type: 'string',
-            default: 'site_info',
+            default: 'category_info',
             'data-mapping': true,
             'data-type': 'character',
             required: false
@@ -84,15 +89,15 @@ export default {
             'data-mapping': true,
             'data-type': 'character',
             required: false
+        },
+        date_col: {
+            title: 'Date',
+            description: 'date variable name in YYYY-MM-DD format',
+            type: 'string',
+            default: 'date',
+            'data-mapping': true,
+            'data-type': 'character',
+            required: false
         }
-    },
-    date_col: {
-        title: 'Date',
-        description: 'date variable name in YYYY-MM-DD format',
-        type: 'string',
-        default: 'date',
-        'data-mapping': true,
-        'data-type': 'character',
-        required: false
     }
 };

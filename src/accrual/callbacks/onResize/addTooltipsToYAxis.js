@@ -1,5 +1,5 @@
 export default function addTooltipsToYAxis() {
-    if (this.config.useSite) {
+    if (this.config.useCategory) {
         this.svg.selectAll('.y.axis .tick * title').remove();
         this.svg
             .selectAll('.y.axis .tick *')
@@ -9,12 +9,16 @@ export default function addTooltipsToYAxis() {
             .append('title')
             .text(
                 d =>
-                    this.sites.find(
-                        site =>
-                            this.config.useSiteAbbreviation
-                                ? site[this.config.site_abbreviation_col] === d
-                                : site[this.config.site_col] === d
-                    )[this.config.useSiteInfo ? this.config.site_info_col : this.config.site_col]
+                    this.categories.find(
+                        category =>
+                            this.config.useCategoryAbbreviation
+                                ? category[this.config.category_abbreviation_col] === d
+                                : category[this.config.category_col] === d
+                    )[
+                        this.config.useCategoryInfo
+                            ? this.config.category_info_col
+                            : this.config.category_col
+                    ]
             );
     }
 }

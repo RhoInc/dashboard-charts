@@ -5,15 +5,6 @@ In addition to the standard Webcharts settings several custom settings not avail
 # Renderer-specific settings
 The sections below describe each accrual-over-time setting as of version 0.1.0.
 
-## settings.site_col
-`string`
-
-site variable name
-
-**default:** `"site"`
-
-
-
 ## settings.population_col
 `string`
 

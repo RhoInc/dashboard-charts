@@ -15,5 +15,6 @@ export default function defineSupersets() {
                     .values()
             };
         });
+
     if (this.supersets.length) this.config.marks[0].arrange = 'nested';
 }
