@@ -8,3 +8,6 @@ required and optional variables:
 
 | Setting | Default | Data Type | Description | Required? |
 |:--------|:--------|:----------|:------------|:---------:|
+
+## Example data
+the first few records of the [test dataset](https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/undefined.csv):

@@ -14,3 +14,12 @@ required and optional variables:
 |**status_col**|status|string|visit status|**Y**|
 |**status_order_col**|status_order|string|visit status order||
 |**status_color_col**|status_color|string|visit status color||
+
+## Example data
+the first few records of the [test dataset](https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-visit-completion.csv):
+
+| site | visit | visit_order | status | status_order | status_color |
+|:-----|:------|:------------|:-------|:-------------|:-------------|
+|Site 1|SCRN|0|Completed|1|#4daf4a|
+|Site 1|SCRN|0|Completed|1|#4daf4a|
+|Site 1|SCRN|0|Completed|1|#4daf4a|

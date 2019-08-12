@@ -1,6 +1,8 @@
 const glob = require('glob');
 require('babel-register');
 const fs = require('fs');
+const request = require('request');
+const d3 = require('d3');
 
 glob(
     'src/**/settings-schema.js',
@@ -28,7 +30,7 @@ glob(
             //Add variable table to markdown array.
             const properties = schema.properties;
             const settings = Object.keys(properties);
-            const variables = settings
+            const dataMappings = settings
                 .filter(setting => properties[setting]['data-mapping'])
                 .map(setting => {
                     const property = properties[setting];
@@ -36,7 +38,7 @@ glob(
 
                     return property;
                 });
-            variables.forEach(variable => {
+            dataMappings.forEach(variable => {
                 if (['string', 'number'].indexOf(variable.type) > -1)
                     markdown.push(
                         `|**${
@@ -63,18 +65,62 @@ glob(
                     console.warn(`This wiki can't handle ${variable.type}s! Get outta here!`);
             });
 
-            /*------------------------------------------------------------------------------------\
-              Configuration markdown
-            \------------------------------------------------------------------------------------*/
+            //Create markdown table with test data.
+            markdown.push('');
+            markdown.push('## Example data');
+            const dataFile = `https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/${schema['data-file']}.csv`;
+            markdown.push(`the first few records of the [test dataset](${dataFile}):`);
+            markdown.push('');
+            request.get(
+                dataFile,
+                function(error, response, body) {
+                    console.log('----------------------------------------------------------------------------------------------------');
+                    console.log(`  Reading ${dataFile}.`);
+                    console.log('----------------------------------------------------------------------------------------------------');
 
-                fs.writeFile(
-                    file.replace('settings-schema.js', 'data-guidelines-wiki.md'),
-                    markdown.join('\n'),
-                    (err) => {
-                        if (err)
-                            console.log(err);
-                        console.log(`The ${renderer} data guidelines wiki markdown file was built!`);
-                    });
+                    if (!error && response.statusCode === 200) {
+                        const data = d3.csv.parse(body);
+                        console.log(data.slice(0,3));
+                        const order = dataMappings.map(dataMapping => dataMapping.default);
+                        const variables = Object.keys(data[0])
+                            .filter(variable => dataMappings.map(dataMapping => dataMapping.default).indexOf(variable) > -1)
+                            .sort((a,b) => {
+                                const aPos = dataMappings.map(dataMapping => dataMapping.default).indexOf(a);
+                                const bPos = dataMappings.map(dataMapping => dataMapping.default).indexOf(b);
+                                const diff = aPos > -1 && bPos > -1 ? aPos - bPos : 0;
+                                return diff ? diff : aPos > -1 ? -1 : bPos > -1 ? 1 : 0;
+                            });
+                        const headers = `| ${variables.join(' | ')} |`;
+                        markdown.push(headers);
+                        const columns = `|:${variables.map(variable => '-'.repeat(variable.length)).join('-|:')}-|`;
+                        markdown.push(columns);
+                        data.slice(0,3)
+                            .map(d => `|${variables.map(variable => d[variable].split('\n')[0]).join('|')}|`)
+                            .forEach(row => markdown.push(row));
+
+                        /*------------------------------------------------------------------------------------\
+                          Configuration markdown
+                        \------------------------------------------------------------------------------------*/
+
+                            fs.writeFile(
+                                file.replace('settings-schema.js', 'data-guidelines-wiki.md'),
+                                markdown.join('\n'),
+                                (err) => {
+                                    if (err)
+                                        console.log(err);
+                                    console.log(`The ${renderer} data guidelines wiki markdown file was built!`);
+                                });
+                    } else if (error) {
+                        console.log('----------------------------------------------------------------------------------------------------');
+                        console.log(`  Error: ${error}`);
+                        console.log('----------------------------------------------------------------------------------------------------');
+                    } else {
+                        console.log('----------------------------------------------------------------------------------------------------');
+                        console.log(`  Response status: ${response.statusCode} (${body})`);
+                        console.log('----------------------------------------------------------------------------------------------------');
+                    }
+                }
+            );
         });
     }
 );

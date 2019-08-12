@@ -12,7 +12,7 @@ export default {
         'one record per participant per population with a date variable that captures the date of participant accrual in each population',
         '',
         'Notes:',
-        '- variables prefixed _filter:_ will appear as filters'
+        '- variables prefixed _filter:_ will appear as data filter controls'
     ].join('\n'),
     'data-file': 'dashboard-accrual',
     properties: {
