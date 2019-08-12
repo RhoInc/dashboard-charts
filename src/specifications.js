@@ -1,13 +1,15 @@
-import enrollment from './enrollment/specification.js';
-import visitCompletion from './visitCompletion/specification.js';
-import queries from './queries/specification.js';
-import enrollmentOverTime from './enrollmentOverTime/specification.js';
-import forms from './forms/specification.js';
+import accrual from './accrual/specification';
+import visitCompletion from './visit-completion/specification';
+import queries from './queries/specification';
+import accrualOverTimeDerived from './accrual-over-time-derived/specification';
+import accrualOverTime from './accrual-over-time/specification';
+import forms from './forms/specification';
 
 export default {
-    enrollment: enrollment(),
+    accrual: accrual(),
     visitCompletion: visitCompletion(),
     queries: queries(),
-    enrollmentOverTime: enrollmentOverTime(),
+    accrualOverTimeDerived: accrualOverTimeDerived(),
+    accrualOverTime: accrualOverTime(),
     forms: forms()
 };

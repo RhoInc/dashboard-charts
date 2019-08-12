@@ -1,48 +1,24 @@
-<!DOCTYPE HTML>
-<html lang="en">
+<!DOCTYPE html>
+<html>
     <head>
-        <title>Example Dashboard</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>Dashboard Charts: Test Page</title>
+        <meta http-equiv = 'Content-Type' content = 'text/html; charset = utf-8'>
 
-        <div id = 'title'>Example Dashboard</div>
-        <link type = 'text/css' rel = 'stylesheet' href = 'https://cdn.jsdelivr.net/gh/RhoInc/Webcharts/css/webcharts.css'>
+        <script type = 'text/javascript' src = 'https://d3js.org/d3.v3.min.js'></script>
+        <script type = 'text/javascript' src = 'https://cdn.jsdelivr.net/gh/RhoInc/Webcharts/build/webcharts.min.js'></script>
+        <script type = 'text/javascript' src = '../dashboardCharts.js'></script>
+        <script type = 'text/javascript' src = 'https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js'></script>
+        <script type = 'text/javascript' src = 'https://cdn.jsdelivr.net/npm/whatwg-fetch@3/dist/fetch.umd.js'></script>
 
-        <link type = 'text/css'
-            rel = 'stylesheet'
-            href = './index.css'>
-
-        <script type = 'text/javascript' src="https://d3js.org/d3.v3.min.js"></script>
-        <script type = 'text/javascript' src = 'https://cdn.jsdelivr.net/gh/RhoInc/Webcharts/build/webcharts.js'></script>
-        <script type = 'text/javascript' src='../dashboardCharts.js'></script>
+        <link type = 'text/css' rel = 'stylesheet' href = 'https://cdn.jsdelivr.net/gh/RhoInc/Webcharts/css/webcharts.min.css'>
+        <link type = 'text/css' rel = 'stylesheet' href = './index.css'>
     </head>
-<body style="margin: 10px">
-<div class="gg-dashboard">
-  <div class="tab-content">
-    <div class="tab-pane active" id="example">
-      <div class="gg-dash-item top left">
-        <h4 class="gg-dash-item-title">Screening and Randomization</h4>
-        <div class="gg-dash-item-content"></div>
-      </div>
-      <div class="gg-dash-item top middle">
-        <h4 class="gg-dash-item-title">Visit Completion</h4>
-        <div class="gg-dash-item-content"></div>
-      </div>
-      <div class="gg-dash-item top right">
-        <h4 class="gg-dash-item-title">Queries Status</h4>
-        <div class="gg-dash-item-content"></div>
-      </div>
-      <div class="gg-dash-item bottom left">
-        <h4 class="gg-dash-item-title">Enrollment Over Time</h4>
-        <div class="gg-dash-item-content"></div>
-      </div>
-      <div class="gg-dash-item bottom middle">
-        <h4 class="gg-dash-item-title">Form Status</h4>
-        <div class="gg-dash-item-content"></div>
-      </div>
-      </div>
-    </div>
-  </div>
-</div>
-</body>
-<script type="text/javascript" src="./index.js"></script>
+
+    <body>
+        <div id = 'title'>Dashboard Charts</div>
+        <div id = 'subtitle'>Test Page</div>
+        <div id = 'container'></div>
+    </body>
+
+    <script type = 'text/javascript' src = './index.js'></script>
 </html>

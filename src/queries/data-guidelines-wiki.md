@@ -12,3 +12,12 @@ required and optional variables:
 |**status_col**|status|string|query status|**Y**|
 |**status_order_col**|status_order|string|query status order||
 |**status_color_col**|status_color|string|query status color||
+
+## Example data
+the first few records of the [test dataset](https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-queries.csv):
+
+| site | status | status_order | status_color |
+|:-----|:-------|:-------------|:-------------|
+|Site 1|Resolved|1|#66c2a5|
+|Site 1|Resolved|1|#66c2a5|
+|Site 1|Resolved|1|#66c2a5|

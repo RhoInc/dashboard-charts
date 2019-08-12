@@ -1,54 +1,57 @@
-/**-------------------------------------------------------------------------------------------\
-  Screening and Randomization Top Left Chart
-\-------------------------------------------------------------------------------------------**/
-
-    var dataElementTL = '.gg-dash-item.top.left';
-    var instanceTL =  dashboardCharts.renderers.enrollment(dataElementTL + ' .gg-dash-item-content');
-
-    d3.csv('https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-enrollment.csv', function(error, data) {
-        instanceTL.init(data);
+const dashboardContainer = d3.select('#container');
+const dataRoot = 'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning';
+//const dataRoot = '../../data-library/data/clinical-trials/data-cleaning';
+const renderers = Object.keys(dashboardCharts.renderers)
+    .map(function(renderer) {
+        const rendererObj = {
+            main: renderer,
+            renderer: dashboardCharts.renderers[renderer],
+            specification: dashboardCharts.specifications[renderer],
+        };
+        rendererObj.title = rendererObj.specification.schema.title;
+        rendererObj.csv = `${dataRoot}/${rendererObj.specification.schema['data-file']}.csv`;
+        rendererObj.container = dashboardContainer
+            .append('div')
+            .classed('chart chart--' + renderer, true);
+        rendererObj.header = rendererObj.container
+            .append('div')
+            .classed('chart__header', true)
+            .html(
+                rendererObj.title.replace(
+                    '(derived)',
+                    '<span style = "cursor:help" title = "' +
+                        'The accrual chart below displays participant accrual by population over time.\n' +
+                        'It visualizes the same dataset as is used in the accrual bar chart.' +
+                    '">&#9432;</span>'
+                )
+            );
+        rendererObj.content = rendererObj.container
+            .append('div')
+            .classed('chart__content', true);
+        rendererObj.instance = rendererObj.renderer(
+            rendererObj.content.node(), // element
+            {
+                resizable: false,
+                aspect: 2,
+                width: null,
+                height: null,
+                range_band: null,
+                scale_text: false,
+            } // settings
+        );
+        rendererObj.data = fetch(rendererObj.csv).then(function(response) { return response.text(); });
+        return rendererObj;
     });
 
-/**-------------------------------------------------------------------------------------------\
-  Visit Completion  - Top Middle Chart
-\-------------------------------------------------------------------------------------------**/
-
-    var dataElementTM = '.gg-dash-item.top.middle';
-    var instanceTM =  dashboardCharts.renderers.visitCompletion(dataElementTM + ' .gg-dash-item-content', dataElementTM + ' .gg-dash-item-content', dataElementTM + ' .gg-dash-item-title');
-
-    d3.csv('https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-visit-completion.csv', function(error, data) {
-        instanceTM.init(data);
-    });
-
-/**-------------------------------------------------------------------------------------------\
-  Queries  - Top Right Chart
-\-------------------------------------------------------------------------------------------**/
-
-    var dataElementTR = '.gg-dash-item.top.right';
-    var instanceTR = dashboardCharts.renderers.queries(dataElementTR + ' .gg-dash-item-content');
-
-    d3.csv('https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-queries.csv', function (error, data) {
-        instanceTR.init(data);
-    });
-
-/**-------------------------------------------------------------------------------------------\
-  Enrollment Over Time - Bottom Left Chart
-\-------------------------------------------------------------------------------------------**/
-
-    var dataElementBL = '.gg-dash-item.bottom.left'
-    var instanceBL = dashboardCharts.renderers.enrollmentOverTime(dataElementBL+' .gg-dash-item-content')
-
-    d3.csv('https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-enrollment-over-time.csv', function(error, data){
-        instanceBL.init(data);
-    });
-
-/**-------------------------------------------------------------------------------------------\
-  Forms  - Bottom Middle Chart
-\-------------------------------------------------------------------------------------------**/
-
-    var dataElementBR = '.gg-dash-item.bottom.middle';
-    var instanceBR = dashboardCharts.renderers.forms(dataElementBR + ' .gg-dash-item-content');
-
-    d3.csv('https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-forms.csv', function (error, data) {
-        instanceBR.init(data);
+Promise
+    .all(renderers.map(function(renderer) { return renderer.data; }))
+    .then(function(texts) {
+        return texts.map(function(text) { return d3.csv.parse(text); });
+    })
+    .then(function(dataArrays) {
+        dataArrays.forEach(function(dataArray,i) {
+            const renderer = renderers[i];
+            renderer.instance.init(dataArray);
+            renderer.header.node().appendChild(renderer.instance.controls.wrap.node());
+        });
     });

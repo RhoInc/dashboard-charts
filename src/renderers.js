@@ -1,13 +1,15 @@
-import enrollment from './enrollment/wrapper';
-import visitCompletion from './visitCompletion/wrapper';
+import accrual from './accrual/wrapper';
+import visitCompletion from './visit-completion/wrapper';
 import queries from './queries/wrapper';
-import enrollmentOverTime from './enrollmentOverTime/wrapper';
+import accrualOverTimeDerived from './accrual-over-time-derived/wrapper';
+import accrualOverTime from './accrual-over-time/wrapper';
 import forms from './forms/wrapper';
 
 export default {
-    enrollment,
+    accrual,
     visitCompletion,
     queries,
-    enrollmentOverTime,
+    accrualOverTimeDerived,
+    accrualOverTime,
     forms
 };
