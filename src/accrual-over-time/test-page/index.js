@@ -4,7 +4,7 @@ d3.csv(
         return d;
     },
     function(data) {
-        const instance = dashboardCharts.renderers.accrualOverTime(
+        const instance = dashboardCharts.renderers.accrual-over-time(
             '#container', // element
             {} // settings
         );

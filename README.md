@@ -29,6 +29,7 @@ Click [here](https://rhoinc.github.io/dashboard-charts/test-page/) to open an in
         * data-type
         * required
 6. Update test page:
+    * Run `npm run build-test-pages` from the command line, or...
     * In `./src/new-chart/test-page/index.html` replace all instances of _ _title_ _ with the chart title.
     * In `./src/new-chart/test-page/index.js`:
         * Replace _ _csv_ _ with the URL of the test data file.

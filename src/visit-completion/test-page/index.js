@@ -4,7 +4,7 @@ d3.csv(
         return d;
     },
     function(data) {
-        const instance = dashboardCharts.renderers.visitCompletion(
+        const instance = dashboardCharts.renderers.visit-completion(
             '#container', // element
             {} // settings
         );
