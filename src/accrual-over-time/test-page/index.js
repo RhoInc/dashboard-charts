@@ -1,10 +1,10 @@
 d3.csv(
-    'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-enrollment-over-time.csv',
+    'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-accrual-over-time.csv',
     function(d, i) {
         return d;
     },
     function(data) {
-        const instance = dashboardCharts.renderers.enrollmentOverTime(
+        const instance = dashboardCharts.renderers.accrualOverTime(
             '#container', // element
             {} // settings
         );
