@@ -17,7 +17,7 @@ required and optional variables:
 |**date_col**|date|string|date variable name in YYYY-MM-DD format|**Y**|
 
 ## Example data
-the first few records of the [test dataset](https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-accrual.csv):
+the first few records of the [test dataset](https://github.com/RhoInc/data-library/blob/master/data/clinical-trials/data-cleaning/dashboard-accrual.csv:
 
 | population | population_order | population_color | date |
 |:-----------|:-----------------|:-----------------|:-----|

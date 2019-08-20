@@ -1,6 +1,6 @@
 {
   "name": "dashboard-charts",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Clinical Dashboards",
   "module": "./src/index.js",
   "main": "./dashboardCharts.js",
@@ -21,6 +21,7 @@
     "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./src/**/*.js\"",
     "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write ./dashboardCharts.js",
     "save-settings-schemas-as-json": "node --experimental-modules ./scripts/save-settings-schemas-as-json.mjs",
+    "update-wiki": "git clone https://github.com/RhoInc/dashboard-charts.wiki && node ./scripts/update-wiki.js && cd dashboard-charts.wiki/ && git add -A && git commit -a -m 'rebuild wiki' && git push && cd .. && rm -rf dashboard-charts.wiki/",
     "watch": "rollup -c -w"
   },
   "devDependencies": {
