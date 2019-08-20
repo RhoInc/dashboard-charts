@@ -1,3 +1,4 @@
+import attachVariables from '../../util/attachVariables';
 import captureFilters from '../../util/captureFilters';
 import captureListingVariables from '../../util/captureListingVariables';
 import useCategoryAbbreviation from './onInit/useCategoryAbbreviation';
@@ -6,6 +7,7 @@ import checkFilters from './onInit/checkFilters';
 import defineSupersets from './onInit/defineSupersets';
 
 export default function onInit() {
+    attachVariables.call(this); // attach an array of data variables to chart object
     captureFilters.call(this); // check for data properties prefixed "filter:"
     captureListingVariables.call(this); // check for data properties prefixed "listing:"
     useCategoryAbbreviation.call(this); // use abbreviated category variable if present in data

@@ -16,7 +16,7 @@ required and optional variables:
 |**status_color_col**|status_color|string|visit status color||
 
 ## Example data
-the first few records of the [test dataset](https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-visit-completion.csv):
+the first few records of the [test dataset](https://github.com/RhoInc/data-library/blob/master/data/clinical-trials/data-cleaning/dashboard-visit-completion.csv:
 
 | site | visit | visit_order | status | status_order | status_color |
 |:-----|:------|:------------|:-------|:-------------|:-------------|

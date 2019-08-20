@@ -22,7 +22,7 @@ required and optional variables:
 |**participant_count_col**|participant_count|string|participant count|**Y**|
 
 ## Example data
-the first few records of the [test dataset](https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-accrual-over-time.csv):
+the first few records of the [test dataset](https://github.com/RhoInc/data-library/blob/master/data/clinical-trials/data-cleaning/dashboard-accrual-over-time.csv:
 
 | population | population_order | population_color | date | participant_count |
 |:-----------|:-----------------|:-----------------|:-----|:------------------|

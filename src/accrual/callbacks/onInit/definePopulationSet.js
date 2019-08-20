@@ -8,6 +8,7 @@ export default function definePopulationSet() {
         this.config.population_order_col,
         this.config.population_color_col
     );
-    this.config.colors.reverse(); // reverse colors to match reversed legend order
+    if (this.variables.includes(this.config.population_color_col))
+        this.config.colors.reverse(); // reverse colors to match reversed legend order
     this.config.legend.order.reverse(); // reverse legend order to reverse order of bars
 }
