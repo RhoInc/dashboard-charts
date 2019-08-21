@@ -18,13 +18,14 @@ export default function defineSupersets() {
             });
 
         // Nest bars if the data contain population supersets.
-        if (this.supersets.length) this.config.marks[0].arrange = 'nested';
+        this.config.marks[0].arrange = this.supersets.length ? 'nested' : 'grouped';
 
         // Sort supersets last if the data do not contain an ordinal population vairable.
         if (this.supersets.length && !this.variables.includes(this.config.population_order_col)) {
             const supersets = this.supersets.map(superset => superset.population);
-            this.config.legend.order = this.config.legend.order
-                .sort((a,b) => supersets.includes(a) ? 1 : supersets.includes(b) ? -1 : a < b ? -1 : 1); // sort supersets last, otherwise alphabetically
+            this.config.legend.order = this.config.legend.order.sort(
+                (a, b) => (supersets.includes(a) ? 1 : supersets.includes(b) ? -1 : a < b ? -1 : 1)
+            ); // sort supersets last, otherwise alphabetically
         }
     }
 }
