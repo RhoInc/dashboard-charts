@@ -613,7 +613,7 @@
                     return supersets.includes(a) ? 1 : supersets.includes(b) ? -1 : a < b ? -1 : 1;
                 }); // sort supersets last, otherwise alphabetically
             }
-        }
+        } else this.config.marks[0].arrange = 'grouped';
     }
 
     function onInit() {
