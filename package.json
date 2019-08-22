@@ -1,6 +1,6 @@
 {
   "name": "dashboard-charts",
-  "version": "0.5.4",
+  "version": "1.0.0",
   "description": "Clinical Dashboards",
   "module": "./src/index.js",
   "main": "./dashboardCharts.js",
