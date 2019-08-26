@@ -23,7 +23,8 @@ glob(
 
                 Object.keys(files).forEach(key => {
                     const file = files[key];
-                    const path = `${folder}/test-page/index.${key}`;
+                    const path1 = `${folder}/test-page/index.${key}`;
+                    const path2 = `test-page/${name}/index.${key}`;
                     const data = file
                         .map(line => (
                             line.replace(/_main_/g, main)
@@ -33,11 +34,19 @@ glob(
                         .join('\n');
 
                     fs.writeFile(
-                        path,
+                        path1,
                         data,
                         (err) => {
                             if (err) throw err;
-                            console.log(`[ ${path} ] has been saved!`);
+                            console.log(`[ ${path1} ] has been saved!`);
+                        }
+                    );
+                    fs.writeFile(
+                        path2,
+                        data.replace('../../../dashboardCharts.js', '../../dashboardCharts.js'),
+                        (err) => {
+                            if (err) throw err;
+                            console.log(`[ ${path2} ] has been saved!`);
                         }
                     );
                 });
