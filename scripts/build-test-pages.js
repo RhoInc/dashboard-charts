@@ -16,9 +16,10 @@ glob(
         folders 
             .filter(folder => !/_template_|util/.test(folder))
             .forEach(folder => {
-                const main = folder.split('/')[1];
-                const title = main.substring(0,1).toUpperCase() + main.substring(1).replace(/([A-Z])/g, ' $1');
-                const csv = `https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-${title.toLowerCase().replace(/ /g, '-')}.csv`;
+                const name = folder.split('/')[1];
+                const main = name.split('-').map((d,i) => i ? d.substring(0,1).toUpperCase() + d.substring(1) : d).join('');
+                const title = main.substring(0,1).toUpperCase() + main.substring(1).replace(/([A-Z])/g, ' $1').replace(' Derived', ' (derived)');
+                const csv = `https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-${name.replace('accrual-over-time-derived', 'accrual')}.csv`;
 
                 Object.keys(files).forEach(key => {
                     const file = files[key];
