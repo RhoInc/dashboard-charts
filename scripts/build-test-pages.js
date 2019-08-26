@@ -16,13 +16,15 @@ glob(
         folders 
             .filter(folder => !/_template_|util/.test(folder))
             .forEach(folder => {
-                const main = folder.split('/')[1];
-                const title = main.substring(0,1).toUpperCase() + main.substring(1).replace(/([A-Z])/g, ' $1');
-                const csv = `https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-${title.toLowerCase().replace(/ /g, '-')}.csv`;
+                const name = folder.split('/')[1];
+                const main = name.split('-').map((d,i) => i ? d.substring(0,1).toUpperCase() + d.substring(1) : d).join('');
+                const title = main.substring(0,1).toUpperCase() + main.substring(1).replace(/([A-Z])/g, ' $1').replace(' Derived', ' (derived)');
+                const csv = `https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/dashboard-${name.replace('accrual-over-time-derived', 'accrual')}.csv`;
 
                 Object.keys(files).forEach(key => {
                     const file = files[key];
-                    const path = `${folder}/test-page/index.${key}`;
+                    const path1 = `${folder}/test-page/index.${key}`;
+                    const path2 = `test-page/${name}/index.${key}`;
                     const data = file
                         .map(line => (
                             line.replace(/_main_/g, main)
@@ -32,11 +34,19 @@ glob(
                         .join('\n');
 
                     fs.writeFile(
-                        path,
+                        path1,
                         data,
                         (err) => {
                             if (err) throw err;
-                            console.log(`[ ${path} ] has been saved!`);
+                            console.log(`[ ${path1} ] has been saved!`);
+                        }
+                    );
+                    fs.writeFile(
+                        path2,
+                        data.replace('../../../dashboardCharts.js', '../../dashboardCharts.js'),
+                        (err) => {
+                            if (err) throw err;
+                            console.log(`[ ${path2} ] has been saved!`);
                         }
                     );
                 });
