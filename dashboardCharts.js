@@ -225,7 +225,7 @@
                 label: '',
                 order: null // set in ../callbacks/onInit
             },
-            resizable: 'TRUE',
+            resizable: true,
             max_width: 1200,
             margin: {}
         };
