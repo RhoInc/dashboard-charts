@@ -28,8 +28,8 @@ export default function webchartsSettings() {
             order: null // set in ../callbacks/onInit
         },
         resizable: false,
-        width: 500,
-        height: 350,
+        width: 1200,
+        height: 840,
         margin: {},
         date_format: '%Y-%m-%d'
     };

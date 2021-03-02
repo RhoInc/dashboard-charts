@@ -30,9 +30,8 @@ export default function webchartsSettings() {
             label: '',
             order: null // set in ../callbacks/onInit
         },
-        resizable: false,
-        width: 500,
-        height: 350,
+        resizable: true,
+        max_width: 1200,
         margin: {}
     };
 }
