@@ -3,11 +3,11 @@ The most straightforward way to customize [ chart name ] chart is by using a con
 In addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the [ chart name ] chart to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.
 
 # Renderer-specific settings
-The sections below describe each _template_ setting as of version 0.1.0.
+The sections below describe each _template_ setting as of version 0.1.1.
 
 
 # Webcharts settings
-The object below contains each Webcharts setting as of version 0.1.0.
+The object below contains each Webcharts setting as of version 0.1.1.
 
 ```
 {
